@@ -560,8 +560,8 @@ void HazkeyState::reset() {
     isDirectConversionMode_ = false;
     livePreeditIndex_ = -1;
     isCursorMoving_ = false;
-    preedit_.clear();
     engine_->server().newComposingText();
+    preedit_.clear();
     ic_->inputPanel().reset();
 }
 
