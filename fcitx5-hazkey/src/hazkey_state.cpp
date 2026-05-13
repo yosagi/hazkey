@@ -438,11 +438,14 @@ bool HazkeyState::showCandidateList(bool isSuggest) {
 
     ic_->inputPanel().reset();
 
-    // TODO: check live preedit config
     if (!response.live_text().empty()) {
-        // preedit conversion is enabled and conversion result is found
-        // show preedit conversion result
-        preedit_.setSimplePreedit(response.live_text());
+        if (!response.trailing_clause_yomi().empty()) {
+            preedit_.setSimplePreeditWithFurigana(
+                response.live_text(), response.stable_prefix_length(),
+                response.trailing_clause_yomi());
+        } else {
+            preedit_.setSimplePreedit(response.live_text());
+        }
     } else {
         // preedit conversion is disabled or conversion result is not
         // available show hiragana preedit
@@ -557,6 +560,7 @@ void HazkeyState::reset() {
     isDirectConversionMode_ = false;
     livePreeditIndex_ = -1;
     isCursorMoving_ = false;
+    preedit_.clear();
     engine_->server().newComposingText();
     ic_->inputPanel().reset();
 }

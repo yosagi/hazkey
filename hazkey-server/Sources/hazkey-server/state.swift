@@ -373,6 +373,37 @@ class HazkeyServerState {
             if candidatesResult.liveText.isEmpty && isExactMatch {
                 candidatesResult.liveText = candidate.text
                 candidatesResult.liveTextIndex = Int32(serverCandidates.count)
+
+                let data = candidate.data
+                if !data.isEmpty {
+                    var lastClauseBoundary = 0
+                    for i in 1..<data.count {
+                        let formerType = DicdataStore.wordTypes[data[i - 1].rcid]
+                        let latterType = DicdataStore.wordTypes[data[i].lcid]
+                        if formerType != 3 && latterType != 3
+                            && (latterType == 0 || latterType == 1)
+                            && formerType != 0
+                        {
+                            lastClauseBoundary = i
+                        }
+                    }
+                    let trailingElements = data[lastClauseBoundary...]
+                    let trailingWord = trailingElements.map(\.word).joined()
+                    let lastCharIsKanji = trailingWord.unicodeScalars.last.map {
+                        let v = $0.value
+                        return (v >= 0x4E00 && v <= 0x9FFF)
+                            || (v >= 0x3400 && v <= 0x4DBF)
+                    } ?? false
+                    if lastCharIsKanji {
+                        let trailingRuby = trailingElements.map(\.ruby).joined()
+                        candidatesResult.trailingClauseYomi =
+                            trailingRuby.applyingTransform(
+                                .hiraganaToKatakana, reverse: true) ?? trailingRuby
+                        candidatesResult.stablePrefixLength = Int32(
+                            candidate.text.count - trailingWord.count)
+                    }
+                }
+
                 if is_suggest && serverCandidates.count >= N_best {
                     serverCandidates.append(candidate)
                     break

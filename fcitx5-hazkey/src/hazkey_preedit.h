@@ -10,20 +10,19 @@ class HazkeyPreedit {
     HazkeyPreedit(InputContext *ic) : ic_(ic) {}
 
     std::string text() const;
-    // set the preedit text; prediction mode (highlighted)
     void setSimplePreeditHighlighted(const std::string &text);
-    // set the preedit text; prediction mode (not highlighted)
     void setSimplePreedit(const std::string &text);
-    // set the preedit text; multi-segment mode
+    void setSimplePreeditWithFurigana(const std::string &text,
+                                      int stablePrefixLen,
+                                      const std::string &furigana);
     void setMultiSegmentPreedit(std::vector<std::string> &texts, int cursor);
-    // set the preedit text
     void setPreedit(Text text);
-    // commit the preedit text
     void commitPreedit();
+    void clear();
 
    private:
-    // fcitx input context pointer
     InputContext *ic_;
+    std::string commitText_;
 };
 
 }  // namespace fcitx

@@ -2,13 +2,7 @@
 
 namespace fcitx {
 
-std::string HazkeyPreedit::text() const {
-    if (ic_->capabilityFlags().test(CapabilityFlag::Preedit)) {
-        return ic_->inputPanel().clientPreedit().toString();
-    } else {
-        return ic_->inputPanel().preedit().toString();
-    }
-}
+std::string HazkeyPreedit::text() const { return commitText_; }
 
 void HazkeyPreedit::setPreedit(Text text) {
     if (ic_->capabilityFlags().test(CapabilityFlag::Preedit)) {
@@ -28,8 +22,22 @@ void HazkeyPreedit::setSimplePreedit(const std::string &text) {
     setMultiSegmentPreedit(texts, -1);
 }
 
+void HazkeyPreedit::setSimplePreeditWithFurigana(const std::string &text,
+                                                  int /*stablePrefixLen*/,
+                                                  const std::string &furigana) {
+    commitText_ = text;
+    auto preedit = Text();
+    preedit.append(text, TextFormatFlag::Underline);
+    preedit.append("[" + furigana + "]", TextFormatFlag::NoFlag);
+    setPreedit(preedit);
+}
+
 void HazkeyPreedit::setMultiSegmentPreedit(std::vector<std::string> &texts,
                                            int cursorSegment = 0) {
+    commitText_.clear();
+    for (const auto &t : texts) {
+        commitText_ += t;
+    }
     auto preedit = Text();
     for (int i = 0; size_t(i) < texts.size(); i++) {
         if (i < cursorSegment) {
@@ -46,12 +54,10 @@ void HazkeyPreedit::setMultiSegmentPreedit(std::vector<std::string> &texts,
 }
 
 void HazkeyPreedit::commitPreedit() {
-    if (ic_->capabilityFlags().test(CapabilityFlag::Preedit)) {
-        ic_->commitString(
-            ic_->inputPanel().clientPreedit().toStringForCommit());
-    } else {
-        ic_->commitString(ic_->inputPanel().preedit().toStringForCommit());
-    }
+    ic_->commitString(commitText_);
+    commitText_.clear();
 }
+
+void HazkeyPreedit::clear() { commitText_.clear(); }
 
 }  // namespace fcitx
