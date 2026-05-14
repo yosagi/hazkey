@@ -1,0 +1,149 @@
+name: Build .deb packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Package version (e.g. 0.2.1)"
+        required: true
+        type: string
+
+jobs:
+  build-deb:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            codename: jammy
+            swift_url: https://download.swift.org/swift-6.2-release/ubuntu2204/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu22.04.tar.gz
+          - runner: ubuntu-24.04
+            codename: noble
+            swift_url: https://download.swift.org/swift-6.2-release/ubuntu2404/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu24.04.tar.gz
+          # 26.04: runner/Swift URL may need adjustment
+          - runner: ubuntu-26.04
+            codename: plucky
+            swift_url: https://download.swift.org/swift-6.2-release/ubuntu2604/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu26.04.tar.gz
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Cache Swift
+        id: cache-swift
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/swift
+          key: ${{ matrix.runner }}-swift-6.2-RELEASE
+
+      - name: Install Swift
+        if: steps.cache-swift.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ github.workspace }}/swift
+          wget -q ${{ matrix.swift_url }}
+          tar xf $(basename ${{ matrix.swift_url }}) --strip-components=1 -C ${{ github.workspace }}/swift
+
+      - name: Add Swift to PATH
+        run: echo "${{ github.workspace }}/swift/usr/bin" >> $GITHUB_PATH
+
+      - uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.1.x"
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends \
+            wget gnupg2 build-essential gettext fakeroot dpkg-dev \
+            libfcitx5core-dev libfcitx5config-dev libfcitx5utils-dev \
+            ninja-build protobuf-compiler libprotoc-dev \
+            qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
+            libqt6widgets6 libqt6gui6 qt6-l10n-tools \
+            libglx-dev libgl1-mesa-dev libxkbcommon-dev
+
+      - name: Install Vulkan dependencies (Ubuntu 22.04)
+        if: matrix.runner == 'ubuntu-22.04'
+        run: |
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+          sudo apt-get update -y
+          sudo apt-get install -y mesa-vulkan-drivers vulkan-sdk
+
+      - name: Install Vulkan dependencies (Ubuntu 24.04+)
+        if: matrix.runner != 'ubuntu-22.04'
+        run: sudo apt-get install -y libvulkan-dev glslc
+
+      - name: Build hazkey-settings
+        run: |
+          mkdir -p hazkey-settings/build && cd hazkey-settings/build
+          sed -i "s/Qt::Orientation::/Qt::/g" ../mainwindow.ui
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja ..
+          ninja -j$(nproc)
+          DESTDIR=${{ github.workspace }}/pkgroot ninja install
+
+      - name: Build fcitx5-hazkey
+        run: |
+          mkdir -p fcitx5-hazkey/build && cd fcitx5-hazkey/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja ..
+          ninja -j$(nproc)
+          DESTDIR=${{ github.workspace }}/pkgroot ninja install
+
+      - name: Build hazkey-server
+        run: |
+          mkdir -p hazkey-server/build && cd hazkey-server/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+            -DHAZKEY_SERVER_SWIFT_LTO_MODE=full -G Ninja ..
+          ninja -j$(nproc)
+          DESTDIR=${{ github.workspace }}/pkgroot ninja install
+
+      - name: Strip binaries
+        run: |
+          find ${{ github.workspace }}/pkgroot/usr/ -type f -print0 \
+            | xargs -0 file -i \
+            | grep -E "application/(x-pie-executable|x-sharedlib)" \
+            | cut -d: -f1 \
+            | xargs -I{} strip "{}"
+
+      - name: Build .deb package
+        run: |
+          PKGROOT="${{ github.workspace }}/pkgroot"
+          VER="${{ inputs.version }}"
+          CODENAME="${{ matrix.codename }}"
+
+          # Auto-detect shared library dependencies via dpkg-shlibdeps
+          mkdir -p debian
+          printf 'Source: fcitx5-hazkey\n\nPackage: fcitx5-hazkey\nArchitecture: amd64\n' > debian/control
+
+          mapfile -t ELFS < <(find "${PKGROOT}/usr" -type f -print0 | xargs -0 file | grep ELF | cut -d: -f1)
+          DEPS=$(dpkg-shlibdeps --warnings=0 -O "${ELFS[@]}" 2>/dev/null \
+            | sed 's/shlibs:Depends=//' || true)
+          if [ -z "${DEPS}" ]; then
+            DEPS="fcitx5 (>= 5.0.4)"
+          fi
+
+          INSTALLED_SIZE=$(du -sk "${PKGROOT}" --exclude=DEBIAN | cut -f1)
+
+          mkdir -p "${PKGROOT}/DEBIAN"
+          cat > "${PKGROOT}/DEBIAN/control" << EOF
+          Package: fcitx5-hazkey
+          Version: ${VER}
+          Architecture: amd64
+          Installed-Size: ${INSTALLED_SIZE}
+          Depends: ${DEPS}
+          Maintainer: yosagi <yoshida@furo.org>
+          Description: Hazkey - Japanese input method for fcitx5
+           Japanese input method engine using AzooKeyKanaKanjiConverter
+           with optional AI-powered conversion via Zenzai (llama.cpp).
+          EOF
+
+          dpkg-deb --build "${PKGROOT}" \
+            "fcitx5-hazkey_${VER}_${CODENAME}_amd64.deb"
+
+      - name: Upload .deb
+        uses: actions/upload-artifact@v6
+        with:
+          name: fcitx5-hazkey_${{ matrix.codename }}_amd64
+          path: "*.deb"
