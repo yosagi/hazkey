@@ -90,6 +90,8 @@ message CandidatesResult {
     string live_text = 2;
     int32 live_text_index = 3;
     int32 page_size = 4;
+    string trailing_clause_yomi = 5;
+    int32 stable_prefix_length = 6;
 }
 
 message CurrentInputModeInfo {

@@ -329,6 +329,10 @@ struct Hazkey_Commands_CandidatesResult: Sendable {
 
   var pageSize: Int32 = 0
 
+  var trailingClauseYomi: String = String()
+
+  var stablePrefixLength: Int32 = 0
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   struct Candidate: Sendable {
@@ -862,6 +866,8 @@ extension Hazkey_Commands_CandidatesResult: SwiftProtobuf.Message, SwiftProtobuf
     2: .standard(proto: "live_text"),
     3: .standard(proto: "live_text_index"),
     4: .standard(proto: "page_size"),
+    5: .standard(proto: "trailing_clause_yomi"),
+    6: .standard(proto: "stable_prefix_length"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -874,6 +880,8 @@ extension Hazkey_Commands_CandidatesResult: SwiftProtobuf.Message, SwiftProtobuf
       case 2: try { try decoder.decodeSingularStringField(value: &self.liveText) }()
       case 3: try { try decoder.decodeSingularInt32Field(value: &self.liveTextIndex) }()
       case 4: try { try decoder.decodeSingularInt32Field(value: &self.pageSize) }()
+      case 5: try { try decoder.decodeSingularStringField(value: &self.trailingClauseYomi) }()
+      case 6: try { try decoder.decodeSingularInt32Field(value: &self.stablePrefixLength) }()
       default: break
       }
     }
@@ -892,6 +900,12 @@ extension Hazkey_Commands_CandidatesResult: SwiftProtobuf.Message, SwiftProtobuf
     if self.pageSize != 0 {
       try visitor.visitSingularInt32Field(value: self.pageSize, fieldNumber: 4)
     }
+    if !self.trailingClauseYomi.isEmpty {
+      try visitor.visitSingularStringField(value: self.trailingClauseYomi, fieldNumber: 5)
+    }
+    if self.stablePrefixLength != 0 {
+      try visitor.visitSingularInt32Field(value: self.stablePrefixLength, fieldNumber: 6)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -900,6 +914,8 @@ extension Hazkey_Commands_CandidatesResult: SwiftProtobuf.Message, SwiftProtobuf
     if lhs.liveText != rhs.liveText {return false}
     if lhs.liveTextIndex != rhs.liveTextIndex {return false}
     if lhs.pageSize != rhs.pageSize {return false}
+    if lhs.trailingClauseYomi != rhs.trailingClauseYomi {return false}
+    if lhs.stablePrefixLength != rhs.stablePrefixLength {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
