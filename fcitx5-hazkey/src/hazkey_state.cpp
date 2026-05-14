@@ -455,13 +455,9 @@ bool HazkeyState::showCandidateList(bool isSuggest) {
     ic_->inputPanel().reset();
 
     if (!response.live_text().empty()) {
-        if (!response.trailing_clause_yomi().empty()) {
-            preedit_.setSimplePreeditWithFurigana(
-                response.live_text(), response.stable_prefix_length(),
-                response.trailing_clause_yomi());
-        } else {
-            preedit_.setSimplePreedit(response.live_text());
-        }
+        preedit_.setSimplePreeditWithFurigana(
+            response.live_text(), response.stable_prefix_length(),
+            response.trailing_clause_yomi());
     } else {
         // preedit conversion is disabled or conversion result is not
         // available show hiragana preedit
