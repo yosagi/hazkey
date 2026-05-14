@@ -380,15 +380,14 @@ class HazkeyServerState {
                     for i in 1..<data.count {
                         let formerType = DicdataStore.wordTypes[data[i - 1].rcid]
                         let latterType = DicdataStore.wordTypes[data[i].lcid]
-                        if formerType != 3 && latterType != 3
-                            && (latterType == 0 || latterType == 1)
-                            && formerType != 0
-                        {
+                        if formerType == 1 || latterType == 1 {
                             lastClauseBoundary = i
                         }
                     }
                     let trailingElements = data[lastClauseBoundary...]
                     let trailingWord = trailingElements.map(\.word).joined()
+                    candidatesResult.stablePrefixLength = Int32(
+                        candidate.text.count - trailingWord.count)
                     let lastCharIsKanji = trailingWord.unicodeScalars.last.map {
                         let v = $0.value
                         return (v >= 0x4E00 && v <= 0x9FFF)
@@ -399,8 +398,6 @@ class HazkeyServerState {
                         candidatesResult.trailingClauseYomi =
                             trailingRuby.applyingTransform(
                                 .hiraganaToKatakana, reverse: true) ?? trailingRuby
-                        candidatesResult.stablePrefixLength = Int32(
-                            candidate.text.count - trailingWord.count)
                     }
                 }
 

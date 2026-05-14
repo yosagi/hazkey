@@ -1,5 +1,7 @@
 #include "hazkey_preedit.h"
 
+#include <fcitx-utils/utf8.h>
+
 namespace fcitx {
 
 std::string HazkeyPreedit::text() const { return commitText_; }
@@ -23,12 +25,20 @@ void HazkeyPreedit::setSimplePreedit(const std::string &text) {
 }
 
 void HazkeyPreedit::setSimplePreeditWithFurigana(const std::string &text,
-                                                  int /*stablePrefixLen*/,
+                                                  int stablePrefixLen,
                                                   const std::string &furigana) {
     commitText_ = text;
     auto preedit = Text();
-    preedit.append(text, TextFormatFlag::Underline);
-    preedit.append("[" + furigana + "]", TextFormatFlag::NoFlag);
+    auto stablePrefixBytes = utf8::ncharByteLength(text.begin(), stablePrefixLen);
+    auto stablePrefix = text.substr(0, stablePrefixBytes);
+    auto trailingClause = text.substr(stablePrefixBytes);
+    if (!stablePrefix.empty()) {
+        preedit.append(stablePrefix, TextFormatFlag::Underline);
+    }
+    preedit.append(trailingClause, TextFormatFlag::HighLight);
+    if (!furigana.empty()) {
+        preedit.append("[" + furigana + "]", TextFormatFlag::NoFlag);
+    }
     setPreedit(preedit);
 }
 
