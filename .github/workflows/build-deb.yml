@@ -20,10 +20,7 @@ jobs:
           - runner: ubuntu-24.04
             codename: noble
             swift_url: https://download.swift.org/swift-6.2-release/ubuntu2404/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu24.04.tar.gz
-          # 26.04: runner/Swift URL may need adjustment
-          - runner: ubuntu-26.04
-            codename: plucky
-            swift_url: https://download.swift.org/swift-6.2-release/ubuntu2604/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu26.04.tar.gz
+          # ubuntu-26.04 runner is not yet available (actions/runner-images#13964)
 
     runs-on: ${{ matrix.runner }}
 
