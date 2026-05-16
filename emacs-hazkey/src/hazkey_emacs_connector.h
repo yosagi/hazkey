@@ -46,6 +46,10 @@ class HazkeyEmacsConnector {
 
    private:
     void ensureDedicatedServer();
+    bool startDedicatedServer();
+    bool isSocketAlive(const std::string& socketPath);
+    void cleanStaleLock();
+    std::string getLockPath();
     std::string runtimeDir();
 
     int sock_ = -1;
