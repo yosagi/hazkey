@@ -1,10 +1,15 @@
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "hazkey_emacs_connector.h"
 #include "hazkey_emacs_state.h"
@@ -86,7 +91,23 @@ static ParsedCommand parseInputLine(const std::string& line) {
     return cmd;
 }
 
+static void redirectStderr() {
+    const char* xdg = std::getenv("XDG_RUNTIME_DIR");
+    uid_t uid = getuid();
+    std::string dir;
+    if (xdg && xdg[0] != '\0') {
+        dir = std::string(xdg) + "/hazkey-emacs";
+    } else {
+        dir = "/tmp/hazkey-runtime-" + std::to_string(uid) + "/hazkey-emacs";
+    }
+    mkdir(dir.c_str(), 0700);
+    std::string logPath = dir + "/hazkey_emacs_helper.log";
+    freopen(logPath.c_str(), "a", stderr);
+}
+
 int main() {
+    redirectStderr();
+
     // Print greeting
     std::cout << MozcOutputBuilder::buildGreeting() << "\n";
     std::cout.flush();
