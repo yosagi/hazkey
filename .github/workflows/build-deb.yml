@@ -92,7 +92,7 @@ jobs:
         run: |
           mkdir -p hazkey-server/build && cd hazkey-server/build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
-            -DHAZKEY_SERVER_SWIFT_LTO_MODE=full -G Ninja ..
+            -DGGML_VULKAN=ON -DHAZKEY_SERVER_SWIFT_LTO_MODE=full -G Ninja ..
           ninja -j$(nproc)
           DESTDIR=${{ github.workspace }}/pkgroot ninja install
 
