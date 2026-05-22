@@ -77,6 +77,8 @@ class HazkeyEmacsState {
     bool isCursorMoving_ = false;
     bool isClauseBoundaryAdjusting_ = false;
     bool isDirectConversionMode_ = false;
+    std::optional<hazkey::commands::GetComposingString::CharType>
+        directConversionCharType_;
     int livePreeditIndex_ = -1;
 
     std::string commitText_;

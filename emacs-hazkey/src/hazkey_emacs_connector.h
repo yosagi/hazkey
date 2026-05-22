@@ -41,6 +41,8 @@ class HazkeyEmacsConnector {
     void setContext(const std::string& context, int anchor);
     void newComposingText();
     void completePrefix(int index);
+    void directConversionComplete(
+        hazkey::commands::GetComposingString::CharType charType);
     void saveLearningData(bool tryConnect = true);
     hazkey::commands::CandidatesResult getCandidates(bool isSuggest);
 

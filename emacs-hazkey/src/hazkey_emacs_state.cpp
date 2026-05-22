@@ -53,6 +53,9 @@ OutputData HazkeyEmacsState::preeditKeyEvent(const KeyEvent& event) {
         case KeyEvent::RETURN:
             if (livePreeditIndex_ >= 0) {
                 connector_.completePrefix(livePreeditIndex_);
+            } else if (directConversionCharType_.has_value()) {
+                connector_.directConversionComplete(
+                    directConversionCharType_.value());
             }
             {
                 auto out = buildCommitOutput(commitText_);
@@ -365,6 +368,7 @@ void HazkeyEmacsState::directCharacterConversion(ConversionMode mode) {
     preeditSegments_.clear();
     preeditSegments_.push_back({converted, true});
     livePreeditIndex_ = -1;
+    directConversionCharType_ = type;
     candidates_.clear();
     candidateFocused_ = false;
     candidateCursorIndex_ = -1;
@@ -492,6 +496,7 @@ void HazkeyEmacsState::updatePreeditFromCandidate() {
 
 void HazkeyEmacsState::reset() {
     isDirectConversionMode_ = false;
+    directConversionCharType_ = std::nullopt;
     livePreeditIndex_ = -1;
     isCursorMoving_ = false;
     isClauseBoundaryAdjusting_ = false;

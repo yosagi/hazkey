@@ -370,6 +370,13 @@ void HazkeyEmacsConnector::completePrefix(int index) {
     transact(request);
 }
 
+void HazkeyEmacsConnector::directConversionComplete(
+    hazkey::commands::GetComposingString::CharType charType) {
+    hazkey::RequestEnvelope request;
+    request.mutable_direct_conversion_complete()->set_char_type(charType);
+    transact(request);
+}
+
 void HazkeyEmacsConnector::saveLearningData(bool tryConnect) {
     hazkey::RequestEnvelope request;
     request.mutable_save_learning_data();
