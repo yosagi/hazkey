@@ -52,6 +52,8 @@ class ProtocolHandler {
             response = state.getCurrentInputMode()
         case .saveLearningData:
             response = state.saveLearningData()
+        case .directConversionComplete(let req):
+            response = state.completeDirectConversion(charType: req.charType)
         case .getConfig:
             response = state.serverConfig.getCurrentConfig()
         case .setConfig(let req):

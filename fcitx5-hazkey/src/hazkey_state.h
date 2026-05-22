@@ -5,6 +5,9 @@
 #include <fcitx/inputpanel.h>
 #include <fcitx/surroundingtext.h>
 
+#include <optional>
+
+#include "commands.pb.h"
 #include "hazkey_candidate.h"
 #include "hazkey_preedit.h"
 
@@ -110,6 +113,8 @@ class HazkeyState : public InputContextProperty {
     bool isClauseBoundaryAdjusting_ = false;
 
     bool isDirectConversionMode_ = false;
+    std::optional<hazkey::commands::GetComposingString::CharType>
+        directConversionCharType_;
     int livePreeditIndex_ = -1;
     // engine
     HazkeyEngine* engine_;

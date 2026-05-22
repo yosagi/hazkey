@@ -61,6 +61,9 @@ class HazkeyServerConnector {
 
     void completePrefix(int index);
 
+    void directConversionComplete(
+        hazkey::commands::GetComposingString::CharType charType);
+
     void saveLearningData(bool tryConnect = true);
 
     struct CandidateData {

@@ -68,6 +68,10 @@ message GetCurrentInputModeInfo {}
 
 message SaveLearningData {}
 
+message DirectConversionComplete {
+    GetComposingString.CharType char_type = 1;
+}
+
 // Response messages
 
 message Text {

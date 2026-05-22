@@ -131,6 +131,9 @@ void HazkeyState::preeditKeyEvent(
             preedit_.commitPreedit();
             if (livePreeditIndex_ >= 0) {
                 engine_->server().completePrefix(livePreeditIndex_);
+            } else if (directConversionCharType_.has_value()) {
+                engine_->server().directConversionComplete(
+                    directConversionCharType_.value());
             }
             reset();
             break;
@@ -402,37 +405,34 @@ void HazkeyState::functionKeyHandler(KeyEvent& event) {
 }
 
 void HazkeyState::directCharactorConversion(ConversionMode mode) {
-    std::string converted;
-    // TODO: use protobuf type for all program
+    hazkey::commands::GetComposingString::CharType charType =
+        hazkey::commands::GetComposingString_CharType_HIRAGANA;
     switch (mode) {
         case ConversionMode::Hiragana:
-            converted = engine_->server().getComposingText(
-                hazkey::commands::GetComposingString_CharType_HIRAGANA,
-                preedit_.text());
+            charType = hazkey::commands::GetComposingString_CharType_HIRAGANA;
             break;
         case ConversionMode::KatakanaFullwidth:
-            converted = engine_->server().getComposingText(
-                hazkey::commands::GetComposingString_CharType_KATAKANA_FULL,
-                preedit_.text());
+            charType =
+                hazkey::commands::GetComposingString_CharType_KATAKANA_FULL;
             break;
         case ConversionMode::KatakanaHalfwidth:
-            converted = engine_->server().getComposingText(
-                hazkey::commands::GetComposingString_CharType_KATAKANA_HALF,
-                preedit_.text());
+            charType =
+                hazkey::commands::GetComposingString_CharType_KATAKANA_HALF;
             break;
         case ConversionMode::RawFullwidth:
-            converted = engine_->server().getComposingText(
-                hazkey::commands::GetComposingString_CharType_ALPHABET_FULL,
-                preedit_.text());
+            charType =
+                hazkey::commands::GetComposingString_CharType_ALPHABET_FULL;
             break;
         case ConversionMode::RawHalfwidth:
-            converted = engine_->server().getComposingText(
-                hazkey::commands::GetComposingString_CharType_ALPHABET_HALF,
-                preedit_.text());
+            charType =
+                hazkey::commands::GetComposingString_CharType_ALPHABET_HALF;
             break;
     }
+    std::string converted =
+        engine_->server().getComposingText(charType, preedit_.text());
     preedit_.setSimplePreeditHighlighted(converted);
     livePreeditIndex_ = -1;
+    directConversionCharType_ = charType;
     auto candidateList = ic_->inputPanel().candidateList();
     if (candidateList) {
         ic_->inputPanel().setCandidateList(nullptr);
@@ -580,6 +580,7 @@ void HazkeyState::setHiraganaAUX() {
 void HazkeyState::reset() {
     FCITX_DEBUG() << "HazkeyState reset";
     isDirectConversionMode_ = false;
+    directConversionCharType_ = std::nullopt;
     livePreeditIndex_ = -1;
     isCursorMoving_ = false;
     isClauseBoundaryAdjusting_ = false;
