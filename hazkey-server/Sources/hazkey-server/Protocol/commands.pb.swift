@@ -288,6 +288,18 @@ struct Hazkey_Commands_SaveLearningData: Sendable {
   init() {}
 }
 
+struct Hazkey_Commands_DirectConversionComplete: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var charType: Hazkey_Commands_GetComposingString.CharType = .hiragana
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 struct Hazkey_Commands_Text: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -774,6 +786,35 @@ extension Hazkey_Commands_SaveLearningData: SwiftProtobuf.Message, SwiftProtobuf
   }
 
   static func ==(lhs: Hazkey_Commands_SaveLearningData, rhs: Hazkey_Commands_SaveLearningData) -> Bool {
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Hazkey_Commands_DirectConversionComplete: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".DirectConversionComplete"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "char_type"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularEnumField(value: &self.charType) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.charType != .hiragana {
+      try visitor.visitSingularEnumField(value: self.charType, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Hazkey_Commands_DirectConversionComplete, rhs: Hazkey_Commands_DirectConversionComplete) -> Bool {
+    if lhs.charType != rhs.charType {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

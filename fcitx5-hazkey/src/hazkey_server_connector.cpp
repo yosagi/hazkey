@@ -484,6 +484,26 @@ void HazkeyServerConnector::completePrefix(int index) {
     return;
 }
 
+void HazkeyServerConnector::directConversionComplete(
+    hazkey::commands::GetComposingString::CharType charType) {
+    hazkey::RequestEnvelope request;
+    auto props = request.mutable_direct_conversion_complete();
+    props->set_char_type(charType);
+    auto response = transact(request);
+    if (response == std::nullopt) {
+        FCITX_ERROR()
+            << "Error while transacting directConversionComplete().";
+        return;
+    }
+    auto responseVal = response.value();
+    if (responseVal.status() != hazkey::SUCCESS) {
+        FCITX_ERROR() << "directConversionComplete: "
+                      << "Server returned an error: "
+                      << responseVal.error_message();
+        return;
+    }
+}
+
 void HazkeyServerConnector::saveLearningData(bool tryConnect) {
     hazkey::RequestEnvelope request;
     request.mutable_save_learning_data();

@@ -169,6 +169,14 @@ struct Hazkey_RequestEnvelope: Sendable {
     set {payload = .saveLearningData(newValue)}
   }
 
+  var directConversionComplete: Hazkey_Commands_DirectConversionComplete {
+    get {
+      if case .directConversionComplete(let v)? = payload {return v}
+      return Hazkey_Commands_DirectConversionComplete()
+    }
+    set {payload = .directConversionComplete(newValue)}
+  }
+
   var getConfig: Hazkey_Config_GetConfig {
     get {
       if case .getConfig(let v)? = payload {return v}
@@ -225,6 +233,7 @@ struct Hazkey_RequestEnvelope: Sendable {
     case getCandidates(Hazkey_Commands_GetCandidates)
     case getCurrentInputMode(Hazkey_Commands_GetCurrentInputModeInfo)
     case saveLearningData(Hazkey_Commands_SaveLearningData)
+    case directConversionComplete(Hazkey_Commands_DirectConversionComplete)
     case getConfig(Hazkey_Config_GetConfig)
     case setConfig(Hazkey_Config_SetConfig)
     case getDefaultProfile(Hazkey_Config_GetDefaultProfile)
@@ -329,6 +338,7 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     11: .standard(proto: "get_candidates"),
     12: .standard(proto: "get_current_input_mode"),
     13: .standard(proto: "save_learning_data"),
+    14: .standard(proto: "direct_conversion_complete"),
     100: .standard(proto: "get_config"),
     101: .standard(proto: "set_config"),
     102: .standard(proto: "get_default_profile"),
@@ -511,6 +521,19 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
           self.payload = .saveLearningData(v)
         }
       }()
+      case 14: try {
+        var v: Hazkey_Commands_DirectConversionComplete?
+        var hadOneofValue = false
+        if let current = self.payload {
+          hadOneofValue = true
+          if case .directConversionComplete(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.payload = .directConversionComplete(v)
+        }
+      }()
       case 100: try {
         var v: Hazkey_Config_GetConfig?
         var hadOneofValue = false
@@ -638,6 +661,10 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     case .saveLearningData?: try {
       guard case .saveLearningData(let v)? = self.payload else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
+    }()
+    case .directConversionComplete?: try {
+      guard case .directConversionComplete(let v)? = self.payload else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
     }()
     case .getConfig?: try {
       guard case .getConfig(let v)? = self.payload else { preconditionFailure() }

@@ -196,6 +196,56 @@ class HazkeyServerState {
         }
     }
 
+    func completeDirectConversion(
+        charType: Hazkey_Commands_GetComposingString.CharType
+    ) -> Hazkey_ResponseEnvelope {
+        let ruby = composingText.value.convertTarget.toKatakana()
+        guard !ruby.isEmpty else {
+            return Hazkey_ResponseEnvelope.with { $0.status = .success }
+        }
+
+        let word: String
+        let value: PValue
+        switch charType {
+        case .hiragana:
+            word = ruby.toHiragana()
+            value = -14.5
+        case .katakanaFull:
+            word = ruby
+            value = -14
+        case .katakanaHalf:
+            word = composingText.value.toKatakana(false)
+            value = -14
+        case .alphabetFull:
+            word = composingText.value.toAlphabet(true)
+            value = -15
+        case .alphabetHalf:
+            word = composingText.value.toAlphabet(false)
+            value = -15
+        case .UNRECOGNIZED:
+            return Hazkey_ResponseEnvelope.with {
+                $0.status = .failed
+                $0.errorMessage = "unrecognized charType"
+            }
+        }
+
+        let element = DicdataElement(
+            word: word, ruby: ruby,
+            cid: CIDData.固有名詞.cid, mid: MIDData.一般.mid, value: value)
+        let composingCount: ComposingCount = .inputCount(composingText.value.input.count)
+        let candidate = Candidate(
+            text: word, value: value,
+            composingCount: composingCount,
+            lastMid: MIDData.一般.mid, data: [element])
+
+        composingText.value.prefixComplete(composingCount: composingCount)
+        converter.setCompletedData(candidate)
+        converter.updateLearningData(candidate)
+        learningDataNeedsCommit = true
+
+        return Hazkey_ResponseEnvelope.with { $0.status = .success }
+    }
+
     func moveCursor(offset: Int) -> Hazkey_ResponseEnvelope {
         _ = composingText.value.moveCursorFromCursorPosition(count: offset)
         return Hazkey_ResponseEnvelope.with {
