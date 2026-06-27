@@ -11,6 +11,8 @@ class HazkeyServerState {
     var isShiftPressedAlone = false
     var isSubInputMode = false
     var learningDataNeedsCommit = false
+    var lastTrailingClauseYomiCount = 0
+    var lastLiveTextCandidate: Candidate?
 
     var keymap: Keymap
     var currentTableName: String
@@ -174,6 +176,74 @@ class HazkeyServerState {
 
     func deleteRight() -> Hazkey_ResponseEnvelope {
         composingText.value.deleteForwardFromCursorPosition(count: 1)
+        return Hazkey_ResponseEnvelope.with {
+            $0.status = .success
+        }
+    }
+
+    func deleteTrailingClause() -> Hazkey_ResponseEnvelope {
+        isShiftPressedAlone = false
+        guard lastTrailingClauseYomiCount > 0 else {
+            return Hazkey_ResponseEnvelope.with {
+                $0.status = .failed
+                $0.errorMessage = "No trailing clause info available"
+            }
+        }
+        composingText.value.deleteBackwardFromCursorPosition(count: lastTrailingClauseYomiCount)
+        lastTrailingClauseYomiCount = 0
+        lastLiveTextCandidate = nil
+        return Hazkey_ResponseEnvelope.with {
+            $0.status = .success
+        }
+    }
+
+    func completePrefixClauses() -> Hazkey_ResponseEnvelope {
+        isShiftPressedAlone = false
+        guard let candidate = lastLiveTextCandidate else {
+            return Hazkey_ResponseEnvelope.with {
+                $0.status = .failed
+                $0.errorMessage = "No live text candidate available"
+            }
+        }
+        let data = candidate.data
+        guard !data.isEmpty else {
+            return Hazkey_ResponseEnvelope.with { $0.status = .success; $0.text = "" }
+        }
+        var lastClauseBoundary = 0
+        for i in 1..<data.count {
+            let formerType = DicdataStore.wordTypes[data[i - 1].rcid]
+            let latterType = DicdataStore.wordTypes[data[i].lcid]
+            if formerType == 1 || latterType == 1 {
+                lastClauseBoundary = i
+            }
+        }
+        guard lastClauseBoundary > 0 else {
+            return Hazkey_ResponseEnvelope.with { $0.status = .success; $0.text = "" }
+        }
+        let prefixData = Array(data[..<lastClauseBoundary])
+        let prefixText = prefixData.map(\.word).joined()
+        let composingCount: ComposingCount = .surfaceCount(prefixData.map(\.ruby).joined().count)
+        let lastMid = prefixData.last.map { $0.mid != 500 ? $0.mid : MIDData.一般.mid } ?? MIDData.一般.mid
+        let prefixCandidate = Candidate(
+            text: prefixText, value: -5,
+            composingCount: composingCount,
+            lastMid: lastMid, data: prefixData)
+        composingText.value.prefixComplete(composingCount: composingCount)
+        converter.setCompletedData(prefixCandidate)
+        converter.updateLearningData(prefixCandidate)
+        learningDataNeedsCommit = true
+        lastLiveTextCandidate = nil
+        lastTrailingClauseYomiCount = 0
+        return Hazkey_ResponseEnvelope.with {
+            $0.status = .success
+            $0.text = prefixText
+        }
+    }
+
+    func insertHiragana(text: String) -> Hazkey_ResponseEnvelope {
+        composingText.value.insertAtCursorPosition(
+            text,
+            inputStyle: .direct)
         return Hazkey_ResponseEnvelope.with {
             $0.status = .success
         }
@@ -449,17 +519,12 @@ class HazkeyServerState {
                     let trailingWord = trailingElements.map(\.word).joined()
                     candidatesResult.stablePrefixLength = Int32(
                         candidate.text.count - trailingWord.count)
-                    let lastCharIsKanji = trailingWord.unicodeScalars.last.map {
-                        let v = $0.value
-                        return (v >= 0x4E00 && v <= 0x9FFF)
-                            || (v >= 0x3400 && v <= 0x4DBF)
-                    } ?? false
-                    if lastCharIsKanji {
-                        let trailingRuby = trailingElements.map(\.ruby).joined()
-                        candidatesResult.trailingClauseYomi =
-                            trailingRuby.applyingTransform(
-                                .hiraganaToKatakana, reverse: true) ?? trailingRuby
-                    }
+                    let trailingRuby = trailingElements.map(\.ruby).joined()
+                    candidatesResult.trailingClauseYomi =
+                        trailingRuby.applyingTransform(
+                            .hiraganaToKatakana, reverse: true) ?? trailingRuby
+                    self.lastTrailingClauseYomiCount = candidatesResult.trailingClauseYomi.count
+                    self.lastLiveTextCandidate = candidate
                 }
 
                 if is_suggest && serverCandidates.count >= N_best {

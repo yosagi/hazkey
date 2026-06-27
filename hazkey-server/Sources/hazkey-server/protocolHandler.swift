@@ -54,6 +54,12 @@ class ProtocolHandler {
             response = state.saveLearningData()
         case .directConversionComplete(let req):
             response = state.completeDirectConversion(charType: req.charType)
+        case .deleteTrailingClause:
+            response = state.deleteTrailingClause()
+        case .completePrefixClauses:
+            response = state.completePrefixClauses()
+        case .insertHiragana(let req):
+            response = state.insertHiragana(text: req.text)
         case .getConfig:
             response = state.serverConfig.getCurrentConfig()
         case .setConfig(let req):

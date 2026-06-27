@@ -2,6 +2,7 @@
 
 #include <fcitx-utils/key.h>
 #include <fcitx-utils/log.h>
+#include <fcitx-utils/utf8.h>
 #include <fcitx/candidatelist.h>
 
 #include <algorithm>
@@ -126,6 +127,16 @@ void HazkeyState::preeditKeyEvent(
     auto key = event.key();
     auto keysym = key.sym();
 
+    if (keysym == FcitxKey_Return &&
+        key.states() == KeyState::Shift) {
+        completePrefixAndCommit();
+        return event.filterAndAccept();
+    }
+    if (keysym == FcitxKey_BackSpace &&
+        event.rawKey().states() == KeyState::Shift) {
+        shelveTrailingClause();
+        return event.filterAndAccept();
+    }
     switch (keysym) {
         case FcitxKey_Return:
             preedit_.commitPreedit();
@@ -136,6 +147,7 @@ void HazkeyState::preeditKeyEvent(
                     directConversionCharType_.value());
             }
             reset();
+            restoreShelvedReadings();
             break;
         case FcitxKey_BackSpace:
             engine_->server().deleteLeft();
@@ -154,6 +166,7 @@ void HazkeyState::preeditKeyEvent(
             functionKeyHandler(event);
             break;
         case FcitxKey_Escape:
+            clearShelvedReadings();
             reset();
             break;
         case FcitxKey_space:
@@ -188,7 +201,10 @@ void HazkeyState::preeditKeyEvent(
             }
             break;
         default:
-            if (event.key().states() == KeyState::Ctrl) {
+            if (event.key().states() == KeyState::Ctrl_Shift &&
+                (keysym == FcitxKey_h || keysym == FcitxKey_H)) {
+                shelveTrailingClause();
+            } else if (event.key().states() == KeyState::Ctrl) {
                 ctrlShortcutHandler(event);
             } else if (isAltDigitKeyEvent(event)) {
                 if (PredictCandidateList != nullptr) {
@@ -199,6 +215,7 @@ void HazkeyState::preeditKeyEvent(
                     }
                 }
             } else if (isInputableEvent(event)) {
+                clearShelvedReadings();
                 if (isDirectConversionMode_) {
                     preedit_.commitPreedit();
                     reset();
@@ -244,7 +261,11 @@ void HazkeyState::candidateKeyEvent(
             }
             break;
         case FcitxKey_Return:
+            completedWithNoRemaining_ = false;
             candidateCompleteHandler(candidateList);
+            if (completedWithNoRemaining_) {
+                restoreShelvedReadings();
+            }
             break;
         case FcitxKey_Escape:
             if (isClauseBoundaryAdjusting_) {
@@ -293,10 +314,15 @@ void HazkeyState::candidateKeyEvent(
                                       ? keysym - FcitxKey_1
                                       : key.keyListIndex(defaultSelectionKeys);
                 if (localIndex < candidateList->size()) {
+                    completedWithNoRemaining_ = false;
                     candidateList->setCursorIndex(localIndex);
                     candidateCompleteHandler(candidateList);
+                    if (completedWithNoRemaining_) {
+                        restoreShelvedReadings();
+                    }
                 }
             } else if (isInputableEvent(event)) {
+                clearShelvedReadings();
                 preedit_.commitPreedit();
                 reset();
                 engine_->server().inputChar(Key::keySymToUTF8(keysym));
@@ -323,6 +349,7 @@ void HazkeyState::candidateCompleteHandler(
         showNonPredictCandidateList(false);
     } else {
         reset();
+        completedWithNoRemaining_ = true;
     }
 }
 
@@ -455,9 +482,26 @@ bool HazkeyState::showCandidateList(bool isSuggest) {
     ic_->inputPanel().reset();
 
     if (!response.live_text().empty()) {
+        lastTrailingClauseYomi_ = response.trailing_clause_yomi();
+        auto furigana = lastTrailingClauseYomi_;
+        if (!furigana.empty()) {
+            auto& liveText = response.live_text();
+            auto nchars = utf8::length(liveText);
+            if (nchars > 0) {
+                auto lastCharOffset = utf8::ncharByteLength(
+                    liveText.begin(), nchars - 1);
+                auto cp = utf8::getChar(
+                    liveText.begin() + lastCharOffset, liveText.end());
+                bool isKanji = (cp >= 0x4E00 && cp <= 0x9FFF)
+                            || (cp >= 0x3400 && cp <= 0x4DBF);
+                if (!isKanji) {
+                    furigana.clear();
+                }
+            }
+        }
         preedit_.setSimplePreeditWithFurigana(
             response.live_text(), response.stable_prefix_length(),
-            response.trailing_clause_yomi());
+            furigana);
     } else {
         // preedit conversion is disabled or conversion result is not
         // available show hiragana preedit
@@ -573,6 +617,43 @@ void HazkeyState::setAuxDownText(std::optional<std::string> optText) {
 void HazkeyState::setHiraganaAUX() {
     ic_->inputPanel().setAuxUp(
         engine_->server().getComposingHiraganaWithCursor());
+}
+
+/// Clause partial operations
+
+void HazkeyState::shelveTrailingClause() {
+    if (lastTrailingClauseYomi_.empty()) {
+        return;
+    }
+    shelvedReadings_.push_back(lastTrailingClauseYomi_);
+    engine_->server().deleteTrailingClause();
+    lastTrailingClauseYomi_.clear();
+    showPreeditCandidateList();
+}
+
+void HazkeyState::completePrefixAndCommit() {
+    auto prefixText = engine_->server().completePrefixClauses();
+    if (!prefixText.empty()) {
+        ic_->commitString(prefixText);
+    }
+    showPreeditCandidateList();
+}
+
+void HazkeyState::restoreShelvedReadings() {
+    if (shelvedReadings_.empty()) {
+        return;
+    }
+    std::string combined;
+    for (auto it = shelvedReadings_.rbegin(); it != shelvedReadings_.rend(); ++it) {
+        combined += *it;
+    }
+    shelvedReadings_.clear();
+    engine_->server().insertHiragana(combined);
+    showPreeditCandidateList();
+}
+
+void HazkeyState::clearShelvedReadings() {
+    shelvedReadings_.clear();
 }
 
 /// Reset

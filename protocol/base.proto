@@ -23,6 +23,9 @@ message RequestEnvelope {
         hazkey.commands.GetCurrentInputModeInfo get_current_input_mode = 12;
         hazkey.commands.SaveLearningData save_learning_data = 13;
         hazkey.commands.DirectConversionComplete direct_conversion_complete = 14;
+        hazkey.commands.DeleteTrailingClause delete_trailing_clause = 15;
+        hazkey.commands.CompletePrefixClauses complete_prefix_clauses = 16;
+        hazkey.commands.InsertHiragana insert_hiragana = 17;
 
         hazkey.config.GetConfig get_config = 100;
         hazkey.config.SetConfig set_config = 101;

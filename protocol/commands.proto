@@ -72,6 +72,14 @@ message DirectConversionComplete {
     GetComposingString.CharType char_type = 1;
 }
 
+message DeleteTrailingClause {}
+
+message CompletePrefixClauses {}
+
+message InsertHiragana {
+    string text = 1;
+}
+
 // Response messages
 
 message Text {

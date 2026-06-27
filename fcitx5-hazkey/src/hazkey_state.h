@@ -6,6 +6,8 @@
 #include <fcitx/surroundingtext.h>
 
 #include <optional>
+#include <string>
+#include <vector>
 
 #include "commands.pb.h"
 #include "hazkey_candidate.h"
@@ -109,6 +111,11 @@ class HazkeyState : public InputContextProperty {
 
     bool isAltDigitKeyEvent(const KeyEvent& keyEvent);
 
+    void shelveTrailingClause();
+    void completePrefixAndCommit();
+    void restoreShelvedReadings();
+    void clearShelvedReadings();
+
     bool isCursorMoving_ = false;
     bool isClauseBoundaryAdjusting_ = false;
 
@@ -116,6 +123,9 @@ class HazkeyState : public InputContextProperty {
     std::optional<hazkey::commands::GetComposingString::CharType>
         directConversionCharType_;
     int livePreeditIndex_ = -1;
+    bool completedWithNoRemaining_ = false;
+    std::vector<std::string> shelvedReadings_;
+    std::string lastTrailingClauseYomi_;
     // engine
     HazkeyEngine* engine_;
     // fcitx input context

@@ -504,6 +504,57 @@ void HazkeyServerConnector::directConversionComplete(
     }
 }
 
+void HazkeyServerConnector::deleteTrailingClause() {
+    hazkey::RequestEnvelope request;
+    request.mutable_delete_trailing_clause();
+    auto response = transact(request);
+    if (response == std::nullopt) {
+        FCITX_ERROR() << "Error while transacting deleteTrailingClause().";
+        return;
+    }
+    auto responseVal = response.value();
+    if (responseVal.status() != hazkey::SUCCESS) {
+        FCITX_ERROR() << "deleteTrailingClause: "
+                      << "Server returned an error: "
+                      << responseVal.error_message();
+    }
+}
+
+std::string HazkeyServerConnector::completePrefixClauses() {
+    hazkey::RequestEnvelope request;
+    request.mutable_complete_prefix_clauses();
+    auto response = transact(request);
+    if (response == std::nullopt) {
+        FCITX_ERROR() << "Error while transacting completePrefixClauses().";
+        return "";
+    }
+    auto responseVal = response.value();
+    if (responseVal.status() != hazkey::SUCCESS) {
+        FCITX_ERROR() << "completePrefixClauses: "
+                      << "Server returned an error: "
+                      << responseVal.error_message();
+        return "";
+    }
+    return responseVal.text();
+}
+
+void HazkeyServerConnector::insertHiragana(const std::string& text) {
+    hazkey::RequestEnvelope request;
+    auto props = request.mutable_insert_hiragana();
+    props->set_text(text);
+    auto response = transact(request);
+    if (response == std::nullopt) {
+        FCITX_ERROR() << "Error while transacting insertHiragana().";
+        return;
+    }
+    auto responseVal = response.value();
+    if (responseVal.status() != hazkey::SUCCESS) {
+        FCITX_ERROR() << "insertHiragana: "
+                      << "Server returned an error: "
+                      << responseVal.error_message();
+    }
+}
+
 void HazkeyServerConnector::saveLearningData(bool tryConnect) {
     hazkey::RequestEnvelope request;
     request.mutable_save_learning_data();

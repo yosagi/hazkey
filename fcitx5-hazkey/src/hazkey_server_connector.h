@@ -64,6 +64,12 @@ class HazkeyServerConnector {
     void directConversionComplete(
         hazkey::commands::GetComposingString::CharType charType);
 
+    void deleteTrailingClause();
+
+    std::string completePrefixClauses();
+
+    void insertHiragana(const std::string& text);
+
     void saveLearningData(bool tryConnect = true);
 
     struct CandidateData {

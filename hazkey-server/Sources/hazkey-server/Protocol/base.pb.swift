@@ -177,6 +177,30 @@ struct Hazkey_RequestEnvelope: Sendable {
     set {payload = .directConversionComplete(newValue)}
   }
 
+  var deleteTrailingClause: Hazkey_Commands_DeleteTrailingClause {
+    get {
+      if case .deleteTrailingClause(let v)? = payload {return v}
+      return Hazkey_Commands_DeleteTrailingClause()
+    }
+    set {payload = .deleteTrailingClause(newValue)}
+  }
+
+  var completePrefixClauses: Hazkey_Commands_CompletePrefixClauses {
+    get {
+      if case .completePrefixClauses(let v)? = payload {return v}
+      return Hazkey_Commands_CompletePrefixClauses()
+    }
+    set {payload = .completePrefixClauses(newValue)}
+  }
+
+  var insertHiragana: Hazkey_Commands_InsertHiragana {
+    get {
+      if case .insertHiragana(let v)? = payload {return v}
+      return Hazkey_Commands_InsertHiragana()
+    }
+    set {payload = .insertHiragana(newValue)}
+  }
+
   var getConfig: Hazkey_Config_GetConfig {
     get {
       if case .getConfig(let v)? = payload {return v}
@@ -234,6 +258,9 @@ struct Hazkey_RequestEnvelope: Sendable {
     case getCurrentInputMode(Hazkey_Commands_GetCurrentInputModeInfo)
     case saveLearningData(Hazkey_Commands_SaveLearningData)
     case directConversionComplete(Hazkey_Commands_DirectConversionComplete)
+    case deleteTrailingClause(Hazkey_Commands_DeleteTrailingClause)
+    case completePrefixClauses(Hazkey_Commands_CompletePrefixClauses)
+    case insertHiragana(Hazkey_Commands_InsertHiragana)
     case getConfig(Hazkey_Config_GetConfig)
     case setConfig(Hazkey_Config_SetConfig)
     case getDefaultProfile(Hazkey_Config_GetDefaultProfile)
@@ -339,6 +366,9 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     12: .standard(proto: "get_current_input_mode"),
     13: .standard(proto: "save_learning_data"),
     14: .standard(proto: "direct_conversion_complete"),
+    15: .standard(proto: "delete_trailing_clause"),
+    16: .standard(proto: "complete_prefix_clauses"),
+    17: .standard(proto: "insert_hiragana"),
     100: .standard(proto: "get_config"),
     101: .standard(proto: "set_config"),
     102: .standard(proto: "get_default_profile"),
@@ -534,6 +564,45 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
           self.payload = .directConversionComplete(v)
         }
       }()
+      case 15: try {
+        var v: Hazkey_Commands_DeleteTrailingClause?
+        var hadOneofValue = false
+        if let current = self.payload {
+          hadOneofValue = true
+          if case .deleteTrailingClause(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.payload = .deleteTrailingClause(v)
+        }
+      }()
+      case 16: try {
+        var v: Hazkey_Commands_CompletePrefixClauses?
+        var hadOneofValue = false
+        if let current = self.payload {
+          hadOneofValue = true
+          if case .completePrefixClauses(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.payload = .completePrefixClauses(v)
+        }
+      }()
+      case 17: try {
+        var v: Hazkey_Commands_InsertHiragana?
+        var hadOneofValue = false
+        if let current = self.payload {
+          hadOneofValue = true
+          if case .insertHiragana(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.payload = .insertHiragana(v)
+        }
+      }()
       case 100: try {
         var v: Hazkey_Config_GetConfig?
         var hadOneofValue = false
@@ -665,6 +734,18 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     case .directConversionComplete?: try {
       guard case .directConversionComplete(let v)? = self.payload else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
+    }()
+    case .deleteTrailingClause?: try {
+      guard case .deleteTrailingClause(let v)? = self.payload else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 15)
+    }()
+    case .completePrefixClauses?: try {
+      guard case .completePrefixClauses(let v)? = self.payload else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
+    }()
+    case .insertHiragana?: try {
+      guard case .insertHiragana(let v)? = self.payload else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 17)
     }()
     case .getConfig?: try {
       guard case .getConfig(let v)? = self.payload else { preconditionFailure() }
