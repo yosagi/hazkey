@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Package version (e.g. 0.2.1)"
-        required: true
+        description: "Package version (e.g. 0.2.1). Empty = date+sha auto version"
+        required: false
         type: string
 
 jobs:
@@ -88,6 +88,13 @@ jobs:
           ninja -j$(nproc)
           DESTDIR=${{ github.workspace }}/pkgroot ninja install
 
+      - name: Build emacs-hazkey
+        run: |
+          mkdir -p emacs-hazkey/build && cd emacs-hazkey/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja ..
+          ninja -j$(nproc)
+          DESTDIR=${{ github.workspace }}/pkgroot ninja install
+
       - name: Build hazkey-server
         run: |
           mkdir -p hazkey-server/build && cd hazkey-server/build
@@ -108,6 +115,9 @@ jobs:
         run: |
           PKGROOT="${{ github.workspace }}/pkgroot"
           VER="${{ inputs.version }}"
+          if [ -z "${VER}" ]; then
+            VER="$(date +%Y%m%d)+g$(git rev-parse --short HEAD)"
+          fi
           CODENAME="${{ matrix.codename }}"
 
           # Auto-detect shared library dependencies via dpkg-shlibdeps
@@ -136,7 +146,7 @@ jobs:
            with optional AI-powered conversion via Zenzai (llama.cpp).
           EOF
 
-          dpkg-deb --build "${PKGROOT}" \
+          dpkg-deb --root-owner-group --build "${PKGROOT}" \
             "fcitx5-hazkey_${VER}_${CODENAME}_amd64.deb"
 
       - name: Upload .deb
