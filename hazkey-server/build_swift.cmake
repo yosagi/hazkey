@@ -34,20 +34,13 @@ if(SWIFT_LINK_PATH)
 endif()
 
 # AzooKeyKanaKanjiConverter (pinned) enables the MemberImportVisibility
-# upcoming feature but DictionaryBuilder.swift lacks an explicit
-# `import OrderedCollections`; Swift >= 6.3 rejects the re-exported access,
-# breaking clean builds. Disable the feature there until the pin is updated.
-execute_process(
-    COMMAND "${SWIFT_EXECUTABLE}" --version
-    OUTPUT_VARIABLE SWIFT_VERSION_OUTPUT
-    ERROR_QUIET
-)
-string(REGEX MATCH "Swift version ([0-9]+\\.[0-9]+)" _ "${SWIFT_VERSION_OUTPUT}")
-if(CMAKE_MATCH_1 AND CMAKE_MATCH_1 VERSION_GREATER_EQUAL "6.3")
-    list(APPEND SWIFT_COMMAND
-        "-Xswiftc" "-disable-upcoming-feature"
-        "-Xswiftc" "MemberImportVisibility")
-endif()
+# upcoming feature in its Package.swift, but DictionaryBuilder.swift lacks an
+# explicit `import OrderedCollections`, breaking clean builds on any Swift
+# toolchain that honors the feature (>= 6.1, the project minimum). Disable the
+# feature until the pin is updated.
+list(APPEND SWIFT_COMMAND
+    "-Xswiftc" "-disable-upcoming-feature"
+    "-Xswiftc" "MemberImportVisibility")
 
 execute_process(
     COMMAND ${SWIFT_COMMAND}
