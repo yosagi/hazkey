@@ -48,5 +48,13 @@ DEB=$(find "${DLDIR}" -name '*.deb' | head -1)
 echo "installing: $(basename "${DEB}")"
 sudo apt install -y --reinstall "${DEB}"
 
+# hazkey-server is a standalone daemon and survives an fcitx5 restart. A server
+# left running from the old package keeps its in-memory dictionary index while
+# the dictionary files on disk have been replaced, which yields garbage
+# candidates. Clients (fcitx5 and emacs helper) respawn the server on demand.
+if pkill -u "$(id -u)" -x hazkey-server; then
+    echo "stopped running hazkey-server (it will be restarted by the client)"
+fi
+
 echo
 echo "インストール完了。fcitx5 の再起動（Wayland+KDE ではログアウト→ログイン）で反映されます。"
