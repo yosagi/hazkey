@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Package version (e.g. 0.2.1). Empty = date+sha auto version"
+        description: "Package version (e.g. 0.2.1). Empty = commit time (UTC) + sha auto version"
         required: false
         type: string
 
@@ -123,7 +123,9 @@ jobs:
           PKGROOT="${{ github.workspace }}/pkgroot"
           VER="${{ inputs.version }}"
           if [ -z "${VER}" ]; then
-            VER="$(date +%Y%m%d)+g$(git rev-parse --short HEAD)"
+            # Commit time (UTC) keeps same-day builds ordered; date+sha alone
+            # made dpkg compare the SHA's digits and treat newer builds as downgrades
+            VER="$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d.%H%M%S)+g$(git rev-parse --short HEAD)"
           fi
           CODENAME="${{ matrix.codename }}"
 

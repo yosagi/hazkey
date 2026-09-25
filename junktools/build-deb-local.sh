@@ -4,7 +4,7 @@
 # 関連: .github/workflows/build-deb.yml, junktools/install-deps.sh
 # 前提: junktools/install-deps.sh を sudo で実行済み、Swift 6.1+ が PATH にある
 #       使い方: junktools/build-deb-local.sh [version]
-#               (version 省略時は日付+SHA を自動生成)
+#               (version 省略時はコミット時刻+SHA を自動生成)
 #       環境変数: GGML_VULKAN=ON/OFF (省略時は glslc の有無で自動判定)
 #                 HAZKEY_LTO=full/none (省略時 full。none にするとリンクが速い)
 
@@ -27,7 +27,9 @@ fi
 # ---------- パラメータ ----------
 VER="${1:-}"
 if [ -z "${VER}" ]; then
-    VER="$(date +%Y%m%d)+g$(git -C "${ROOT}" rev-parse --short HEAD)"
+    # コミット時刻 (UTC) を入れる。日付+SHA だけだと同じ日のビルド同士の順序が
+    # SHA の数字部分で決まり、新しいビルドがダウングレード扱いになることがある
+    VER="$(TZ=UTC git -C "${ROOT}" log -1 --format=%cd --date=format-local:%Y%m%d.%H%M%S)+g$(git -C "${ROOT}" rev-parse --short HEAD)"
 fi
 
 . /etc/os-release

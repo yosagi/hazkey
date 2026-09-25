@@ -4,6 +4,7 @@
 # 関連: .github/workflows/build-deb.yml
 # 前提: gh CLI が認証済み (gh auth login)、sudo 権限、Ubuntu 22.04/24.04/26.04
 #       使い方: hazkey-deb-install.sh [branch]   (branch 省略時は dev)
+#               sudo を付けずに実行する（root だと gh の認証が見えない。apt だけ内部で sudo）
 
 set -euo pipefail
 
