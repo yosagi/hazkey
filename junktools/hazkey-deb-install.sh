@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 目的: GitHub Actions (build-deb.yml) の最新成功 run から自ホスト向けの deb を
 #       ダウンロードしてインストールする。配布先PCで実行する更新スクリプト。
-# 関連: .github/workflows/build-deb.yml, reports/tasks/2026-07-31_task_deb_deploy.md
+# 関連: .github/workflows/build-deb.yml
 # 前提: gh CLI が認証済み (gh auth login)、sudo 権限、Ubuntu 22.04/24.04/26.04
 #       使い方: hazkey-deb-install.sh [branch]   (branch 省略時は dev)
 
@@ -35,6 +35,8 @@ RUN_DATE=$(gh run view "${RUN_ID}" --repo "${REPO}" --json createdAt,headSha \
 echo "run ${RUN_ID}: ${RUN_DATE} / branch=${BRANCH} / codename=${CODENAME}"
 
 DLDIR=$(mktemp -d)
+# apt reads local debs as the unprivileged _apt user; mktemp -d is 0700
+chmod 755 "${DLDIR}"
 trap 'rm -rf "${DLDIR}"' EXIT
 
 gh run download "${RUN_ID}" --repo "${REPO}" \

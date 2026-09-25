@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 目的: hazkey のビルドに必要なシステムパッケージをインストールする
-# 関連: reports/project_context.md (ビルド依存の充足状況)
+# 関連: .github/workflows/build-deb.yml (CI のビルド依存), junktools/build-deb-local.sh
 # 前提: Ubuntu 22.04+ / sudo 権限で実行
 
 set -euo pipefail

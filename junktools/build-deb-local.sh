@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # 目的: clone 直後のリポジトリからローカルで deb パッケージをビルドする。
 #       CI (.github/workflows/build-deb.yml) と同じ手順のローカル版。
-# 関連: .github/workflows/build-deb.yml, junktools/install-deps.sh,
-#       reports/tasks/2026-07-31_task_deb_deploy.md
+# 関連: .github/workflows/build-deb.yml, junktools/install-deps.sh
 # 前提: junktools/install-deps.sh を sudo で実行済み、Swift 6.1+ が PATH にある
 #       使い方: junktools/build-deb-local.sh [version]
 #               (version 省略時は日付+SHA を自動生成)
