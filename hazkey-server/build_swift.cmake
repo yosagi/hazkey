@@ -17,6 +17,13 @@ if(HAZKEY_SERVER_SWIFT_LTO_MODE)
     list(APPEND SWIFT_COMMAND "--experimental-lto-mode" "${HAZKEY_SERVER_SWIFT_LTO_MODE}")
 endif()
 
+# SwiftPM 6.4 switched the default build system to "swiftbuild", which
+# partially links C targets with `clang -r`. With LTO enabled those objects are
+# LLVM bitcode and the partial link fails ("file format not recognized", seen
+# with swift-numerics' _NumericsShims). Stay on the native build system, which
+# older toolchains (>= 6.0) also accept as their default.
+list(APPEND SWIFT_COMMAND "--build-system" "native")
+
 if(SWIFT_STATIC_STDLIB)
     list(APPEND SWIFT_COMMAND "-Xswiftc" "-static-stdlib")
 
