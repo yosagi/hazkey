@@ -63,7 +63,9 @@ static bool readAll(int fd, void* data, size_t len) {
     return true;
 }
 
-std::string HazkeyEmacsConnector::runtimeDir() {
+// Connect to the same hazkey-server as the fcitx5 client. The server accepts
+// multiple clients, so the conversion engine and learning data are shared.
+std::string HazkeyEmacsConnector::getSocketPath() {
     const char* xdg = std::getenv("XDG_RUNTIME_DIR");
     uid_t uid = getuid();
     std::string base;
@@ -72,127 +74,47 @@ std::string HazkeyEmacsConnector::runtimeDir() {
     } else {
         base = "/tmp/hazkey-runtime-" + std::to_string(uid);
     }
-    return base + "/hazkey-emacs";
+    return base + "/hazkey-server." + std::to_string(uid) + ".sock";
 }
 
-bool HazkeyEmacsConnector::isSocketAlive(const std::string& socketPath) {
-    int fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (fd < 0) return false;
-
-    sockaddr_un addr{};
-    addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, socketPath.c_str(), sizeof(addr.sun_path) - 1);
-
-    bool alive = (connect(fd, (sockaddr*)&addr, sizeof(addr)) == 0);
-    close(fd);
-    return alive;
-}
-
-std::string HazkeyEmacsConnector::getLockPath() {
-    return runtimeDir() + "/hazkey-server." + std::to_string(getuid()) + ".lock";
-}
-
-void HazkeyEmacsConnector::cleanStaleLock() {
-    std::string lockPath = getLockPath();
-    FILE* f = fopen(lockPath.c_str(), "r");
-    if (!f) return;
-
-    int pid = 0;
-    if (fscanf(f, "%d", &pid) == 1 && pid > 0) {
-        if (kill(pid, 0) != 0) {
-            fclose(f);
-            unlink(lockPath.c_str());
-            fprintf(stderr, "hazkey_emacs_helper: removed stale lock (dead pid %d)\n", pid);
-            return;
-        }
-    }
-    fclose(f);
-}
-
-bool HazkeyEmacsConnector::startDedicatedServer() {
-    std::string dir = runtimeDir();
-    std::string socketPath = getSocketPath();
-
-    fprintf(stderr, "hazkey_emacs_helper: starting dedicated hazkey-server...\n");
-
+void HazkeyEmacsConnector::startHazkeyServer() {
+    // Double fork so the server is not left as our zombie and outlives us.
     pid_t pid = fork();
     if (pid == 0) {
-        setenv("XDG_RUNTIME_DIR", dir.c_str(), 1);
+        setsid();
+        if (fork() != 0) _exit(0);
 
-        int devnull = open("/dev/null", O_WRONLY);
+        int devnull = open("/dev/null", O_RDWR);
         if (devnull >= 0) {
+            dup2(devnull, STDIN_FILENO);
             dup2(devnull, STDOUT_FILENO);
             dup2(devnull, STDERR_FILENO);
             close(devnull);
         }
 
-        execlp("hazkey-server", "hazkey-server", "-r", nullptr);
+        execlp("hazkey-server", "hazkey-server", nullptr);
         _exit(127);
     } else if (pid > 0) {
-        serverPid_ = pid;
-        for (int i = 0; i < 40; i++) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
-            if (access(socketPath.c_str(), F_OK) == 0) {
-                fprintf(stderr, "hazkey_emacs_helper: dedicated server started (pid %d)\n", pid);
-                return true;
-            }
-        }
-        fprintf(stderr, "hazkey_emacs_helper: server start timeout\n");
-        return false;
+        int status;
+        waitpid(pid, &status, 0);
     } else {
         fprintf(stderr, "hazkey_emacs_helper: fork failed\n");
-        return false;
     }
 }
 
-void HazkeyEmacsConnector::ensureDedicatedServer() {
-    std::string dir = runtimeDir();
-    mkdir(dir.c_str(), 0700);
-
-    std::string socketPath = getSocketPath();
-
-    if (access(socketPath.c_str(), F_OK) == 0) {
-        if (isSocketAlive(socketPath)) {
-            return;
-        }
-        fprintf(stderr, "hazkey_emacs_helper: removing stale socket\n");
-        unlink(socketPath.c_str());
-    }
-
-    cleanStaleLock();
-
-    if (startDedicatedServer()) return;
-
-    // Retry once after cleaning up
-    cleanStaleLock();
-    std::string lockPath = getLockPath();
-    unlink(lockPath.c_str());
-    unlink(socketPath.c_str());
-    startDedicatedServer();
-}
-
-HazkeyEmacsConnector::HazkeyEmacsConnector() {
-    ensureDedicatedServer();
-    connectServer();
-}
+HazkeyEmacsConnector::HazkeyEmacsConnector() { connectServer(); }
 
 HazkeyEmacsConnector::~HazkeyEmacsConnector() {
     if (sock_ >= 0) close(sock_);
-    if (serverPid_ > 0) {
-        kill(serverPid_, SIGTERM);
-        int status;
-        waitpid(serverPid_, &status, WNOHANG);
-    }
-}
-
-std::string HazkeyEmacsConnector::getSocketPath() {
-    uid_t uid = getuid();
-    return runtimeDir() + "/hazkey-server." + std::to_string(uid) + ".sock";
 }
 
 void HazkeyEmacsConnector::connectServer() {
     std::string socket_path = getSocketPath();
-    constexpr int MAX_RETRIES = 8;
+    // Start the server after the 1st failure and wait for it. No forced
+    // restart (-r): it would kill the server other clients are using, or one
+    // that is still loading its dictionary.
+    constexpr int ATTEMPT_TRY_START = 0;
+    constexpr int MAX_RETRIES = 40;
     constexpr int RETRY_INTERVAL_MS = 250;
 
     for (int attempt = 0; attempt < MAX_RETRIES; ++attempt) {
@@ -225,6 +147,10 @@ void HazkeyEmacsConnector::connectServer() {
         }
         close(sock_);
         sock_ = -1;
+        if (attempt == ATTEMPT_TRY_START) {
+            fprintf(stderr, "hazkey_emacs_helper: starting hazkey-server\n");
+            startHazkeyServer();
+        }
         std::this_thread::sleep_for(
             std::chrono::milliseconds(RETRY_INTERVAL_MS));
     }

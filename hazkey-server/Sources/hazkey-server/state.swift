@@ -2,17 +2,61 @@ import Foundation
 import KanaKanjiConverterModule
 import SwiftUtils
 
-class HazkeyServerState {
-    let serverConfig: HazkeyServerConfig
-    let converter: KanaKanjiConverter
+/// Per-connection input state. The converter, config and learning data are shared.
+final class ClientSession {
     var currentCandidateList: [Candidate]?
     var composingText: ComposingTextBox = ComposingTextBox()
 
     var isShiftPressedAlone = false
     var isSubInputMode = false
-    var learningDataNeedsCommit = false
     var lastTrailingClauseYomiCount = 0
     var lastLiveTextCandidate: Candidate?
+
+    /// Zenzai mode with this client's left context; nil means the base options' mode.
+    var zenzaiMode: ConvertRequestOptions.ZenzaiMode?
+
+    func resetForNewConfiguration() {
+        composingText = ComposingTextBox()
+        currentCandidateList = nil
+        isSubInputMode = false
+        isShiftPressedAlone = false
+        zenzaiMode = nil
+    }
+}
+
+class HazkeyServerState {
+    let serverConfig: HazkeyServerConfig
+    let converter: KanaKanjiConverter
+
+    private var sessions: [Int32: ClientSession] = [:]
+    private var session = ClientSession()
+
+    var currentCandidateList: [Candidate]? {
+        get { session.currentCandidateList }
+        set { session.currentCandidateList = newValue }
+    }
+    var composingText: ComposingTextBox {
+        get { session.composingText }
+        set { session.composingText = newValue }
+    }
+    var isShiftPressedAlone: Bool {
+        get { session.isShiftPressedAlone }
+        set { session.isShiftPressedAlone = newValue }
+    }
+    var isSubInputMode: Bool {
+        get { session.isSubInputMode }
+        set { session.isSubInputMode = newValue }
+    }
+    var lastTrailingClauseYomiCount: Int {
+        get { session.lastTrailingClauseYomiCount }
+        set { session.lastTrailingClauseYomiCount = newValue }
+    }
+    var lastLiveTextCandidate: Candidate? {
+        get { session.lastLiveTextCandidate }
+        set { session.lastLiveTextCandidate = newValue }
+    }
+
+    var learningDataNeedsCommit = false
 
     var keymap: Keymap
     var currentTableName: String
@@ -63,10 +107,25 @@ class HazkeyServerState {
         self.baseConvertRequestOptions = serverConfig.genBaseConvertRequestOptions()
     }
 
+    /// Clients
+
+    func activateSession(clientFd: Int32) {
+        if let existing = sessions[clientFd] {
+            session = existing
+        } else {
+            let newSession = ClientSession()
+            sessions[clientFd] = newSession
+            session = newSession
+        }
+    }
+
+    func removeSession(clientFd: Int32) {
+        sessions.removeValue(forKey: clientFd)
+    }
+
     func setContext(surroundingText: String, anchorIndex: Int) -> Hazkey_ResponseEnvelope {
         let leftContext = String(surroundingText.prefix(anchorIndex))
-        baseConvertRequestOptions.zenzaiMode = serverConfig.genZenzaiMode(
-            leftContext: leftContext)
+        session.zenzaiMode = serverConfig.genZenzaiMode(leftContext: leftContext)
 
         return Hazkey_ResponseEnvelope.with {
             $0.status = .success
@@ -446,6 +505,9 @@ class HazkeyServerState {
         }
 
         var options = baseConvertRequestOptions
+        if let zenzaiMode = session.zenzaiMode {
+            options.zenzaiMode = zenzaiMode
+        }
         let N_best = {
             if is_suggest
                 && serverConfig.currentProfile.suggestionListMode
@@ -600,10 +662,11 @@ class HazkeyServerState {
 
         self.baseConvertRequestOptions = serverConfig.genBaseConvertRequestOptions()
 
-        self.composingText = ComposingTextBox()
-        self.currentCandidateList = nil
-        self.isSubInputMode = false
-        self.isShiftPressedAlone = false
+        // Composing texts refer to the old input table, so reset every client.
+        for existing in sessions.values {
+            existing.resetForNewConfiguration()
+        }
+        session.resetForNewConfiguration()
 
         NSLog("State configuration reinitialized successfully")
     }

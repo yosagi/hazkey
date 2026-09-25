@@ -47,15 +47,9 @@ class HazkeyEmacsConnector {
     hazkey::commands::CandidatesResult getCandidates(bool isSuggest);
 
    private:
-    void ensureDedicatedServer();
-    bool startDedicatedServer();
-    bool isSocketAlive(const std::string& socketPath);
-    void cleanStaleLock();
-    std::string getLockPath();
-    std::string runtimeDir();
+    void startHazkeyServer();
 
     int sock_ = -1;
-    pid_t serverPid_ = -1;
 };
 
 #endif

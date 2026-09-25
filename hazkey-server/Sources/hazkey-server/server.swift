@@ -69,10 +69,12 @@ class HazkeyServer: SocketManagerDelegate {
             NSLog("protocolHandler is nil! exiting...")
             exit(1)
         }
-        return handler.processProto(data: data)
+        return handler.processProto(data: data, clientFd: clientFd)
     }
 
     func socketManager(_ manager: SocketManager, clientDidConnect clientFd: Int32) {}
 
-    func socketManager(_ manager: SocketManager, clientDidDisconnect clientFd: Int32) {}
+    func socketManager(_ manager: SocketManager, clientDidDisconnect clientFd: Int32) {
+        protocolHandler?.clientDidDisconnect(clientFd: clientFd)
+    }
 }

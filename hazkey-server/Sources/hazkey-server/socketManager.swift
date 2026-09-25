@@ -14,7 +14,7 @@ class SocketManager {
     private var continueServing = true
 
     private var serverFd: Int32 = -1
-    private var currentClientFd: Int32?
+    private var clientFds: [Int32] = []
     private let socketPath: String
     private var pipeFds: [Int32] = [-1, -1]
 
@@ -109,8 +109,8 @@ class SocketManager {
             // poll stopper
             pollFds.append(pollfd(fd: pipeFds[0], events: Int16(POLLIN), revents: 0))
 
-            // If we have a current client, also poll it
-            if let clientFd = currentClientFd {
+            // Poll all connected clients
+            for clientFd in clientFds {
                 pollFds.append(pollfd(fd: clientFd, events: Int16(POLLIN), revents: 0))
             }
 
@@ -143,18 +143,16 @@ class SocketManager {
                 handleNewConnection()
             }
 
-            // Check if current client has data
-            if pollFds.count > 2, let clientFd = currentClientFd {
-                let clientEvents = Int32(pollFds[2].revents)
-
-                if clientEvents & POLLHUP != 0 || clientEvents & POLLERR != 0 {
-                    NSLog("Client disconnected or error: \(clientFd)")
-                    closeClient(clientFd)
-                    continue
-                }
+            // Check each client for data
+            for pfd in pollFds[2...] {
+                let clientFd = pfd.fd
+                let clientEvents = Int32(pfd.revents)
 
                 if clientEvents & POLLIN != 0 {
                     handleClientData(clientFd)
+                } else if clientEvents & (POLLHUP | POLLERR | POLLNVAL) != 0 {
+                    NSLog("Client disconnected or error: \(clientFd)")
+                    closeClient(clientFd)
                 }
             }
         }
@@ -166,12 +164,6 @@ class SocketManager {
         let newClientFd = accept(serverFd, &clientAddr, &clientLen)
 
         if newClientFd != -1 {
-            // If we already have a client, close it
-            if let existingClientFd = currentClientFd {
-                NSLog("New client connecting, closing existing client: \(existingClientFd)")
-                closeClient(existingClientFd)
-            }
-
             // Set up the new client
             NSLog("Client connected: \(newClientFd)")
 
@@ -181,9 +173,8 @@ class SocketManager {
             if fcntlRes != 0 {
                 NSLog("fcntl() failed for client")
                 close(newClientFd)
-                currentClientFd = nil
             } else {
-                currentClientFd = newClientFd
+                clientFds.append(newClientFd)
                 delegate?.socketManager(self, clientDidConnect: newClientFd)
             }
         }
@@ -256,17 +247,15 @@ class SocketManager {
     private func closeClient(_ clientFd: Int32) {
         NSLog("Closing client connection: \(clientFd)")
         close(clientFd)
-        if currentClientFd == clientFd {
-            currentClientFd = nil
-        }
+        clientFds.removeAll { $0 == clientFd }
         delegate?.socketManager(self, clientDidDisconnect: clientFd)
     }
 
     func closeSocket() {
-        if let clientFd = currentClientFd {
+        for clientFd in clientFds {
             close(clientFd)
-            currentClientFd = nil
         }
+        clientFds.removeAll()
 
         if serverFd != -1 {
             close(serverFd)

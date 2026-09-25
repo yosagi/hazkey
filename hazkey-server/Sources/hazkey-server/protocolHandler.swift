@@ -8,7 +8,8 @@ class ProtocolHandler {
         self.state = state
     }
 
-    func processProto(data: Data) -> Data {
+    func processProto(data: Data, clientFd: Int32) -> Data {
+        state.activateSession(clientFd: clientFd)
         let query: Hazkey_RequestEnvelope
         let response: Hazkey_ResponseEnvelope
 
@@ -86,6 +87,10 @@ class ProtocolHandler {
             }
         }
         return serializeResult(unserialized: response)
+    }
+
+    func clientDidDisconnect(clientFd: Int32) {
+        state.removeSession(clientFd: clientFd)
     }
 
     private func serializeResult(unserialized: Hazkey_ResponseEnvelope) -> Data {

@@ -20,6 +20,32 @@ else
     GCC_DEV_PKGS="libgcc-${GCC_VER}-dev libstdc++-${GCC_VER}-dev"
 fi
 
+# Swift 付属の clang は /usr/lib/gcc/<triple>/ の中で最も新しい版を選ぶ。
+# gcc 本体より新しい libgcc-N-dev だけが入っていると C++ ヘッダが見つからず
+# ビルドが失敗するので、その版の libstdc++-N-dev も入れる
+GCC_TRIPLE=$(gcc -dumpmachine 2>/dev/null || true)
+if [[ -n "$GCC_TRIPLE" && -d /usr/lib/gcc/$GCC_TRIPLE ]]; then
+    CLANG_GCC_VER=$(ls /usr/lib/gcc/"$GCC_TRIPLE" | grep -E '^[0-9]+$' | sort -n | tail -1)
+    if [[ -n "$CLANG_GCC_VER" && "$CLANG_GCC_VER" != "$GCC_VER" ]]; then
+        GCC_DEV_PKGS="$GCC_DEV_PKGS libstdc++-${CLANG_GCC_VER}-dev"
+    fi
+fi
+
+# swift.org の手順は 22.04 向けに python3-lldb-13 を挙げるが、24.04 以降には無い
+# リリースもあるので、無ければバージョン無しの python3-lldb を使う
+if apt-cache show python3-lldb-13 >/dev/null 2>&1; then
+    LLDB_PKG=python3-lldb-13
+else
+    LLDB_PKG=python3-lldb
+fi
+
+# Swift 6.4 (swiftly) が要求する gold リンカ。単独パッケージになったのは
+# 比較的新しいリリースからなので、あるときだけ入れる
+GOLD_PKG=""
+if apt-cache show binutils-gold >/dev/null 2>&1; then
+    GOLD_PKG=binutils-gold
+fi
+
 # ---------- Swift ツールチェーンのシステム依存 ----------
 # https://www.swift.org/install/linux/
 # swiftly (ユーザーレベル) で Swift 本体を入れる前に必要
@@ -30,6 +56,7 @@ SWIFT_DEPS=(
     libc6-dev
     libcurl4-openssl-dev
     libedit2
+    libncurses-dev
     libpython3-dev
     libsqlite3-0
     libxml2-dev
@@ -39,7 +66,8 @@ SWIFT_DEPS=(
     zip
     unzip
     zlib1g-dev
-    python3-lldb-13
+    $LLDB_PKG
+    $GOLD_PKG
     $GCC_DEV_PKGS
 )
 
