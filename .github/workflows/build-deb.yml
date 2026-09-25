@@ -16,14 +16,18 @@ jobs:
         include:
           - runner: ubuntu-22.04
             codename: jammy
+            swift_ver: 6.2-RELEASE
             swift_url: https://download.swift.org/swift-6.2-release/ubuntu2204/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu22.04.tar.gz
           - runner: ubuntu-24.04
             codename: noble
+            swift_ver: 6.2-RELEASE
             swift_url: https://download.swift.org/swift-6.2-release/ubuntu2404/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu24.04.tar.gz
           - runner: ubuntu-26.04
             codename: resolute
-            # swift.org has no ubuntu26.04 toolchain yet; the 24.04 build runs fine on 26.04
-            swift_url: https://download.swift.org/swift-6.2-release/ubuntu2404/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu24.04.tar.gz
+            # Swift 6.4.0 is the first release with an ubuntu26.04 toolchain.
+            # Older (24.04) toolchains fail on 26.04: swift-build needs libxml2.so.2
+            swift_ver: 6.4.0-RELEASE
+            swift_url: https://download.swift.org/swift-6.4.0-release/ubuntu2604/swift-6.4.0-RELEASE/swift-6.4.0-RELEASE-ubuntu26.04.tar.gz
 
     runs-on: ${{ matrix.runner }}
 
@@ -37,7 +41,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/swift
-          key: ${{ matrix.runner }}-swift-6.2-RELEASE
+          key: ${{ matrix.runner }}-swift-${{ matrix.swift_ver }}
 
       - name: Install Swift
         if: steps.cache-swift.outputs.cache-hit != 'true'
