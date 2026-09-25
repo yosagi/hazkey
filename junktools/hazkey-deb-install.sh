@@ -16,13 +16,13 @@ gh auth status >/dev/null 2>&1 || { echo "ERROR: gh が未認証です。gh auth
 
 . /etc/os-release
 case "${VERSION_CODENAME:-}" in
-    jammy|noble)
+    jammy|noble|resolute)
         CODENAME="${VERSION_CODENAME}"
         ;;
     *)
-        # 26.04 以降は Actions ランナー未提供のため noble の deb を流用する
-        echo "NOTE: ${VERSION_CODENAME:-unknown} 向けビルドは無いため noble の deb を使います" >&2
-        CODENAME="noble"
+        # 未対応リリースは resolute の deb を流用する（動く保証はない）
+        echo "NOTE: ${VERSION_CODENAME:-unknown} 向けビルドは無いため resolute の deb を使います" >&2
+        CODENAME="resolute"
         ;;
 esac
 
