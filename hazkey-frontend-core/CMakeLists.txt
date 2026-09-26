@@ -13,6 +13,7 @@ set(PROTO_FILES
 )
 
 add_library(hazkey-frontend-core STATIC
+    src/state_machine.cpp
     src/utf8.cpp
 )
 

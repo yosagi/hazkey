@@ -6,133 +6,47 @@
 #include <fcitx/surroundingtext.h>
 
 #include <optional>
-#include <string>
-#include <vector>
 
-#include "commands.pb.h"
-#include "hazkey_candidate.h"
+#include "hazkey/frontend/frontend_hooks.h"
+#include "hazkey/frontend/state_machine.h"
 #include "hazkey_preedit.h"
 
 namespace fcitx {
 
 class HazkeyEngine;
 
-class HazkeyState : public InputContextProperty {
+// Connects an fcitx input context to the shared state machine: converts key
+// events and shows the resulting preedit, aux text and candidates.
+class HazkeyState : public InputContextProperty,
+                    public hazkey::frontend::FrontendHooks {
    public:
     HazkeyState(HazkeyEngine* engine, InputContext* ic);
 
-    // complete the prefix and remove from composingText_
-    void candidateCompleteHandler(
-        std::shared_ptr<HazkeyCandidateList> candidateList);
-    void commitPreedit();
-    // handle key event. call candidateKeyEvent or preeditNoPredictKeyEvent
-    // depends on the current mode
     void keyEvent(KeyEvent& keyEvent);
-    // void loadConfig(std::shared_ptr<HazkeyConfig> &config);
-    //  reset to the initial state
+    // commit the preedit as is and reset (on deactivation)
+    void commitAndReset();
+    // reset to the initial state
     void reset();
 
+    // FrontendHooks
+    std::optional<hazkey::frontend::SurroundingText> surroundingText()
+        override;
+    bool showTabToSelect() override;
+
    private:
-    enum class ConversionMode {
-        Hiragana,
-        KatakanaFullwidth,
-        KatakanaHalfwidth,
-        RawFullwidth,
-        RawHalfwidth,
-    };
+    // check if the key event is inputable (simple key / kana key) or not
+    static bool isInputableEvent(const KeyEvent& keyEvent);
+    static hazkey::frontend::KeyEvent toCoreKeyEvent(const KeyEvent& keyEvent);
+    // replace the input panel contents with the state machine output
+    void apply(const hazkey::frontend::Output& output);
+    void applyAuxDown(hazkey::frontend::AuxDown aux);
 
-    enum class showCandidateMode {
-        PredictWithLivePreedit,
-        NonPredictWithFirstPreedit,
-    };
-
-    // update surrounding text
-    void updateSurroundingText(std::string appendText = "");
-
-    bool ctrlShortcutHandler(KeyEvent& keyEvent);
-    // f6-f10 key handler
-    void functionKeyHandler(KeyEvent& keyEvent);
-    // convert to hiragana/katakana/alphanumeric directly
-    void directCharactorConversion(ConversionMode mode);
-    // handle key event in normal mode (no preedit)
-    void noPreeditKeyEvent(KeyEvent& keyEvent);
-    // handle key event in candidate mode
-    void candidateKeyEvent(KeyEvent& keyEvent,
-                           std::shared_ptr<HazkeyCandidateList> candidateList);
-    // handle key event in preedit mode
-    void preeditKeyEvent(
-        KeyEvent& keyEvent,
-        std::shared_ptr<HazkeyCandidateList> PreeditCandidateList);
-    // base function to prepare candidate list
-    // make sure composingText_ is not nullptr
-    bool showCandidateList(bool isSuggest);
-    std::unique_ptr<HazkeyCandidateList> createCandidateList(
-        std::vector<std::vector<std::string>> candidates,
-        std::shared_ptr<std::vector<std::string>> preeditSegments);
-
-    // prepare candidate list for normal conversion
-    void showNonPredictCandidateList(bool preserveTarget = false);
-    // prepare candidate
-    // list for prediction.
-    // shorter than normal
-    void showPreeditCandidateList();
-
-    // update the candidate cursor
-    void updateCandidateCursor(
-        std::shared_ptr<HazkeyCandidateList> candidateList);
-    // advance the cursor in
-    // the candidate list,
-    // update aux, set
-    // preedit text
-    void advanceCandidateCursor(
-        std::shared_ptr<HazkeyCandidateList> candidateList);
-    // back the cursor in
-    // the candidate list,
-    // update aux, set
-    // preedit text
-    void backCandidateCursor(
-        std::shared_ptr<HazkeyCandidateList> candidateList);
-    void moveSegmentBoundary(bool expand);
-    // update aux; label on
-    // the candidate list
-    // like "[1/100]"
-    void setCandidateCursorAUX(
-        std::shared_ptr<HazkeyCandidateList> candidateList);
-    // set AuxDown
-    // like "[Tabキーで選択]" or "[直接入力]"
-    void setAuxDownText(std::optional<std::string>);
-    // UpAUX that shows unconverted text
-    void setHiraganaAUX();
-    // check if the key
-    // event is inputable
-    // (simple key / kana
-    // key) or not
-    bool isInputableEvent(const KeyEvent& keyEvent);
-
-    bool isAltDigitKeyEvent(const KeyEvent& keyEvent);
-
-    void shelveTrailingClause();
-    void completePrefixAndCommit();
-    void restoreShelvedReadings();
-    void clearShelvedReadings();
-
-    bool isCursorMoving_ = false;
-    bool isClauseBoundaryAdjusting_ = false;
-
-    bool isDirectConversionMode_ = false;
-    std::optional<hazkey::commands::GetComposingString::CharType>
-        directConversionCharType_;
-    int livePreeditIndex_ = -1;
-    bool completedWithNoRemaining_ = false;
-    std::vector<std::string> shelvedReadings_;
-    std::string lastTrailingClauseYomi_;
     // engine
     HazkeyEngine* engine_;
-    // fcitx input context
-    // pointer
+    // fcitx input context pointer
     InputContext* ic_;
-    // preedit class
     HazkeyPreedit preedit_;
+    hazkey::frontend::StateMachine core_;
 };
 
 }  // namespace fcitx

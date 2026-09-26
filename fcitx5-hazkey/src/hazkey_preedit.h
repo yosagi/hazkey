@@ -4,25 +4,26 @@
 #include <fcitx/inputcontext.h>
 #include <fcitx/inputpanel.h>
 
+#include <vector>
+
+#include "hazkey/frontend/output.h"
+
 namespace fcitx {
+
+// convert segments from the state machine to fcitx::Text
+Text toFcitxText(const std::vector<hazkey::frontend::Segment> &segments,
+                 int caretSegment = -1);
+
 class HazkeyPreedit {
    public:
     HazkeyPreedit(InputContext *ic) : ic_(ic) {}
 
-    std::string text() const;
-    void setSimplePreeditHighlighted(const std::string &text);
-    void setSimplePreedit(const std::string &text);
-    void setSimplePreeditWithFurigana(const std::string &text,
-                                      int stablePrefixLen,
-                                      const std::string &furigana);
-    void setMultiSegmentPreedit(std::vector<std::string> &texts, int cursor);
-    void setPreedit(Text text);
-    void commitPreedit();
-    void clear();
+    void render(const hazkey::frontend::Preedit &preedit);
 
    private:
+    void setPreedit(Text text);
+
     InputContext *ic_;
-    std::string commitText_;
 };
 
 }  // namespace fcitx

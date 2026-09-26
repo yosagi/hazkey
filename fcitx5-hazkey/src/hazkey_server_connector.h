@@ -10,8 +10,9 @@
 
 #include "base.pb.h"
 #include "commands.pb.h"
+#include "hazkey/frontend/server_api.h"
 
-class HazkeyServerConnector {
+class HazkeyServerConnector : public hazkey::frontend::ServerApi {
    public:
     // HazkeyServerConnector();
     // ~HazkeyServerConnector();
@@ -33,23 +34,23 @@ class HazkeyServerConnector {
 
     std::string getComposingText(
         hazkey::commands::GetComposingString::CharType type,
-        std::string currentPreedit);
+        const std::string& currentPreedit) override;
 
-    fcitx::Text getComposingHiraganaWithCursor();
+    hazkey::frontend::TextWithCursor getComposingHiraganaWithCursor() override;
 
-    void inputChar(std::string text);
+    void inputChar(const std::string& text) override;
 
-    void shiftKeyEvent(bool isRelease);
+    void shiftKeyEvent(bool isRelease) override;
 
-    bool currentInputModeIsDirect();
+    bool currentInputModeIsDirect() override;
 
-    void deleteLeft();
+    void deleteLeft() override;
 
-    void deleteRight();
+    void deleteRight() override;
 
-    void moveCursor(int offset);
+    void moveCursor(int offset) override;
 
-    void setContext(std::string context, int anchor);
+    void setContext(const std::string& context, int anchor) override;
 
     void setServerConfig(int zenzaiEnabled, int zenzaiInferLimit,
                          int numberFullwidth, int symbolFullwidth,
@@ -57,18 +58,18 @@ class HazkeyServerConnector {
                          int spaceFullwidth, int tenCombining,
                          std::string profileText);
 
-    void newComposingText();
+    void newComposingText() override;
 
-    void completePrefix(int index);
+    void completePrefix(int index) override;
 
     void directConversionComplete(
-        hazkey::commands::GetComposingString::CharType charType);
+        hazkey::commands::GetComposingString::CharType charType) override;
 
-    void deleteTrailingClause();
+    void deleteTrailingClause() override;
 
-    std::string completePrefixClauses();
+    std::string completePrefixClauses() override;
 
-    void insertHiragana(const std::string& text);
+    void insertHiragana(const std::string& text) override;
 
     void saveLearningData(bool tryConnect = true);
 
@@ -77,7 +78,7 @@ class HazkeyServerConnector {
         std::string subHiragana;
     };
 
-    hazkey::commands::CandidatesResult getCandidates(bool isSuggest);
+    hazkey::commands::CandidatesResult getCandidates(bool isSuggest) override;
 
    private:
     bool retryConnect();

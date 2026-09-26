@@ -1,17 +1,8 @@
 #include "hazkey_candidate.h"
 
-#include <vector>
-
-#include "commands.pb.h"
-
 namespace fcitx {
 
 /// CandidateWord
-
-std::vector<std::string> HazkeyCandidateWord::getPreedit() const {
-    if (hiragana_.empty()) return {candidate_};
-    return {candidate_, hiragana_};
-}
 
 void HazkeyCandidateWord::select(InputContext* ic) const {
     FCITX_UNUSED(ic);
@@ -26,47 +17,25 @@ void HazkeyCandidateWord::select(InputContext* ic) const {
 /// CandidateList
 
 HazkeyCandidateList::HazkeyCandidateList(
-    const google::protobuf::RepeatedPtrField<
-        ::hazkey::commands::CandidatesResult_Candidate>
-        candidates)
+    const hazkey::frontend::CandidateWindow& window)
     : CommonCandidateList() {
     // CandidateWord needs to know their own index
     int i = 0;
-    for (const auto& candidate : candidates) {
-        append(std::make_unique<HazkeyCandidateWord>(i, candidate));
+    for (const auto& candidate : window.items) {
+        append(std::make_unique<HazkeyCandidateWord>(i, candidate.text));
         i++;
+    }
+    setSelectionKey(defaultSelectionKeys);
+    setPageSize(window.pageSize);
+    // also moves to the page containing the cursor. an unfocused list is
+    // always on the first page.
+    if (window.focused()) {
+        setGlobalCursorIndex(window.cursor);
     }
 }
 
 CandidateLayoutHint HazkeyCandidateList::layoutHint() const {
     return CandidateLayoutHint::Vertical;
 }
-
-void HazkeyCandidateList::focus() { setGlobalCursorIndex(0); }
-
-const HazkeyCandidateWord& HazkeyCandidateList::getCandidate(
-    int localIndex) const {
-    return static_cast<const HazkeyCandidateWord&>(candidate(localIndex));
-}
-
-void HazkeyCandidateList::setCursorIndex(int localIndex) {
-    if (localIndex < 0 || localIndex >= size()) {
-        return;
-    }
-    int globalIndex = pageSize() * currentPage() + localIndex;
-    setGlobalCursorIndex(globalIndex);
-}
-
-void HazkeyCandidateList::nextPage() {
-    next();
-    setCursorIndex(0);
-}
-
-void HazkeyCandidateList::prevPage() {
-    prev();
-    setCursorIndex(0);
-}
-
-bool HazkeyCandidateList::focused() const { return (globalCursorIndex() >= 0); }
 
 }  // namespace fcitx

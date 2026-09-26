@@ -263,7 +263,7 @@ std::optional<hazkey::ResponseEnvelope> HazkeyServerConnector::transact(
 
 std::string HazkeyServerConnector::getComposingText(
     hazkey::commands::GetComposingString::CharType type,
-    std::string currentPreedit) {
+    const std::string& currentPreedit) {
     hazkey::RequestEnvelope request;
     auto props = request.mutable_get_composing_string();
     props->set_char_type(type);
@@ -288,36 +288,34 @@ std::string HazkeyServerConnector::getComposingText(
     return responseVal.text();
 }
 
-fcitx::Text HazkeyServerConnector::getComposingHiraganaWithCursor() {
+hazkey::frontend::TextWithCursor
+HazkeyServerConnector::getComposingHiraganaWithCursor() {
     hazkey::RequestEnvelope request;
     request.mutable_get_hiragana_with_cursor();
     auto response = transact(request);
     if (response == std::nullopt) {
         FCITX_ERROR()
             << "Error while transacting getComposingHiraganaWithCursor().";
-        return fcitx::Text();
+        return {};
     }
     auto responseVal = response.value();
     if (responseVal.status() != hazkey::SUCCESS) {
         FCITX_ERROR() << "getHiraganaWithCursor: "
                       << "Server returned an error: "
                       << responseVal.error_message();
-        return fcitx::Text();
+        return {};
     }
     if (!responseVal.has_text_with_cursor()) {
         FCITX_ERROR() << "getHiraganaWithCursor: "
                       << "Server returned unexpected response";
-        return fcitx::Text();
+        return {};
     }
-    fcitx::Text text =
-        fcitx::Text(responseVal.text_with_cursor().beforecursosr());
-    text.append(responseVal.text_with_cursor().oncursor(),
-                fcitx::TextFormatFlag::Underline);
-    text.append(responseVal.text_with_cursor().aftercursor());
-    return text;
+    return {responseVal.text_with_cursor().beforecursosr(),
+            responseVal.text_with_cursor().oncursor(),
+            responseVal.text_with_cursor().aftercursor()};
 }
 
-void HazkeyServerConnector::inputChar(std::string text) {
+void HazkeyServerConnector::inputChar(const std::string& text) {
     hazkey::RequestEnvelope request;
     auto props = request.mutable_input_char();
     props->set_text(text);
@@ -428,7 +426,8 @@ void HazkeyServerConnector::moveCursor(int offset) {
     return;
 }
 
-void HazkeyServerConnector::setContext(std::string context, int anchor) {
+void HazkeyServerConnector::setContext(const std::string& context,
+                                       int anchor) {
     hazkey::RequestEnvelope request;
     auto props = request.mutable_set_context();
     props->set_context(context);

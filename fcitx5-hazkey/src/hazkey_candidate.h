@@ -8,11 +8,9 @@
 #include <string>
 #include <vector>
 
-#include "commands.pb.h"
+#include "hazkey/frontend/output.h"
 
 namespace fcitx {
-
-class HazkeyState;
 
 const KeyList defaultSelectionKeys = {
     Key{FcitxKey_1}, Key{FcitxKey_2}, Key{FcitxKey_3}, Key{FcitxKey_4},
@@ -22,58 +20,27 @@ const KeyList defaultSelectionKeys = {
 
 class HazkeyCandidateWord : public CandidateWord {
    public:
-    HazkeyCandidateWord(const int index,
-                        const hazkey::commands::CandidatesResult_Candidate data)
-        : CandidateWord(Text(data.text())),
-          index_(index),
-          candidate_(std::move(data.text())),
-          hiragana_(std::move(data.sub_hiragana())) {
-        setText(Text(data.text()));
-    }
+    HazkeyCandidateWord(const int index, const std::string& text)
+        : CandidateWord(Text(text)), index_(index) {}
 
     // called when the candidate is selected (by pointing device?)
     // calculate the index of the candidate on current page
     // and send key to select the candidate
     void select(InputContext* ic) const override;
 
-    std::vector<std::string> getPreedit() const;
-
-    // int correspondingCount() const { return corresponding_count_; }
-
    private:
     const int index_;
-    const std::string candidate_;
-    const std::string hiragana_;
-    // const int corresponding_count_;
-    // const std::vector<std::string> parts_;
-    // const std::vector<int> part_lens_;
 };
 
+// display-only candidate list. the state machine owns the cursor and paging.
 class HazkeyCandidateList : public CommonCandidateList {
    public:
-    HazkeyCandidateList(google::protobuf::RepeatedPtrField<
-                        hazkey::commands::CandidatesResult_Candidate>
-                            candidates);
+    explicit HazkeyCandidateList(
+        const hazkey::frontend::CandidateWindow& window);
 
     // return the direction of the candidate list
     // currently always vertical
     CandidateLayoutHint layoutHint() const override;
-
-    const HazkeyCandidateWord& getCandidate(int localIndex) const;
-
-    // defined to support fcitx < 5.1.9
-    // recent versions of fcitx provide this function as a default
-    void setCursorIndex(int localIndex);
-
-    // set the cursor top of the next/prev page
-    void nextPage();
-    void prevPage();
-
-    // show cursor on the candidate list
-    void focus();
-
-    // whether the candidate list is focused
-    bool focused() const;
 };
 
 }  // namespace fcitx
