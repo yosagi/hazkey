@@ -12,6 +12,7 @@ include(GNUInstallDirs)
 
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
+add_subdirectory(hazkey-frontend-core)
 add_subdirectory(fcitx5-hazkey)
 add_subdirectory(hazkey-server)
 add_subdirectory(hazkey-settings)

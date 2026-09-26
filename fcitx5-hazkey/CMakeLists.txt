@@ -32,6 +32,13 @@ else()
     set(HAZKEY_ICON_NAME "hazkey")
 endif()
 
+# shared key handling state machine. added here too so that this directory
+# can also be built on its own.
+if(NOT TARGET hazkey-frontend-core)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../hazkey-frontend-core
+                     ${CMAKE_CURRENT_BINARY_DIR}/hazkey-frontend-core)
+endif()
+
 add_subdirectory(po)
 add_subdirectory(src)
 
