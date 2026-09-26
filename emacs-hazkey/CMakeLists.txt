@@ -13,7 +13,6 @@ endif()
 
 set(PROJECT_SOURCES
     src/main.cpp
-    src/hazkey_emacs_state.cpp
     src/hazkey_emacs_connector.cpp
     src/mozc_output_builder.cpp
     src/key_translator.cpp

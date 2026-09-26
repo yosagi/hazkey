@@ -221,7 +221,8 @@ std::string HazkeyEmacsConnector::getComposingText(
     return response->text();
 }
 
-TextWithCursor HazkeyEmacsConnector::getComposingHiraganaWithCursor() {
+hazkey::frontend::TextWithCursor
+HazkeyEmacsConnector::getComposingHiraganaWithCursor() {
     hazkey::RequestEnvelope request;
     request.mutable_get_hiragana_with_cursor();
     auto response = transact(request);
@@ -300,6 +301,26 @@ void HazkeyEmacsConnector::directConversionComplete(
     hazkey::commands::GetComposingString::CharType charType) {
     hazkey::RequestEnvelope request;
     request.mutable_direct_conversion_complete()->set_char_type(charType);
+    transact(request);
+}
+
+void HazkeyEmacsConnector::deleteTrailingClause() {
+    hazkey::RequestEnvelope request;
+    request.mutable_delete_trailing_clause();
+    transact(request);
+}
+
+std::string HazkeyEmacsConnector::completePrefixClauses() {
+    hazkey::RequestEnvelope request;
+    request.mutable_complete_prefix_clauses();
+    auto response = transact(request);
+    if (!response || response->status() != hazkey::SUCCESS) return "";
+    return response->text();
+}
+
+void HazkeyEmacsConnector::insertHiragana(const std::string& text) {
+    hazkey::RequestEnvelope request;
+    request.mutable_insert_hiragana()->set_text(text);
     transact(request);
 }
 

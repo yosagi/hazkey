@@ -1,46 +1,17 @@
 #ifndef HAZKEY_EMACS_KEY_TRANSLATOR_H_
 #define HAZKEY_EMACS_KEY_TRANSLATOR_H_
 
-#include <cstdint>
 #include <string>
 #include <vector>
 
-struct KeyEvent {
-    uint32_t keycode = 0;
-    std::string key_string;
-    bool shift = false;
-    bool ctrl = false;
-    bool meta = false;
-
-    enum SpecialKey {
-        NONE,
-        SPACE,
-        RETURN,
-        BACKSPACE,
-        DELETE_KEY,
-        TAB,
-        ESCAPE,
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
-        F6,
-        F7,
-        F8,
-        F9,
-        F10,
-        HENKAN,
-        MUHENKAN,
-    } special = NONE;
-
-    bool isInputable() const;
-    std::string inputString() const;
-};
+#include "hazkey/frontend/key_event.h"
 
 namespace KeyTranslator {
 
-KeyEvent translate(const std::vector<std::string>& tokens);
+// Convert the key tokens of a mozc.el SendKey command (e.g. `97`, `"あ"`,
+// `return`, `control`) to a key event of the shared state machine.
+hazkey::frontend::KeyEvent translate(const std::vector<std::string>& tokens);
 
-}
+}  // namespace KeyTranslator
 
 #endif

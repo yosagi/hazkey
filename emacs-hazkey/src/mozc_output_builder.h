@@ -4,13 +4,13 @@
 #include <cstdint>
 #include <string>
 
-#include "hazkey_emacs_state.h"
+#include "hazkey/frontend/output.h"
 
 namespace MozcOutputBuilder {
 
 std::string buildGreeting();
 std::string buildResponse(uint32_t eventId, uint32_t sessionId,
-                          const OutputData& output);
+                          const hazkey::frontend::Output& output);
 std::string buildCreateSessionResponse(uint32_t eventId, uint32_t sessionId);
 std::string buildDeleteSessionResponse(uint32_t eventId, uint32_t sessionId);
 

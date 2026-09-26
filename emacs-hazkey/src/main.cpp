@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -11,8 +12,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "hazkey/frontend/frontend_hooks.h"
+#include "hazkey/frontend/state_machine.h"
 #include "hazkey_emacs_connector.h"
-#include "hazkey_emacs_state.h"
 #include "key_translator.h"
 #include "mozc_emacs_helper_lib.h"
 #include "mozc_output_builder.h"
@@ -26,6 +28,31 @@ using mozc::emacs::kErrWrongTypeArgument;
 using mozc::emacs::kErrVoidFunction;
 
 enum CommandType { CREATE_SESSION, DELETE_SESSION, SEND_KEY };
+
+// mozc.el does not tell the text around the cursor, so the text committed in
+// this session is used as the left context instead.
+class EmacsHooks : public hazkey::frontend::FrontendHooks {
+   public:
+    std::optional<hazkey::frontend::SurroundingText> surroundingText()
+        override {
+        return hazkey::frontend::SurroundingText{
+            committedText_, static_cast<int>(committedText_.length())};
+    }
+    bool showTabToSelect() override { return false; }
+
+    void appendCommitted(const std::string& text) { committedText_ += text; }
+
+   private:
+    std::string committedText_;
+};
+
+struct Session {
+    explicit Session(HazkeyEmacsConnector& connector)
+        : core(connector, hooks) {}
+
+    EmacsHooks hooks;
+    hazkey::frontend::StateMachine core;
+};
 
 struct ParsedCommand {
     uint32_t event_id = 0;
@@ -114,7 +141,7 @@ int main() {
 
     HazkeyEmacsConnector connector;
     uint32_t nextSessionId = 1;
-    std::unordered_map<uint32_t, std::unique_ptr<HazkeyEmacsState>> sessions;
+    std::unordered_map<uint32_t, std::unique_ptr<Session>> sessions;
 
     std::string line;
     while (std::getline(std::cin, line)) {
@@ -126,8 +153,7 @@ int main() {
         switch (cmd.command) {
             case CREATE_SESSION: {
                 uint32_t sid = nextSessionId++;
-                sessions[sid] =
-                    std::make_unique<HazkeyEmacsState>(connector);
+                sessions[sid] = std::make_unique<Session>(connector);
                 response = MozcOutputBuilder::buildCreateSessionResponse(
                     cmd.event_id, sid);
                 break;
@@ -147,13 +173,12 @@ int main() {
                 if (it == sessions.end()) {
                     // Auto-create session if not found
                     sessions[cmd.session_id] =
-                        std::make_unique<HazkeyEmacsState>(connector);
+                        std::make_unique<Session>(connector);
                     it = sessions.find(cmd.session_id);
                 }
-                KeyEvent keyEvent =
-                    KeyTranslator::translate(cmd.key_tokens);
-                OutputData output =
-                    it->second->processKeyEvent(keyEvent);
+                auto keyEvent = KeyTranslator::translate(cmd.key_tokens);
+                auto output = it->second->core.keyEvent(keyEvent);
+                it->second->hooks.appendCommitted(output.commit);
                 response = MozcOutputBuilder::buildResponse(
                     cmd.event_id, cmd.session_id, output);
                 break;

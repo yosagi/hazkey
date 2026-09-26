@@ -6,74 +6,85 @@
 
 using mozc::emacs::QuoteString;
 
-static std::string buildPreedit(const OutputData& output) {
-    if (output.preedit_segments.empty()) return "";
+using hazkey::frontend::Output;
+using hazkey::frontend::SegmentStyle;
 
-    std::string result = "(preedit . ((cursor . ";
-    result += std::to_string(output.preedit_cursor);
-    result += ")(segment ";
-    for (const auto& seg : output.preedit_segments) {
-        result += "(";
-        if (seg.highlight) {
-            result += "(annotation . highlight)";
-        } else {
-            result += "(annotation . underline)";
-        }
-        result += "(value . ";
-        result += QuoteString(seg.value);
-        result += ")";
-        // value-length: character count for cursor positioning
-        int charCount = 0;
-        for (size_t i = 0; i < seg.value.size();) {
-            unsigned char ch = seg.value[i];
-            if (ch < 0x80)
-                i += 1;
-            else if (ch < 0xE0)
-                i += 2;
-            else if (ch < 0xF0)
-                i += 3;
-            else
-                i += 4;
-            charCount++;
-        }
-        result += "(value-length . ";
-        result += std::to_string(charCount);
-        result += ")";
-        result += ")";
+static const std::string kSelectionKeys = "1234567890";
+
+static int charCount(const std::string& text) {
+    int count = 0;
+    for (size_t i = 0; i < text.size();) {
+        unsigned char ch = text[i];
+        if (ch < 0x80)
+            i += 1;
+        else if (ch < 0xE0)
+            i += 2;
+        else if (ch < 0xF0)
+            i += 3;
+        else
+            i += 4;
+        count++;
     }
-    result += ")))";
-    return result;
+    return count;
 }
 
-static std::string buildCandidateWindow(const OutputData& output) {
-    if (output.visible_candidates.empty()) return "";
+static std::string buildPreedit(const Output& output) {
+    std::string segments;
+    for (const auto& seg : output.preedit.segments) {
+        if (seg.text.empty()) continue;
+        segments += "(";
+        if (seg.style == SegmentStyle::Highlight) {
+            segments += "(annotation . highlight)";
+        } else {
+            segments += "(annotation . underline)";
+        }
+        segments += "(value . ";
+        segments += QuoteString(seg.text);
+        segments += ")";
+        // value-length: character count for cursor positioning
+        segments += "(value-length . ";
+        segments += std::to_string(charCount(seg.text));
+        segments += ")";
+        segments += ")";
+    }
+    if (segments.empty()) return "";
+
+    return "(preedit . ((cursor . 0)(segment " + segments + ")))";
+}
+
+static std::string buildCandidateWindow(const Output& output) {
+    const auto& window = output.candidates;
+    if (!window.visible || window.items.empty()) return "";
 
     std::string result = "(candidates . (";
-    if (output.candidate_focused_index >= 0) {
+    if (window.focused()) {
         result += "(focused-index . ";
-        result += std::to_string(output.candidate_focused_index);
+        result += std::to_string(window.cursor);
         result += ")";
     }
     result += "(size . ";
-    result += std::to_string(output.candidate_total_size);
+    result += std::to_string(window.items.size());
     result += ")";
     result += "(category . ";
-    result += output.candidate_is_conversion ? "conversion" : "suggestion";
+    result += window.isConversion ? "conversion" : "suggestion";
     result += ")";
     result += "(footer . ((index-visible . ";
-    result += output.candidate_is_conversion ? "t" : "nil";
+    result += window.isConversion ? "t" : "nil";
     result += ")))";
 
     result += "(candidate ";
-    for (const auto& cand : output.visible_candidates) {
+    int pageStart = window.pageStart();
+    int pageEnd = pageStart + window.pageItemCount();
+    for (int i = pageStart; i < pageEnd; i++) {
+        int localIdx = i - pageStart;
         result += "((index . ";
-        result += std::to_string(cand.index);
+        result += std::to_string(i);
         result += ")(value . ";
-        result += QuoteString(cand.text);
+        result += QuoteString(window.items[i].text);
         result += ")";
-        if (!cand.shortcut.empty()) {
+        if (localIdx < static_cast<int>(kSelectionKeys.size())) {
             result += "(annotation . ((shortcut . ";
-            result += QuoteString(cand.shortcut);
+            result += QuoteString(std::string(1, kSelectionKeys[localIdx]));
             result += ")))";
         }
         result += ")";
@@ -91,7 +102,7 @@ std::string MozcOutputBuilder::buildGreeting() {
 
 std::string MozcOutputBuilder::buildResponse(uint32_t eventId,
                                               uint32_t sessionId,
-                                              const OutputData& output) {
+                                              const Output& output) {
     std::string result = "((emacs-event-id . ";
     result += std::to_string(eventId);
     result += ")(emacs-session-id . ";
@@ -99,12 +110,13 @@ std::string MozcOutputBuilder::buildResponse(uint32_t eventId,
     result += ")(output . (";
 
     result += "(consumed . ";
-    result += output.consumed ? "t" : "nil";
+    result += output.result == hazkey::frontend::KeyResult::Consumed ? "t"
+                                                                      : "nil";
     result += ")";
 
-    if (output.committed_text.has_value()) {
+    if (!output.commit.empty()) {
         result += "(result . ((type . string)(value . ";
-        result += QuoteString(output.committed_text.value());
+        result += QuoteString(output.commit);
         result += ")))";
     }
 

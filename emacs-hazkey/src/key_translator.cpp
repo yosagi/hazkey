@@ -1,78 +1,78 @@
 #include "key_translator.h"
 
 #include <cctype>
+#include <cstdint>
 #include <cstdlib>
 #include <string>
+#include <unordered_map>
 
+#include "hazkey/frontend/keysyms.h"
 #include "mozc_emacs_helper_lib.h"
 
-bool KeyEvent::isInputable() const {
-    if (ctrl || meta) return false;
-    if (special == SPACE) return true;
-    if (!key_string.empty()) return true;
-    if (keycode >= 0x20 && keycode < 0x7f) return true;
-    return false;
+namespace keysym = hazkey::frontend::keysym;
+namespace mod = hazkey::frontend::mod;
+
+namespace {
+
+// mozc.el special key names
+const std::unordered_map<std::string, uint32_t> kSpecialKeys = {
+    {"space", keysym::Space},     {"return", keysym::Return},
+    {"backspace", keysym::BackSpace}, {"delete", keysym::Delete},
+    {"tab", keysym::Tab},         {"escape", keysym::Escape},
+    {"up", keysym::Up},           {"down", keysym::Down},
+    {"left", keysym::Left},       {"right", keysym::Right},
+    {"f6", keysym::F6},           {"f7", keysym::F7},
+    {"f8", keysym::F8},           {"f9", keysym::F9},
+    {"f10", keysym::F10},         {"henkan", keysym::Henkan},
+    {"muhenkan", keysym::Muhenkan},
+};
+
+bool isPrintableAscii(uint32_t keycode) {
+    return keycode >= 0x20 && keycode < 0x7f;
 }
 
-std::string KeyEvent::inputString() const {
-    if (!key_string.empty()) return key_string;
-    if (special == SPACE) return " ";
-    if (keycode >= 0x20 && keycode < 0x7f) {
-        return std::string(1, static_cast<char>(keycode));
-    }
-    return "";
-}
+}  // namespace
 
-KeyEvent KeyTranslator::translate(const std::vector<std::string>& tokens) {
-    KeyEvent event;
+hazkey::frontend::KeyEvent KeyTranslator::translate(
+    const std::vector<std::string>& tokens) {
+    hazkey::frontend::KeyEvent event;
+    uint32_t keycode = 0;
+    uint32_t special = 0;
+    std::string keyString;
 
     for (const auto& tok : tokens) {
         if (tok.empty()) continue;
 
         if (tok[0] == '"') {
-            mozc::emacs::UnquoteString(tok, &event.key_string);
+            mozc::emacs::UnquoteString(tok, &keyString);
         } else if (std::isdigit(static_cast<unsigned char>(tok[0]))) {
-            event.keycode = static_cast<uint32_t>(std::strtoul(tok.c_str(), nullptr, 10));
+            keycode =
+                static_cast<uint32_t>(std::strtoul(tok.c_str(), nullptr, 10));
         } else if (tok == "shift") {
-            event.shift = true;
+            event.mods |= mod::Shift;
         } else if (tok == "control") {
-            event.ctrl = true;
+            event.mods |= mod::Ctrl;
         } else if (tok == "meta" || tok == "alt") {
-            event.meta = true;
-        } else if (tok == "space") {
-            event.special = KeyEvent::SPACE;
-        } else if (tok == "return") {
-            event.special = KeyEvent::RETURN;
-        } else if (tok == "backspace") {
-            event.special = KeyEvent::BACKSPACE;
-        } else if (tok == "delete") {
-            event.special = KeyEvent::DELETE_KEY;
-        } else if (tok == "tab") {
-            event.special = KeyEvent::TAB;
-        } else if (tok == "escape") {
-            event.special = KeyEvent::ESCAPE;
-        } else if (tok == "up") {
-            event.special = KeyEvent::UP;
-        } else if (tok == "down") {
-            event.special = KeyEvent::DOWN;
-        } else if (tok == "left") {
-            event.special = KeyEvent::LEFT;
-        } else if (tok == "right") {
-            event.special = KeyEvent::RIGHT;
-        } else if (tok == "f6") {
-            event.special = KeyEvent::F6;
-        } else if (tok == "f7") {
-            event.special = KeyEvent::F7;
-        } else if (tok == "f8") {
-            event.special = KeyEvent::F8;
-        } else if (tok == "f9") {
-            event.special = KeyEvent::F9;
-        } else if (tok == "f10") {
-            event.special = KeyEvent::F10;
-        } else if (tok == "henkan") {
-            event.special = KeyEvent::HENKAN;
-        } else if (tok == "muhenkan") {
-            event.special = KeyEvent::MUHENKAN;
+            event.mods |= mod::Alt;
+        } else if (auto it = kSpecialKeys.find(tok); it != kSpecialKeys.end()) {
+            special = it->second;
+        }
+    }
+
+    // printable ASCII keycodes are the same as their keysyms
+    if (special != 0) {
+        event.sym = special;
+    } else if (isPrintableAscii(keycode)) {
+        event.sym = keycode;
+    }
+
+    if (!(event.mods & (mod::Ctrl | mod::Alt))) {
+        if (special == keysym::Space) {
+            event.text = " ";
+        } else if (!keyString.empty()) {
+            event.text = keyString;
+        } else if (special == 0 && isPrintableAscii(keycode)) {
+            event.text = std::string(1, static_cast<char>(keycode));
         }
     }
 
