@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 目的: clone 直後のリポジトリからローカルで deb パッケージをビルドする。
 #       CI (.github/workflows/build-deb.yml) と同じ手順のローカル版。
-# 関連: .github/workflows/build-deb.yml, junktools/install-deps.sh
+# 関連: .github/workflows/build-deb.yml, junktools/install-deps.sh, junktools/gen-deb-copyright.sh
 # 前提: junktools/install-deps.sh を sudo で実行済み、Swift 6.1+ が PATH にある
 #       使い方: junktools/build-deb-local.sh [version]
 #               (version 省略時はコミット時刻+SHA を自動生成)
@@ -98,6 +98,10 @@ build_component hazkey-server \
 
 restore_ui
 trap - EXIT
+
+# ---------- 著作権・ライセンス表示 (CI と同じ) ----------
+"${ROOT}/junktools/gen-deb-copyright.sh" "${PKGROOT}" \
+    "${BUILDROOT}/hazkey-server/swift-build/checkouts"
 
 # ---------- strip (CI と同じ) ----------
 find "${PKGROOT}/usr" -type f -print0 \

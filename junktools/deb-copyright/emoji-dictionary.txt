@@ -1,0 +1,23 @@
+The emoji dictionary (emoji_all_E16.0.txt) comes from
+https://github.com/azooKey/azooKey_emoji_dictionary_storage, which has no
+top-level license file. It is generated from the following sources
+(as listed in that repository's data/README.md):
+
+- emoji_data.tsv (readings and emoji versions), from Mozc
+  https://github.com/google/mozc/blob/master/src/data/emoji/emoji_data.tsv
+  Copyright 2010-2018, Google Inc.
+  License: BSD-3-Clause (the Mozc license text is reproduced below)
+
+- emoji-sequences.txt, emoji-zwj-sequences.txt, emoji-test.txt
+  (skin-tone variations, genre and ordering data), from
+  https://unicode.org/Public/emoji/latest/
+  © 2022 Unicode®, Inc.
+  License: Unicode-3.0 (reproduced below)
+
+- annotations/ja.xml and annotationsDerived/ja.xml (search keywords),
+  from Unicode CLDR https://github.com/unicode-org/cldr
+  Copyright © 1991-2023 Unicode, Inc.
+  License: Unicode-3.0 (reproduced below)
+
+- emoji_additional.tsv, prepared by the azooKey project
+  License: MIT, same as azooKey (see the AzooKeyKanaKanjiConverter section)

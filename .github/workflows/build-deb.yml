@@ -110,6 +110,11 @@ jobs:
           ninja -j$(nproc)
           DESTDIR=${{ github.workspace }}/pkgroot ninja install
 
+      - name: Generate copyright file
+        run: |
+          junktools/gen-deb-copyright.sh ${{ github.workspace }}/pkgroot \
+            hazkey-server/build/swift-build/checkouts
+
       - name: Strip binaries
         run: |
           find ${{ github.workspace }}/pkgroot/usr/ -type f -print0 \
