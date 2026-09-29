@@ -228,17 +228,26 @@ std::optional<hazkey::ResponseEnvelope> ServerConnection::transact(
     hooks_.log(LogLevel::Debug,
                "Sending message of size: " + std::to_string(msg.size()));
 
+    // A request that failed while being written never reached the server
+    // (it died or closed the connection), so it is sent once more after
+    // reconnecting instead of being dropped.
     uint32_t writeLen = htonl(msg.size());
-    if (!writeAll(sock_, &writeLen, 4) ||
-        !writeAll(sock_, msg.c_str(), msg.size())) {
-        closeSocket();
-        if (tryConnect) {
-            hooks_.log(LogLevel::Info,
-                       "Failed to communicate with server while writing. "
-                       "reconnecting to hazkey-server...");
-            connectLocked();
+    for (int attempt = 0;; ++attempt) {
+        if (writeAll(sock_, &writeLen, 4) &&
+            writeAll(sock_, msg.c_str(), msg.size())) {
+            break;
         }
-        return std::nullopt;
+        closeSocket();
+        if (!tryConnect || attempt > 0) {
+            return std::nullopt;
+        }
+        hooks_.log(LogLevel::Info,
+                   "Failed to communicate with server while writing. "
+                   "reconnecting to hazkey-server...");
+        if (!connectLocked()) {
+            return std::nullopt;
+        }
+        hooks_.log(LogLevel::Info, "Resending the request");
     }
 
     uint32_t readLenBuf;

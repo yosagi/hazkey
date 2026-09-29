@@ -56,8 +56,9 @@ class ServerConnection {
     void disconnect();
 
     // Send a request and wait for the response. When not connected, connects
-    // first if tryConnect is true. A failure while writing reconnects for the
-    // next call (if tryConnect), a failure while reading just disconnects.
+    // first if tryConnect is true. A failure while writing reconnects and
+    // sends the request once more (if tryConnect), a failure while reading
+    // just disconnects.
     std::optional<hazkey::ResponseEnvelope> transact(
         const hazkey::RequestEnvelope& request, bool tryConnect = true);
 
