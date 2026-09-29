@@ -13,8 +13,9 @@
 #include <unistd.h>
 
 #include "hazkey/frontend/frontend_hooks.h"
+#include "hazkey/frontend/server_client.h"
+#include "hazkey/frontend/server_connection.h"
 #include "hazkey/frontend/state_machine.h"
-#include "hazkey_emacs_connector.h"
 #include "key_translator.h"
 #include "mozc_emacs_helper_lib.h"
 #include "mozc_output_builder.h"
@@ -28,6 +29,27 @@ using mozc::emacs::kErrWrongTypeArgument;
 using mozc::emacs::kErrVoidFunction;
 
 enum CommandType { CREATE_SESSION, DELETE_SESSION, SEND_KEY };
+
+// Logs go to stderr, which is redirected to the log file (see redirectStderr).
+class EmacsConnectionHooks : public hazkey::frontend::ConnectionHooks {
+   public:
+    void startServer(bool forceRestart) override {
+        fprintf(stderr, "hazkey_emacs_helper: starting hazkey-server\n");
+        hazkey::frontend::spawnServerDetached(forceRestart);
+    }
+    void log(hazkey::frontend::LogLevel level,
+             const std::string& message) override {
+        if (level == hazkey::frontend::LogLevel::Debug) return;
+        fprintf(stderr, "hazkey_emacs_helper: %s\n", message.c_str());
+    }
+};
+
+// Start the server after the 1st failure and wait for it. No forced restart
+// (-r): it would kill the server other clients are using, or one that is
+// still loading its dictionary.
+constexpr hazkey::frontend::ConnectPolicy kConnectPolicy{
+    /*maxRetries=*/40, /*retryIntervalMs=*/250, /*startAttempt=*/0,
+    /*forceRestartAttempt=*/-1};
 
 // mozc.el does not tell the text around the cursor, so the text committed in
 // this session is used as the left context instead.
@@ -47,8 +69,8 @@ class EmacsHooks : public hazkey::frontend::FrontendHooks {
 };
 
 struct Session {
-    explicit Session(HazkeyEmacsConnector& connector)
-        : core(connector, hooks) {}
+    explicit Session(hazkey::frontend::ServerClient& client)
+        : core(client, hooks) {}
 
     EmacsHooks hooks;
     hazkey::frontend::StateMachine core;
@@ -139,7 +161,11 @@ int main() {
     std::cout << MozcOutputBuilder::buildGreeting() << "\n";
     std::cout.flush();
 
-    HazkeyEmacsConnector connector;
+    EmacsConnectionHooks connectionHooks;
+    hazkey::frontend::ServerConnection connection(connectionHooks,
+                                                  kConnectPolicy);
+    hazkey::frontend::ServerClient client(connection, connectionHooks);
+    connection.connect();
     uint32_t nextSessionId = 1;
     std::unordered_map<uint32_t, std::unique_ptr<Session>> sessions;
 
@@ -153,7 +179,7 @@ int main() {
         switch (cmd.command) {
             case CREATE_SESSION: {
                 uint32_t sid = nextSessionId++;
-                sessions[sid] = std::make_unique<Session>(connector);
+                sessions[sid] = std::make_unique<Session>(client);
                 response = MozcOutputBuilder::buildCreateSessionResponse(
                     cmd.event_id, sid);
                 break;
@@ -163,7 +189,7 @@ int main() {
                 if (it != sessions.end()) {
                     sessions.erase(it);
                 }
-                connector.saveLearningData();
+                client.saveLearningData();
                 response = MozcOutputBuilder::buildDeleteSessionResponse(
                     cmd.event_id, cmd.session_id);
                 break;
@@ -173,7 +199,7 @@ int main() {
                 if (it == sessions.end()) {
                     // Auto-create session if not found
                     sessions[cmd.session_id] =
-                        std::make_unique<Session>(connector);
+                        std::make_unique<Session>(client);
                     it = sessions.find(cmd.session_id);
                 }
                 auto keyEvent = KeyTranslator::translate(cmd.key_tokens);
@@ -189,6 +215,6 @@ int main() {
         std::cout.flush();
     }
 
-    connector.saveLearningData(false);
+    client.saveLearningData(false);
     return 0;
 }

@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 
-# Key handling state machine shared by the frontends (fcitx5, emacs).
-# Also generates the protobuf code of the server protocol for them.
+# Key handling state machine and hazkey-server connection shared by the
+# clients (fcitx5, emacs, settings). Also generates the protobuf code of the
+# server protocol for them.
 project(hazkey-frontend-core LANGUAGES CXX)
 
 find_package(Protobuf REQUIRED)
@@ -14,6 +15,8 @@ set(PROTO_FILES
 
 add_library(hazkey-frontend-core STATIC
     src/state_machine.cpp
+    src/server_connection.cpp
+    src/server_client.cpp
     src/utf8.cpp
 )
 

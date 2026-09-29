@@ -4,8 +4,8 @@ project(emacs-hazkey VERSION 0.2.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# shared key handling state machine. added here too so that this directory
-# can also be built on its own.
+# shared key handling state machine and server connection. added here too
+# so that this directory can also be built on its own.
 if(NOT TARGET hazkey-frontend-core)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../hazkey-frontend-core
                      ${CMAKE_CURRENT_BINARY_DIR}/hazkey-frontend-core)
@@ -13,7 +13,6 @@ endif()
 
 set(PROJECT_SOURCES
     src/main.cpp
-    src/hazkey_emacs_connector.cpp
     src/mozc_output_builder.cpp
     src/key_translator.cpp
     mozc_lib/mozc_emacs_helper_lib.cc

@@ -1,4 +1,4 @@
-add_library(fcitx5-hazkey SHARED hazkey_state.cpp hazkey_engine.cpp hazkey_candidate.cpp hazkey_preedit.cpp hazkey_server_connector.cpp)
+add_library(fcitx5-hazkey SHARED hazkey_state.cpp hazkey_engine.cpp hazkey_candidate.cpp hazkey_preedit.cpp)
 
 configure_file(hazkey_constants.h.in hazkey_constants.h @ONLY)
 

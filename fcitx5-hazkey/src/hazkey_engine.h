@@ -8,11 +8,20 @@
 #include <fcitx/instance.h>
 #include <iconv.h>
 
+#include "hazkey/frontend/server_client.h"
+#include "hazkey/frontend/server_connection.h"
 #include "hazkey_config.h"
-#include "hazkey_server_connector.h"
 #include "hazkey_state.h"
 
 namespace fcitx {
+
+// Starts hazkey-server with fcitx5's process helper and logs with FCITX_*.
+class FcitxConnectionHooks : public hazkey::frontend::ConnectionHooks {
+   public:
+    void startServer(bool forceRestart) override;
+    void log(hazkey::frontend::LogLevel level,
+             const std::string &message) override;
+};
 
 class HazkeyEngine : public InputMethodEngineV2 {
    public:
@@ -31,7 +40,7 @@ class HazkeyEngine : public InputMethodEngineV2 {
     auto factory() const { return &factory_; }
     auto instance() const { return instance_; }
 
-    HazkeyServerConnector &server() { return server_; }
+    hazkey::frontend::ServerClient &server() { return client_; }
 
     const Configuration *getConfig() const override { return &config_; }
     void setConfig(const RawConfig &config) override;
@@ -45,7 +54,9 @@ class HazkeyEngine : public InputMethodEngineV2 {
     HazkeyEngineConfig config_;
     Instance *instance_;
     FactoryFor<HazkeyState> factory_;
-    HazkeyServerConnector server_;
+    FcitxConnectionHooks connectionHooks_;
+    hazkey::frontend::ServerConnection connection_;
+    hazkey::frontend::ServerClient client_;
     iconv_t conv_;
 };
 
