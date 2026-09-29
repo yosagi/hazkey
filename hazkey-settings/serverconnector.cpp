@@ -4,10 +4,14 @@
 #include <QStringList>
 
 namespace {
-// Start the server after the 1st failed attempt, with -r after the 4th.
+// Start the server after the 1st failed attempt. No forced restart (-r):
+// connect() fails only while no server is running or while it is still
+// loading, and -r would kill the loading server (or the one other clients
+// use). An old server of a different version is replaced by the new server
+// itself.
 constexpr hazkey::frontend::ConnectPolicy kConnectPolicy{
     /*maxRetries=*/8, /*retryIntervalMs=*/250, /*startAttempt=*/0,
-    /*forceRestartAttempt=*/3};
+    /*forceRestartAttempt=*/-1};
 }  // namespace
 
 void SettingsConnectionHooks::startServer(bool forceRestart) {
