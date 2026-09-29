@@ -22,10 +22,13 @@ namespace {
 
 constexpr uint32_t MAX_RESPONSE_SIZE = 2 * 1024 * 1024;  // 2MB
 
+// send() with MSG_NOSIGNAL instead of write(): writing to a socket whose
+// server died raises SIGPIPE, which kills clients that do not ignore it
+// (emacs helper, hazkey-settings) before they can reconnect.
 bool writeAll(int fd, const void* data, size_t len) {
     size_t sent = 0;
     while (sent < len) {
-        ssize_t n = write(fd, (const char*)data + sent, len - sent);
+        ssize_t n = send(fd, (const char*)data + sent, len - sent, MSG_NOSIGNAL);
         if (n < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 fd_set wfds;
