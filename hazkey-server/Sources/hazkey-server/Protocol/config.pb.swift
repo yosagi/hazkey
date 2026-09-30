@@ -102,6 +102,34 @@ struct Hazkey_Config_InputTable: Sendable {
   init() {}
 }
 
+/// A key binding of the clients. The server stores and hands these out without
+/// looking inside; hazkey-frontend-core defines the actions and the key syntax.
+struct Hazkey_Config_KeyBinding: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var action: String = String()
+
+  var keys: [String] = []
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
+struct Hazkey_Config_KeyBindingList: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var bindings: [Hazkey_Config_KeyBinding] = []
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 struct Hazkey_Config_BackendDevice: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -320,6 +348,12 @@ struct Hazkey_Config_Profile: @unchecked Sendable {
   var hasSubmodeEntryPointChars: Bool {return _storage._submodeEntryPointChars != nil}
   /// Clears the value of `submodeEntryPointChars`. Subsequent reads from it will return its default value.
   mutating func clearSubmodeEntryPointChars() {_uniqueStorage()._submodeEntryPointChars = nil}
+
+  /// actions not listed use the default keys of the clients
+  var keyBindings: [Hazkey_Config_KeyBinding] {
+    get {return _storage._keyBindings}
+    set {_uniqueStorage()._keyBindings = newValue}
+  }
 
   var useDefaultZenzaiSettings: Bool {
     get {return _storage._useDefaultZenzaiSettings ?? false}
@@ -792,6 +826,17 @@ struct Hazkey_Config_ReloadZenzaiModel: Sendable {
   init() {}
 }
 
+/// key bindings of the current profile
+struct Hazkey_Config_GetKeyBindings: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 struct Hazkey_Config_CurrentConfig: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -961,6 +1006,76 @@ extension Hazkey_Config_InputTable: SwiftProtobuf.Message, SwiftProtobuf._Messag
   }
 }
 
+extension Hazkey_Config_KeyBinding: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".KeyBinding"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "action"),
+    2: .same(proto: "keys"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.action) }()
+      case 2: try { try decoder.decodeRepeatedStringField(value: &self.keys) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.action.isEmpty {
+      try visitor.visitSingularStringField(value: self.action, fieldNumber: 1)
+    }
+    if !self.keys.isEmpty {
+      try visitor.visitRepeatedStringField(value: self.keys, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Hazkey_Config_KeyBinding, rhs: Hazkey_Config_KeyBinding) -> Bool {
+    if lhs.action != rhs.action {return false}
+    if lhs.keys != rhs.keys {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Hazkey_Config_KeyBindingList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".KeyBindingList"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "bindings"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.bindings) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.bindings.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.bindings, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Hazkey_Config_KeyBindingList, rhs: Hazkey_Config_KeyBindingList) -> Bool {
+    if lhs.bindings != rhs.bindings {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Hazkey_Config_BackendDevice: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".BackendDevice"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -1026,6 +1141,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
     55: .standard(proto: "use_default_table_settings"),
     56: .standard(proto: "enabled_tables"),
     60: .standard(proto: "submode_entry_point_chars"),
+    70: .standard(proto: "key_bindings"),
     100: .standard(proto: "use_default_zenzai_settings"),
     101: .standard(proto: "zenzai_enable"),
     102: .standard(proto: "zenzai_infer_limit"),
@@ -1064,6 +1180,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
     var _useDefaultTableSettings: Bool? = nil
     var _enabledTables: [Hazkey_Config_Profile.EnabledInputTable] = []
     var _submodeEntryPointChars: String? = nil
+    var _keyBindings: [Hazkey_Config_KeyBinding] = []
     var _useDefaultZenzaiSettings: Bool? = nil
     var _zenzaiEnable: Bool? = nil
     var _zenzaiInferLimit: Int32? = nil
@@ -1109,6 +1226,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
       _useDefaultTableSettings = source._useDefaultTableSettings
       _enabledTables = source._enabledTables
       _submodeEntryPointChars = source._submodeEntryPointChars
+      _keyBindings = source._keyBindings
       _useDefaultZenzaiSettings = source._useDefaultZenzaiSettings
       _zenzaiEnable = source._zenzaiEnable
       _zenzaiInferLimit = source._zenzaiInferLimit
@@ -1162,6 +1280,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
         case 55: try { try decoder.decodeSingularBoolField(value: &_storage._useDefaultTableSettings) }()
         case 56: try { try decoder.decodeRepeatedMessageField(value: &_storage._enabledTables) }()
         case 60: try { try decoder.decodeSingularStringField(value: &_storage._submodeEntryPointChars) }()
+        case 70: try { try decoder.decodeRepeatedMessageField(value: &_storage._keyBindings) }()
         case 100: try { try decoder.decodeSingularBoolField(value: &_storage._useDefaultZenzaiSettings) }()
         case 101: try { try decoder.decodeSingularBoolField(value: &_storage._zenzaiEnable) }()
         case 102: try { try decoder.decodeSingularInt32Field(value: &_storage._zenzaiInferLimit) }()
@@ -1257,6 +1376,9 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
       try { if let v = _storage._submodeEntryPointChars {
         try visitor.visitSingularStringField(value: v, fieldNumber: 60)
       } }()
+      if !_storage._keyBindings.isEmpty {
+        try visitor.visitRepeatedMessageField(value: _storage._keyBindings, fieldNumber: 70)
+      }
       try { if let v = _storage._useDefaultZenzaiSettings {
         try visitor.visitSingularBoolField(value: v, fieldNumber: 100)
       } }()
@@ -1323,6 +1445,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
         if _storage._useDefaultTableSettings != rhs_storage._useDefaultTableSettings {return false}
         if _storage._enabledTables != rhs_storage._enabledTables {return false}
         if _storage._submodeEntryPointChars != rhs_storage._submodeEntryPointChars {return false}
+        if _storage._keyBindings != rhs_storage._keyBindings {return false}
         if _storage._useDefaultZenzaiSettings != rhs_storage._useDefaultZenzaiSettings {return false}
         if _storage._zenzaiEnable != rhs_storage._zenzaiEnable {return false}
         if _storage._zenzaiInferLimit != rhs_storage._zenzaiInferLimit {return false}
@@ -1672,6 +1795,25 @@ extension Hazkey_Config_ReloadZenzaiModel: SwiftProtobuf.Message, SwiftProtobuf.
   }
 
   static func ==(lhs: Hazkey_Config_ReloadZenzaiModel, rhs: Hazkey_Config_ReloadZenzaiModel) -> Bool {
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Hazkey_Config_GetKeyBindings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".GetKeyBindings"
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    // Load everything into unknown fields
+    while try decoder.nextFieldNumber() != nil {}
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Hazkey_Config_GetKeyBindings, rhs: Hazkey_Config_GetKeyBindings) -> Bool {
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

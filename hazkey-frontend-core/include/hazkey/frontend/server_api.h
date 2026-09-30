@@ -4,6 +4,7 @@
 #include <string>
 
 #include "commands.pb.h"
+#include "hazkey/frontend/keybindings.h"
 
 namespace hazkey::frontend {
 
@@ -39,6 +40,8 @@ class ServerApi {
     virtual void insertHiragana(const std::string& text) = 0;
     virtual hazkey::commands::CandidatesResult getCandidates(
         bool isSuggest) = 0;
+    // key bindings from the config, merged with the defaults
+    virtual KeyBindings getKeyBindings() = 0;
 };
 
 }  // namespace hazkey::frontend

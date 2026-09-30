@@ -241,6 +241,14 @@ struct Hazkey_RequestEnvelope: Sendable {
     set {payload = .reloadZenzaiModel(newValue)}
   }
 
+  var getKeyBindings: Hazkey_Config_GetKeyBindings {
+    get {
+      if case .getKeyBindings(let v)? = payload {return v}
+      return Hazkey_Config_GetKeyBindings()
+    }
+    set {payload = .getKeyBindings(newValue)}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   enum OneOf_Payload: Equatable, Sendable {
@@ -266,6 +274,7 @@ struct Hazkey_RequestEnvelope: Sendable {
     case getDefaultProfile(Hazkey_Config_GetDefaultProfile)
     case clearAllHistory_p(Hazkey_Config_ClearAllHistory)
     case reloadZenzaiModel(Hazkey_Config_ReloadZenzaiModel)
+    case getKeyBindings(Hazkey_Config_GetKeyBindings)
 
   }
 
@@ -323,6 +332,14 @@ struct Hazkey_ResponseEnvelope: Sendable {
     set {payload = .currentConfig(newValue)}
   }
 
+  var keyBindings: Hazkey_Config_KeyBindingList {
+    get {
+      if case .keyBindings(let v)? = payload {return v}
+      return Hazkey_Config_KeyBindingList()
+    }
+    set {payload = .keyBindings(newValue)}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   enum OneOf_Payload: Equatable, Sendable {
@@ -331,6 +348,7 @@ struct Hazkey_ResponseEnvelope: Sendable {
     case textWithCursor(Hazkey_Commands_TextWithCursor)
     case currentInputModeInfo(Hazkey_Commands_CurrentInputModeInfo)
     case currentConfig(Hazkey_Config_CurrentConfig)
+    case keyBindings(Hazkey_Config_KeyBindingList)
 
   }
 
@@ -374,6 +392,7 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     102: .standard(proto: "get_default_profile"),
     103: .standard(proto: "clear_all_history"),
     104: .standard(proto: "reload_zenzai_model"),
+    105: .standard(proto: "get_key_bindings"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -668,6 +687,19 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
           self.payload = .reloadZenzaiModel(v)
         }
       }()
+      case 105: try {
+        var v: Hazkey_Config_GetKeyBindings?
+        var hadOneofValue = false
+        if let current = self.payload {
+          hadOneofValue = true
+          if case .getKeyBindings(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.payload = .getKeyBindings(v)
+        }
+      }()
       default: break
       }
     }
@@ -767,6 +799,10 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
       guard case .reloadZenzaiModel(let v)? = self.payload else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 104)
     }()
+    case .getKeyBindings?: try {
+      guard case .getKeyBindings(let v)? = self.payload else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 105)
+    }()
     case nil: break
     }
     try unknownFields.traverse(visitor: &visitor)
@@ -789,6 +825,7 @@ extension Hazkey_ResponseEnvelope: SwiftProtobuf.Message, SwiftProtobuf._Message
     5: .standard(proto: "text_with_cursor"),
     6: .standard(proto: "current_input_mode_info"),
     100: .standard(proto: "current_config"),
+    101: .standard(proto: "key_bindings"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -859,6 +896,19 @@ extension Hazkey_ResponseEnvelope: SwiftProtobuf.Message, SwiftProtobuf._Message
           self.payload = .currentConfig(v)
         }
       }()
+      case 101: try {
+        var v: Hazkey_Config_KeyBindingList?
+        var hadOneofValue = false
+        if let current = self.payload {
+          hadOneofValue = true
+          if case .keyBindings(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.payload = .keyBindings(v)
+        }
+      }()
       default: break
       }
     }
@@ -895,6 +945,10 @@ extension Hazkey_ResponseEnvelope: SwiftProtobuf.Message, SwiftProtobuf._Message
     case .currentConfig?: try {
       guard case .currentConfig(let v)? = self.payload else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 100)
+    }()
+    case .keyBindings?: try {
+      guard case .keyBindings(let v)? = self.payload else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 101)
     }()
     case nil: break
     }

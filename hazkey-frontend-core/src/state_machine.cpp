@@ -36,6 +36,7 @@ int CandidateWindow::pageItemCount() const {
 StateMachine::StateMachine(ServerApi& server, FrontendHooks& hooks)
     : server_(server), hooks_(hooks) {
     server_.newComposingText();
+    keyBindings_ = server_.getKeyBindings();
 }
 
 Output StateMachine::finish(KeyResult result) {
@@ -114,6 +115,8 @@ bool StateMachine::noPreeditKeyEvent(const KeyEvent& event) {
     }
 
     if (!event.text.empty()) {
+        // pick up changes of the config at the start of each composition
+        keyBindings_ = server_.getKeyBindings();
         updateSurroundingText();
         server_.inputChar(event.text);
         showPreeditCandidateList();

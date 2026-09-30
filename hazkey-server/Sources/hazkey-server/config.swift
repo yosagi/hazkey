@@ -39,6 +39,8 @@ class HazkeyServerConfig {
     var zenzaiAvailable: Bool
     var zenzaiModelPath: URL?
     var ggmlBackendDevices: [GGMLBackendDevice]
+    // modification time of the config file when the key bindings were read
+    private var keyBindingsMtime: Date?
 
     init() {
         do {
@@ -179,6 +181,30 @@ class HazkeyServerConfig {
         return Hazkey_ResponseEnvelope.with {
             $0.status = .success
             $0.currentConfig = currentConfig
+        }
+    }
+
+    // Key bindings of the current profile. They are read again when the
+    // config file has changed, so that hand edits take effect without
+    // restarting the server. The server does not look inside them.
+    func getKeyBindings() -> Hazkey_ResponseEnvelope {
+        let configPath = Self.getConfigDirectory().appendingPathComponent("config.json")
+        let mtime =
+            (try? FileManager.default.attributesOfItem(atPath: configPath.path))?[
+                .modificationDate] as? Date
+        if mtime != keyBindingsMtime {
+            keyBindingsMtime = mtime
+            do {
+                currentProfile.keyBindings = try Self.loadConfig()[0].keyBindings
+            } catch {
+                NSLog("Failed to reload key bindings: \(error)")
+            }
+        }
+        return Hazkey_ResponseEnvelope.with {
+            $0.status = .success
+            $0.keyBindings = Hazkey_Config_KeyBindingList.with {
+                $0.bindings = currentProfile.keyBindings
+            }
         }
     }
 

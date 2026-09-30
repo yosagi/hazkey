@@ -144,6 +144,39 @@ hazkey::commands::CandidatesResult ServerClient::getCandidates(
     return response->candidates();
 }
 
+KeyBindings ServerClient::getKeyBindings() {
+    hazkey::RequestEnvelope req;
+    req.mutable_get_key_bindings();
+    // not through request(): servers older than the key binding support
+    // return an error every time, and the defaults are fine for them
+    auto response = connection_.transact(req);
+    if (!response || response->status() != hazkey::SUCCESS ||
+        !response->has_key_bindings()) {
+        hooks_.log(LogLevel::Debug,
+                   "getKeyBindings: not available, keeping the current ones");
+        return keyBindings_;
+    }
+
+    auto serialized = response->key_bindings().SerializeAsString();
+    if (serialized == lastKeyBindings_) {
+        return keyBindings_;
+    }
+    lastKeyBindings_ = serialized;
+
+    std::vector<std::pair<std::string, std::vector<std::string>>> entries;
+    for (const auto& binding : response->key_bindings().bindings()) {
+        entries.push_back({binding.action(),
+                           {binding.keys().begin(), binding.keys().end()}});
+    }
+    std::vector<std::string> errors;
+    keyBindings_ = KeyBindings();
+    keyBindings_.assign(entries, errors);
+    for (const auto& error : errors) {
+        hooks_.log(LogLevel::Error, "key bindings: " + error);
+    }
+    return keyBindings_;
+}
+
 void ServerClient::saveLearningData(bool tryConnect) {
     hazkey::RequestEnvelope req;
     req.mutable_save_learning_data();

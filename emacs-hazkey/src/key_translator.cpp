@@ -21,10 +21,19 @@ const std::unordered_map<std::string, uint32_t> kSpecialKeys = {
     {"tab", keysym::Tab},         {"escape", keysym::Escape},
     {"up", keysym::Up},           {"down", keysym::Down},
     {"left", keysym::Left},       {"right", keysym::Right},
-    {"f6", keysym::F6},           {"f7", keysym::F7},
-    {"f8", keysym::F8},           {"f9", keysym::F9},
-    {"f10", keysym::F10},         {"henkan", keysym::Henkan},
-    {"muhenkan", keysym::Muhenkan},
+    {"home", keysym::Home},       {"end", keysym::End},
+    {"pageup", keysym::Page_Up},  {"pagedown", keysym::Page_Down},
+    {"insert", keysym::Insert},
+    {"f1", keysym::F1},           {"f2", keysym::F2},
+    {"f3", keysym::F3},           {"f4", keysym::F4},
+    {"f5", keysym::F5},           {"f6", keysym::F6},
+    {"f7", keysym::F7},           {"f8", keysym::F8},
+    {"f9", keysym::F9},           {"f10", keysym::F10},
+    {"f11", keysym::F11},         {"f12", keysym::F12},
+    {"henkan", keysym::Henkan},   {"muhenkan", keysym::Muhenkan},
+    {"kana", keysym::Hiragana_Katakana},
+    {"zenkaku-hankaku", keysym::Zenkaku_Hankaku},
+    {"eisu", keysym::Eisu_toggle},
 };
 
 bool isPrintableAscii(uint32_t keycode) {

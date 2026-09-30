@@ -68,6 +68,8 @@ class ProtocolHandler {
                 req.fileHashes, req.profiles, state: state)
         case .clearAllHistory_p:
             response = state.clearProfileLearningData()
+        case .getKeyBindings:
+            response = state.serverConfig.getKeyBindings()
         case .reloadZenzaiModel:
             state.serverConfig.reloadZenzaiModel()
             response = Hazkey_ResponseEnvelope.with {

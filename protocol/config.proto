@@ -27,6 +27,17 @@ message InputTable {
     string filename = 3;
 }
 
+// A key binding of the clients. The server stores and hands these out without
+// looking inside; hazkey-frontend-core defines the actions and the key syntax.
+message KeyBinding {
+    string action = 1;
+    repeated string keys = 2;
+}
+
+message KeyBindingList {
+    repeated KeyBinding bindings = 1;
+}
+
 message BackendDevice {
     string name = 1;
     string desc = 2;
@@ -111,6 +122,9 @@ message Profile {
 
     optional string submode_entry_point_chars = 60;
 
+    // actions not listed use the default keys of the clients
+    repeated KeyBinding key_bindings = 70;
+
     optional bool use_default_zenzai_settings = 100;
     optional bool zenzai_enable = 101;
     optional int32 zenzai_infer_limit = 102;
@@ -141,6 +155,9 @@ message ClearAllHistory {
 }
 
 message ReloadZenzaiModel {}
+
+// key bindings of the current profile
+message GetKeyBindings {}
 
 // Response messages
 
