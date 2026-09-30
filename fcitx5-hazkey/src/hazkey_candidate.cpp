@@ -27,9 +27,13 @@ HazkeyCandidateList::HazkeyCandidateList(
     }
     setSelectionKey(defaultSelectionKeys);
     setPageSize(window.pageSize);
-    // also moves to the page containing the cursor. an unfocused list is
-    // always on the first page.
+    // setGlobalCursorIndex() does not move the page, so set the page first.
+    // the cursor goes after it: setPage() carries the old cursor over to the
+    // new page. an unfocused list is always on the first page.
     if (window.focused()) {
+        if (window.page > 0 && window.page < totalPages()) {
+            setPage(window.page);
+        }
         setGlobalCursorIndex(window.cursor);
     }
 }
