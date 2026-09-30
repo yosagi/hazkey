@@ -126,18 +126,37 @@ bool StateMachine::noPreeditKeyEvent(const KeyEvent& event) {
 }
 
 bool StateMachine::preeditKeyEvent(const KeyEvent& event) {
-    auto sym = event.sym;
+    auto action = keyBindings_.lookup(KeyContext::Composing, event);
+    if (action.has_value()) {
+        composingAction(*action);
+        return true;
+    }
 
-    if (sym == keysym::Return && event.mods == mod::Shift) {
-        completePrefixAndCommit();
-        return true;
+    if (event.mods == mod::Ctrl) {
+        // unassigned control keys do nothing while composing
+    } else if (isAltDigitKeyEvent(event)) {
+        if (candidates_.visible) {
+            int localIndex = static_cast<int>(event.sym - keysym::Digit1);
+            if (localIndex < candidates_.pageItemCount()) {
+                candidates_.cursor = candidates_.pageStart() + localIndex;
+                candidateCompleteHandler();
+            }
+        }
+    } else if (!event.text.empty()) {
+        clearShelvedReadings();
+        if (isDirectConversionMode_) {
+            commitPreedit();
+            resetState();
+        }
+        server_.inputChar(event.text);
+        showPreeditCandidateList();
     }
-    if (sym == keysym::BackSpace && event.mods == mod::Shift) {
-        shelveTrailingClause();
-        return true;
-    }
-    switch (sym) {
-        case keysym::Return:
+    return true;
+}
+
+void StateMachine::composingAction(Action action) {
+    switch (action) {
+        case Action::ComposingCommit:
             commitPreedit();
             if (livePreeditIndex_ >= 0) {
                 server_.completePrefix(livePreeditIndex_);
@@ -148,40 +167,36 @@ bool StateMachine::preeditKeyEvent(const KeyEvent& event) {
             resetState();
             restoreShelvedReadings();
             break;
-        case keysym::BackSpace:
+        case Action::ComposingCommitPrefix:
+            completePrefixAndCommit();
+            break;
+        case Action::ComposingShelveTrailingClause:
+            shelveTrailingClause();
+            break;
+        case Action::ComposingDeleteLeft:
             server_.deleteLeft();
             showPreeditCandidateList();
             break;
-        case keysym::Delete:
+        case Action::ComposingDeleteRight:
             server_.deleteRight();
             showPreeditCandidateList();
             break;
-        case keysym::F6:
-        case keysym::F7:
-        case keysym::F8:
-        case keysym::F9:
-        case keysym::F10:
-        case keysym::Muhenkan:
-            functionKeyHandler(sym);
-            break;
-        case keysym::Escape:
+        case Action::ComposingCancel:
             clearShelvedReadings();
             resetState();
             break;
-        case keysym::Space:
-            if (!isDirectConversionMode_ && event.mods == mod::Shift) {
-                server_.inputChar(" ");
-                showPreeditCandidateList();
-            } else {
-                showNonPredictCandidateList();
-            }
-            break;
-        case keysym::Henkan:
+        case Action::ComposingConvert:
             showNonPredictCandidateList();
             break;
-        case keysym::Up:
-        case keysym::Down:
-        case keysym::Tab:
+        case Action::ComposingInsertSpace:
+            if (isDirectConversionMode_) {
+                showNonPredictCandidateList();
+            } else {
+                server_.inputChar(" ");
+                showPreeditCandidateList();
+            }
+            break;
+        case Action::ComposingFocusCandidates:
             if (!candidates_.visible) {
                 showNonPredictCandidateList();
             } else {
@@ -190,42 +205,19 @@ bool StateMachine::preeditKeyEvent(const KeyEvent& event) {
                 updateCandidateCursor();
             }
             break;
-        case keysym::Left:
+        case Action::ComposingCursorLeft:
             isCursorMoving_ = true;
             server_.moveCursor(-1);
             break;
-        case keysym::Right:
+        case Action::ComposingCursorRight:
             if (isCursorMoving_) {
                 server_.moveCursor(1);
             }
             break;
         default:
-            if (event.mods == (mod::Ctrl | mod::Shift) &&
-                (sym == keysym::h || sym == keysym::H)) {
-                shelveTrailingClause();
-            } else if (event.mods == mod::Ctrl) {
-                ctrlShortcutHandler(sym);
-            } else if (isAltDigitKeyEvent(event)) {
-                if (candidates_.visible) {
-                    int localIndex = static_cast<int>(sym - keysym::Digit1);
-                    if (localIndex < candidates_.pageItemCount()) {
-                        candidates_.cursor =
-                            candidates_.pageStart() + localIndex;
-                        candidateCompleteHandler();
-                    }
-                }
-            } else if (!event.text.empty()) {
-                clearShelvedReadings();
-                if (isDirectConversionMode_) {
-                    commitPreedit();
-                    resetState();
-                }
-                server_.inputChar(event.text);
-                showPreeditCandidateList();
-            }
+            convertToAction(action);
             break;
     }
-    return true;
 }
 
 bool StateMachine::isAltDigitKeyEvent(const KeyEvent& event) {
@@ -244,93 +236,86 @@ int StateMachine::selectionKeyIndex(const KeyEvent& event) {
 }
 
 bool StateMachine::candidateKeyEvent(const KeyEvent& event) {
-    auto sym = event.sym;
+    auto action = keyBindings_.lookup(KeyContext::Candidate, event);
+    if (action.has_value()) {
+        candidateAction(*action);
+        return true;
+    }
 
-    switch (sym) {
-        case keysym::Right:
-            if (event.mods == mod::Shift) {
-                moveSegmentBoundary(true);
-            } else {
-                nextCandidatePage();
+    int selection = isAltDigitKeyEvent(event)
+                        ? static_cast<int>(event.sym - keysym::Digit1)
+                        : selectionKeyIndex(event);
+    if (event.mods == mod::Ctrl) {
+        // unassigned control keys go to the application
+        return false;
+    } else if (selection >= 0) {
+        if (selection < candidates_.pageItemCount()) {
+            completedWithNoRemaining_ = false;
+            candidates_.cursor = candidates_.pageStart() + selection;
+            candidateCompleteHandler();
+            if (completedWithNoRemaining_) {
+                restoreShelvedReadings();
             }
+        }
+    } else if (!event.text.empty()) {
+        clearShelvedReadings();
+        commitPreedit();
+        resetState();
+        server_.inputChar(event.text);
+        showPreeditCandidateList();
+    } else {
+        return false;
+    }
+    return true;
+}
+
+void StateMachine::candidateAction(Action action) {
+    switch (action) {
+        case Action::CandidateNext:
+            advanceCandidateCursor();
             break;
-        case keysym::Left:
-            if (event.mods == mod::Shift) {
-                moveSegmentBoundary(false);
-            } else {
-                prevCandidatePage();
-            }
+        case Action::CandidatePrev:
+            backCandidateCursor();
             break;
-        case keysym::Return:
+        case Action::CandidateNextPage:
+            nextCandidatePage();
+            break;
+        case Action::CandidatePrevPage:
+            prevCandidatePage();
+            break;
+        case Action::CandidateExpandSegment:
+            moveSegmentBoundary(true);
+            break;
+        case Action::CandidateShrinkSegment:
+            moveSegmentBoundary(false);
+            break;
+        case Action::CandidateCommit:
             completedWithNoRemaining_ = false;
             candidateCompleteHandler();
             if (completedWithNoRemaining_) {
                 restoreShelvedReadings();
             }
             break;
-        case keysym::Escape:
+        case Action::CandidateCancel:
             if (isClauseBoundaryAdjusting_) {
                 showNonPredictCandidateList(false);
                 break;
             }
-            isClauseBoundaryAdjusting_ = false;
-            [[fallthrough]];
-        case keysym::BackSpace:
             showPreeditCandidateList();
             break;
-        case keysym::Space:
-        case keysym::Tab:
-            if (event.mods == mod::Shift) {
-                backCandidateCursor();
-            } else if (event.mods == (mod::Alt | mod::Shift)) {
-                // do nothing
-            } else {
-                advanceCandidateCursor();
-            }
+        case Action::CandidateBack:
+            showPreeditCandidateList();
             break;
-        case keysym::Down:
-            advanceCandidateCursor();
+        case Action::CandidateDeleteLeft:
+            server_.deleteLeft();
+            showPreeditCandidateList();
             break;
-        case keysym::Up:
-            backCandidateCursor();
+        case Action::CandidateIgnore:
             break;
-        case keysym::F6:
-        case keysym::F7:
-        case keysym::F8:
-        case keysym::F9:
-        case keysym::F10:
-            functionKeyHandler(sym);
+        default:
+            convertToAction(action);
             break;
-        default: {
-            int selection = isAltDigitKeyEvent(event)
-                                ? static_cast<int>(sym - keysym::Digit1)
-                                : selectionKeyIndex(event);
-            if (event.mods == mod::Ctrl) {
-                if (!ctrlShortcutHandler(sym)) {
-                    return false;
-                }
-            } else if (selection >= 0) {
-                if (selection < candidates_.pageItemCount()) {
-                    completedWithNoRemaining_ = false;
-                    candidates_.cursor = candidates_.pageStart() + selection;
-                    candidateCompleteHandler();
-                    if (completedWithNoRemaining_) {
-                        restoreShelvedReadings();
-                    }
-                }
-            } else if (!event.text.empty()) {
-                clearShelvedReadings();
-                commitPreedit();
-                resetState();
-                server_.inputChar(event.text);
-                showPreeditCandidateList();
-            } else {
-                return false;
-            }
-            break;
-        }
     }
-    return true;
 }
 
 void StateMachine::candidateCompleteHandler() {
@@ -363,59 +348,21 @@ void StateMachine::updateSurroundingText(const std::string& appendText) {
     }
 }
 
-bool StateMachine::ctrlShortcutHandler(uint32_t sym) {
-    switch (sym) {
-        case keysym::u:
-        case keysym::U:
-            directCharacterConversion(ConversionMode::Hiragana);
-            isDirectConversionMode_ = true;
-            break;
-        case keysym::i:
-        case keysym::I:
-            directCharacterConversion(ConversionMode::KatakanaFullwidth);
-            isDirectConversionMode_ = true;
-            break;
-        case keysym::o:
-        case keysym::O:
-            directCharacterConversion(ConversionMode::KatakanaHalfwidth);
-            isDirectConversionMode_ = true;
-            break;
-        case keysym::p:
-        case keysym::P:
-            directCharacterConversion(ConversionMode::RawFullwidth);
-            isDirectConversionMode_ = true;
-            break;
-        case keysym::t:
-        case keysym::T:
-            directCharacterConversion(ConversionMode::RawHalfwidth);
-            isDirectConversionMode_ = true;
-            break;
-        case keysym::h:
-        case keysym::H:
-            server_.deleteLeft();
-            showPreeditCandidateList();
-            break;
-        default:
-            return false;
-    }
-    return true;
-}
-
-void StateMachine::functionKeyHandler(uint32_t sym) {
-    switch (sym) {
-        case keysym::F6:
+void StateMachine::convertToAction(Action action) {
+    switch (action) {
+        case Action::ConvertToHiragana:
             directCharacterConversion(ConversionMode::Hiragana);
             break;
-        case keysym::F7:
+        case Action::ConvertToKatakanaFull:
             directCharacterConversion(ConversionMode::KatakanaFullwidth);
             break;
-        case keysym::F8:
+        case Action::ConvertToKatakanaHalf:
             directCharacterConversion(ConversionMode::KatakanaHalfwidth);
             break;
-        case keysym::F9:
+        case Action::ConvertToAlphanumericFull:
             directCharacterConversion(ConversionMode::RawFullwidth);
             break;
-        case keysym::F10:
+        case Action::ConvertToAlphanumericHalf:
             directCharacterConversion(ConversionMode::RawHalfwidth);
             break;
         default:

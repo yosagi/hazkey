@@ -15,6 +15,7 @@ set(PROTO_FILES
 
 add_library(hazkey-frontend-core STATIC
     src/state_machine.cpp
+    src/keybindings.cpp
     src/server_connection.cpp
     src/server_client.cpp
     src/utf8.cpp

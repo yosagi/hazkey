@@ -7,6 +7,7 @@
 
 #include "hazkey/frontend/frontend_hooks.h"
 #include "hazkey/frontend/key_event.h"
+#include "hazkey/frontend/keybindings.h"
 #include "hazkey/frontend/output.h"
 #include "hazkey/frontend/server_api.h"
 
@@ -42,9 +43,10 @@ class StateMachine {
     bool noPreeditKeyEvent(const KeyEvent& event);
     bool preeditKeyEvent(const KeyEvent& event);
     bool candidateKeyEvent(const KeyEvent& event);
-    bool ctrlShortcutHandler(uint32_t sym);
-    // f6-f10 key handler
-    void functionKeyHandler(uint32_t sym);
+    void composingAction(Action action);
+    void candidateAction(Action action);
+    // convert_to.* actions, available in both contexts
+    void convertToAction(Action action);
     static bool isAltDigitKeyEvent(const KeyEvent& event);
     static int selectionKeyIndex(const KeyEvent& event);
 
@@ -90,6 +92,7 @@ class StateMachine {
 
     ServerApi& server_;
     FrontendHooks& hooks_;
+    KeyBindings keyBindings_;
 
     bool isCursorMoving_ = false;
     bool isClauseBoundaryAdjusting_ = false;
