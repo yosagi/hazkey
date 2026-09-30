@@ -63,6 +63,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             wget gnupg2 build-essential gettext fakeroot dpkg-dev \
             libfcitx5core-dev libfcitx5config-dev libfcitx5utils-dev \
+            libibus-1.0-dev \
             ninja-build protobuf-compiler libprotoc-dev \
             qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
             libqt6widgets6 libqt6gui6 qt6-l10n-tools \
@@ -86,21 +87,28 @@ jobs:
           sed -i "s/Qt::Orientation::/Qt::/g" ../mainwindow.ui
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja ..
           ninja -j$(nproc)
-          DESTDIR=${{ github.workspace }}/pkgroot ninja install
+          DESTDIR=${{ github.workspace }}/stage/hazkey-server ninja install
 
       - name: Build fcitx5-hazkey
         run: |
           mkdir -p fcitx5-hazkey/build && cd fcitx5-hazkey/build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja ..
           ninja -j$(nproc)
-          DESTDIR=${{ github.workspace }}/pkgroot ninja install
+          DESTDIR=${{ github.workspace }}/stage/fcitx5-hazkey ninja install
+
+      - name: Build ibus-hazkey
+        run: |
+          mkdir -p ibus-hazkey/build && cd ibus-hazkey/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja ..
+          ninja -j$(nproc)
+          DESTDIR=${{ github.workspace }}/stage/ibus-hazkey ninja install
 
       - name: Build emacs-hazkey
         run: |
           mkdir -p emacs-hazkey/build && cd emacs-hazkey/build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja ..
           ninja -j$(nproc)
-          DESTDIR=${{ github.workspace }}/pkgroot ninja install
+          DESTDIR=${{ github.workspace }}/stage/emacs-hazkey ninja install
 
       - name: Build hazkey-server
         run: |
@@ -108,63 +116,23 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
             -DGGML_VULKAN=ON -DHAZKEY_SERVER_SWIFT_LTO_MODE=full -G Ninja ..
           ninja -j$(nproc)
-          DESTDIR=${{ github.workspace }}/pkgroot ninja install
+          DESTDIR=${{ github.workspace }}/stage/hazkey-server ninja install
 
-      - name: Generate copyright file
+      - name: Build .deb packages
+        env:
+          DEB_MAINTAINER: "yosagi <yoshida@furo.org>"
         run: |
-          junktools/gen-deb-copyright.sh ${{ github.workspace }}/pkgroot \
-            hazkey-server/build/swift-build/checkouts
-
-      - name: Strip binaries
-        run: |
-          find ${{ github.workspace }}/pkgroot/usr/ -type f -print0 \
-            | xargs -0 file -i \
-            | grep -E "application/(x-pie-executable|x-sharedlib)" \
-            | cut -d: -f1 \
-            | xargs -I{} strip "{}"
-
-      - name: Build .deb package
-        run: |
-          PKGROOT="${{ github.workspace }}/pkgroot"
           VER="${{ inputs.version }}"
           if [ -z "${VER}" ]; then
             # Commit time (UTC) keeps same-day builds ordered; date+sha alone
             # made dpkg compare the SHA's digits and treat newer builds as downgrades
             VER="$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d.%H%M%S)+g$(git rev-parse --short HEAD)"
           fi
-          CODENAME="${{ matrix.codename }}"
-
-          # Auto-detect shared library dependencies via dpkg-shlibdeps
-          mkdir -p debian
-          printf 'Source: fcitx5-hazkey\n\nPackage: fcitx5-hazkey\nArchitecture: amd64\n' > debian/control
-
-          mapfile -t ELFS < <(find "${PKGROOT}/usr" -type f -print0 | xargs -0 file | grep ELF | cut -d: -f1)
-          DEPS=$(dpkg-shlibdeps --warnings=0 -O "${ELFS[@]}" 2>/dev/null \
-            | sed 's/shlibs:Depends=//' || true)
-          if [ -z "${DEPS}" ]; then
-            DEPS="fcitx5 (>= 5.0.4)"
-          fi
-
-          INSTALLED_SIZE=$(du -sk "${PKGROOT}" --exclude=DEBIAN | cut -f1)
-
-          mkdir -p "${PKGROOT}/DEBIAN"
-          cat > "${PKGROOT}/DEBIAN/control" << EOF
-          Package: fcitx5-hazkey
-          Version: ${VER}
-          Architecture: amd64
-          Installed-Size: ${INSTALLED_SIZE}
-          Depends: ${DEPS}
-          Maintainer: yosagi <yoshida@furo.org>
-          Description: Hazkey - Japanese input method for fcitx5
-           Japanese input method engine using AzooKeyKanaKanjiConverter
-           with optional AI-powered conversion via Zenzai (llama.cpp).
-          EOF
-
-          dpkg-deb --root-owner-group --build "${PKGROOT}" \
-            "fcitx5-hazkey_${VER}_${CODENAME}_amd64.deb"
+          junktools/make-debs.sh ${{ github.workspace }}/stage ${{ github.workspace }}/debs \
+            "${VER}" "${{ matrix.codename }}" hazkey-server/build/swift-build/checkouts
 
       - name: Upload .deb
         uses: actions/upload-artifact@v6
         with:
-          name: fcitx5-hazkey_${{ matrix.codename }}_amd64
-          path: "*.deb"
+          name: hazkey_${{ matrix.codename }}_amd64
+          path: debs/*.deb

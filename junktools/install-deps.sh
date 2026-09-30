@@ -81,6 +81,11 @@ FCITX5_DEPS=(
     fcitx5-modules-dev
 )
 
+# ibus 開発ライブラリ (ibus-hazkey)
+IBUS_DEPS=(
+    libibus-1.0-dev
+)
+
 # Qt6 (設定GUI: hazkey-settings)
 QT6_DEPS=(
     qt6-base-dev
@@ -109,6 +114,7 @@ BUILD_DEPS=(
 ALL_PKGS=(
     "${SWIFT_DEPS[@]}"
     "${FCITX5_DEPS[@]}"
+    "${IBUS_DEPS[@]}"
     "${QT6_DEPS[@]}"
     "${BUILD_DEPS[@]}"
 )

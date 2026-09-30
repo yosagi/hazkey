@@ -30,7 +30,7 @@ static int charCount(const std::string& text) {
 
 static std::string buildPreedit(const Output& output) {
     std::string segments;
-    for (const auto& seg : output.preedit.segments) {
+    for (const auto& seg : output.preedit.displaySegments()) {
         if (seg.text.empty()) continue;
         segments += "(";
         if (seg.style == SegmentStyle::Highlight) {

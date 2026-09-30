@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# 目的: clone 直後のリポジトリからローカルで deb パッケージをビルドする。
+# 目的: clone 直後のリポジトリからローカルで deb パッケージ一式
+#       (hazkey-server, fcitx5-hazkey, ibus-hazkey, emacs-hazkey) をビルドする。
 #       CI (.github/workflows/build-deb.yml) と同じ手順のローカル版。
-# 関連: .github/workflows/build-deb.yml, junktools/install-deps.sh, junktools/gen-deb-copyright.sh
+# 関連: .github/workflows/build-deb.yml, junktools/install-deps.sh, junktools/make-debs.sh
 # 前提: junktools/install-deps.sh を sudo で実行済み、Swift 6.1+ が PATH にある
 #       使い方: junktools/build-deb-local.sh [version]
 #               (version 省略時はコミット時刻+SHA を自動生成)
 #       環境変数: GGML_VULKAN=ON/OFF (省略時は glslc の有無で自動判定)
 #                 HAZKEY_LTO=full/none (省略時 full。none にするとリンクが速い)
+#                 DEB_MAINTAINER (省略時は git の user.name / user.email)
 
 set -euo pipefail
 
@@ -45,12 +47,18 @@ if [ -z "${GGML_VULKAN:-}" ]; then
 fi
 HAZKEY_LTO="${HAZKEY_LTO:-full}"
 
-BUILDROOT="${ROOT}/tmp/deb-build"
-PKGROOT="${BUILDROOT}/pkgroot"
-mkdir -p "${BUILDROOT}"
-rm -rf "${PKGROOT}"
+if [ -z "${DEB_MAINTAINER:-}" ]; then
+    DEB_MAINTAINER="$(git -C "${ROOT}" config user.name) <$(git -C "${ROOT}" config user.email)>"
+fi
+export DEB_MAINTAINER
 
-echo "=== fcitx5-hazkey deb build ==="
+BUILDROOT="${ROOT}/tmp/deb-build"
+STAGE="${BUILDROOT}/stage"
+OUTDIR="${ROOT}/tmp/debs"
+mkdir -p "${BUILDROOT}"
+rm -rf "${STAGE}" "${BUILDROOT}/pkgroot"
+
+echo "=== hazkey deb build ==="
 echo "  version:     ${VER}"
 echo "  codename:    ${CODENAME}"
 echo "  GGML_VULKAN: ${GGML_VULKAN}"
@@ -80,69 +88,36 @@ fi
 # ---------- 各コンポーネントのビルド ----------
 # ビルドディレクトリは使い回す (二回目以降は差分ビルド)。
 # 普段の開発用ビルド (fcitx5-hazkey/build, トップレベル build/) とは分離してある。
+# build_component <source-dir> <package> [cmake args...]
+# installs into ${STAGE}/<package>, which becomes one deb
 build_component() {
-    local src="$1"; shift
+    local src="$1" pkg="$2"; shift 2
     local bld="${BUILDROOT}/$(basename "${src}")"
     cmake -S "${ROOT}/${src}" -B "${bld}" \
         -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja "$@"
     ninja -C "${bld}" -j"$(nproc)"
-    DESTDIR="${PKGROOT}" ninja -C "${bld}" install
+    DESTDIR="${STAGE}/${pkg}" ninja -C "${bld}" install
 }
 
-build_component hazkey-settings
-build_component fcitx5-hazkey
-build_component emacs-hazkey
-build_component hazkey-server \
+build_component hazkey-settings hazkey-server
+build_component hazkey-server hazkey-server \
     -DGGML_VULKAN="${GGML_VULKAN}" \
     -DHAZKEY_SERVER_SWIFT_LTO_MODE="${HAZKEY_LTO}"
+build_component fcitx5-hazkey fcitx5-hazkey
+build_component ibus-hazkey ibus-hazkey
+build_component emacs-hazkey emacs-hazkey
 
 restore_ui
 trap - EXIT
 
-# ---------- 著作権・ライセンス表示 (CI と同じ) ----------
-"${ROOT}/junktools/gen-deb-copyright.sh" "${PKGROOT}" \
-    "${BUILDROOT}/hazkey-server/swift-build/checkouts"
-
-# ---------- strip (CI と同じ) ----------
-find "${PKGROOT}/usr" -type f -print0 \
-    | xargs -0 file -i \
-    | grep -E "application/(x-pie-executable|x-sharedlib)" \
-    | cut -d: -f1 \
-    | xargs -r -I{} strip "{}"
-
 # ---------- deb パッケージング (CI と同じ) ----------
-cd "${BUILDROOT}"
-mkdir -p debian
-printf 'Source: fcitx5-hazkey\n\nPackage: fcitx5-hazkey\nArchitecture: amd64\n' > debian/control
-
-mapfile -t ELFS < <(find "${PKGROOT}/usr" -type f -print0 | xargs -0 file | grep ELF | cut -d: -f1)
-DEPS=$(dpkg-shlibdeps --warnings=0 -O "${ELFS[@]}" 2>/dev/null \
-    | sed 's/shlibs:Depends=//' || true)
-if [ -z "${DEPS}" ]; then
-    DEPS="fcitx5 (>= 5.0.4)"
-fi
-
-INSTALLED_SIZE=$(du -sk "${PKGROOT}" --exclude=DEBIAN | cut -f1)
-
-mkdir -p "${PKGROOT}/DEBIAN"
-cat > "${PKGROOT}/DEBIAN/control" << EOF
-Package: fcitx5-hazkey
-Version: ${VER}
-Architecture: amd64
-Installed-Size: ${INSTALLED_SIZE}
-Depends: ${DEPS}
-Maintainer: yosagi <yoshida@furo.org>
-Description: Hazkey - Japanese input method for fcitx5
- Japanese input method engine using AzooKeyKanaKanjiConverter
- with optional AI-powered conversion via Zenzai (llama.cpp).
-EOF
-
-OUT="${ROOT}/tmp/fcitx5-hazkey_${VER}_${CODENAME}_amd64.deb"
-dpkg-deb --root-owner-group --build "${PKGROOT}" "${OUT}"
+"${ROOT}/junktools/make-debs.sh" "${STAGE}" "${OUTDIR}" "${VER}" "${CODENAME}" \
+    "${BUILDROOT}/hazkey-server/swift-build/checkouts"
 
 echo ""
 echo "=== 完了 ==="
-echo "  ${OUT}"
+ls -1 "${OUTDIR}"/*_"${VER}"_"${CODENAME}"_amd64.deb
 echo ""
-echo "インストール:"
-echo "  sudo apt install -y --reinstall ${OUT}"
+echo "インストール (hazkey-server と使うクライアントを一緒に入れる):"
+echo "  sudo apt install -y --reinstall ${OUTDIR}/{hazkey-server,fcitx5-hazkey,emacs-hazkey}_${VER}_${CODENAME}_amd64.deb"
+echo "  pkill -x hazkey-server   # 古いサーバーを止める (クライアントが新しいサーバーを起動し直す)"

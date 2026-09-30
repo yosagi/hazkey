@@ -628,10 +628,7 @@ void StateMachine::setSimplePreeditWithFurigana(const std::string& text,
         preedit_.segments.push_back({stablePrefix, SegmentStyle::Underline});
     }
     preedit_.segments.push_back({trailingClause, SegmentStyle::Highlight});
-    if (!furigana.empty()) {
-        preedit_.segments.push_back(
-            {"[" + furigana + "]", SegmentStyle::Normal});
-    }
+    preedit_.furigana = furigana;
 }
 
 void StateMachine::commitPreedit() {

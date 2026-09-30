@@ -31,7 +31,7 @@ Text toFcitxText(const std::vector<hazkey::frontend::Segment> &segments,
 }
 
 void HazkeyPreedit::render(const hazkey::frontend::Preedit &preedit) {
-    setPreedit(toFcitxText(preedit.segments, preedit.caretSegment));
+    setPreedit(toFcitxText(preedit.displaySegments(), preedit.caretSegment));
 }
 
 void HazkeyPreedit::setPreedit(Text text) {

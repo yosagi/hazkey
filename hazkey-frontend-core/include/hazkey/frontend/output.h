@@ -18,9 +18,23 @@ struct Segment {
 };
 
 struct Preedit {
+    // The text committed when the preedit is committed as is.
     std::vector<Segment> segments;
     // Index of the segment whose start holds the caret. -1 if unspecified.
     int caretSegment = -1;
+    // Reading of the trailing clause, for display only: it is not part of
+    // the committed text. Empty if there is none to show.
+    std::string furigana;
+
+    // segments followed by the furigana as "[reading]", for frontends that
+    // show the furigana inline
+    std::vector<Segment> displaySegments() const {
+        auto result = segments;
+        if (!furigana.empty()) {
+            result.push_back({"[" + furigana + "]", SegmentStyle::Normal});
+        }
+        return result;
+    }
 };
 
 struct Candidate {
