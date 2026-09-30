@@ -63,9 +63,6 @@ bool equalsIgnoreCase(const std::string& a, const char* b) {
     return i == a.size() && b[i] == '\0';
 }
 
-bool isLetter(uint32_t sym) { return sym >= 'a' && sym <= 'z'; }
-bool isDigit(uint32_t sym) { return sym >= '0' && sym <= '9'; }
-
 // letters are compared in lower case; Shift is in the modifiers
 uint32_t normalizeSym(uint32_t sym) {
     if (sym >= 'A' && sym <= 'Z') return sym - 'A' + 'a';
@@ -108,7 +105,7 @@ const std::vector<ActionInfo>& actionTable() {
         {A::ComposingInsertSpace, "composing.insert_space", C::Composing,
          {"Shift+space"}},
         {A::ComposingFocusCandidates, "composing.focus_candidates",
-         C::Composing, {"Up", "Down", "Tab"}},
+         C::Composing, {"Up", "Down", "Tab", "Shift+Tab"}},
         {A::ComposingCursorLeft, "composing.cursor_left", C::Composing,
          {"Left"}},
         {A::ComposingCursorRight, "composing.cursor_right", C::Composing,
@@ -127,11 +124,8 @@ const std::vector<ActionInfo>& actionTable() {
          {"Shift+Left"}},
         {A::CandidateCommit, "candidate.commit", C::Candidate, {"Return"}},
         {A::CandidateCancel, "candidate.cancel", C::Candidate, {"Escape"}},
-        {A::CandidateBack, "candidate.back", C::Candidate, {"BackSpace"}},
-        {A::CandidateDeleteLeft, "candidate.delete_left", C::Candidate,
-         {"Control+h"}},
-        {A::CandidateIgnore, "candidate.ignore", C::Candidate,
-         {"Alt+Shift+space", "Alt+Shift+Tab"}},
+        {A::CandidateBack, "candidate.back", C::Candidate,
+         {"BackSpace", "Control+h"}},
 
         {A::ConvertToHiragana, "convert_to.hiragana", C::Any,
          {"F6", "Control+u"}},
@@ -241,12 +235,7 @@ std::optional<Action> KeyBindings::lookup(KeyContext context,
                                           const KeyEvent& event) const {
     uint32_t sym = normalizeSym(event.sym);
     if (sym == 0) return std::nullopt;
-    auto action = find(context, sym, event.mods);
-    if (!action.has_value() && event.mods != mod::None && !isLetter(sym) &&
-        !isDigit(sym)) {
-        action = find(context, sym, mod::None);
-    }
-    return action;
+    return find(context, sym, event.mods);
 }
 
 }  // namespace hazkey::frontend

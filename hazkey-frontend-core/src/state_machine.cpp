@@ -135,8 +135,8 @@ bool StateMachine::preeditKeyEvent(const KeyEvent& event) {
         return true;
     }
 
-    if (event.mods == mod::Ctrl) {
-        // unassigned control keys do nothing while composing
+    if (event.mods & mod::Ctrl) {
+        // unassigned control keys do nothing while there is a preedit
     } else if (isAltDigitKeyEvent(event)) {
         if (candidates_.visible) {
             int localIndex = static_cast<int>(event.sym - keysym::Digit1);
@@ -248,9 +248,8 @@ bool StateMachine::candidateKeyEvent(const KeyEvent& event) {
     int selection = isAltDigitKeyEvent(event)
                         ? static_cast<int>(event.sym - keysym::Digit1)
                         : selectionKeyIndex(event);
-    if (event.mods == mod::Ctrl) {
-        // unassigned control keys go to the application
-        return false;
+    if (event.mods & mod::Ctrl) {
+        // unassigned control keys do nothing while there is a preedit
     } else if (selection >= 0) {
         if (selection < candidates_.pageItemCount()) {
             completedWithNoRemaining_ = false;
@@ -266,9 +265,8 @@ bool StateMachine::candidateKeyEvent(const KeyEvent& event) {
         resetState();
         server_.inputChar(event.text);
         showPreeditCandidateList();
-    } else {
-        return false;
     }
+    // unassigned keys do nothing, as while composing
     return true;
 }
 
@@ -308,12 +306,6 @@ void StateMachine::candidateAction(Action action) {
             break;
         case Action::CandidateBack:
             showPreeditCandidateList();
-            break;
-        case Action::CandidateDeleteLeft:
-            server_.deleteLeft();
-            showPreeditCandidateList();
-            break;
-        case Action::CandidateIgnore:
             break;
         default:
             convertToAction(action);

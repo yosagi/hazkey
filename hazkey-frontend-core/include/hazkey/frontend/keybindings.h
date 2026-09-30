@@ -35,8 +35,6 @@ enum class Action {
     CandidateCommit,
     CandidateCancel,
     CandidateBack,
-    CandidateDeleteLeft,
-    CandidateIgnore,
 
     ConvertToHiragana,
     ConvertToKatakanaFull,
@@ -78,10 +76,8 @@ std::optional<KeyChord> parseKeyChord(const std::string& text);
 // Keys assigned to the actions.
 //
 // A key matches a binding when the keysym and the modifiers are the same.
-// Letters match regardless of case, so the modifiers alone decide. If no
-// binding matches exactly, a binding without modifiers also matches the key
-// with modifiers held (Control+Return works as Return), except for letters
-// and digits.
+// Letters match regardless of case, so the modifiers alone decide. Keys with
+// other modifiers held do not match; list them as keys of their own.
 class KeyBindings {
    public:
     // the default bindings
