@@ -52,11 +52,12 @@ static std::string buildPreedit(const Output& output) {
     return "(preedit . ((cursor . 0)(segment " + segments + ")))";
 }
 
+// the body of the candidate window, without its key
 static std::string buildCandidateWindow(const Output& output) {
     const auto& window = output.candidates;
     if (!window.visible || window.items.empty()) return "";
 
-    std::string result = "(candidates . (";
+    std::string result = "(";
     if (window.focused()) {
         result += "(focused-index . ";
         result += std::to_string(window.cursor);
@@ -91,7 +92,7 @@ static std::string buildCandidateWindow(const Output& output) {
     }
     result += ")";
 
-    result += "))";
+    result += ")";
     return result;
 }
 
@@ -123,8 +124,13 @@ std::string MozcOutputBuilder::buildResponse(uint32_t eventId,
     std::string preedit = buildPreedit(output);
     if (!preedit.empty()) result += preedit;
 
+    // mozc.el 2.29 (Ubuntu's emacs-mozc) reads candidates, while newer
+    // mozc.el reads the same field renamed to candidate-window
     std::string candidates = buildCandidateWindow(output);
-    if (!candidates.empty()) result += candidates;
+    if (!candidates.empty()) {
+        result += "(candidates . " + candidates + ")";
+        result += "(candidate-window . " + candidates + ")";
+    }
 
     result += ")))";
     return result;
