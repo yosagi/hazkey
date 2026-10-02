@@ -172,6 +172,31 @@ std::optional<KeyChord> parseKeyChord(const std::string& text) {
     }
 }
 
+std::optional<std::string> formatKeyChord(const KeyChord& chord) {
+    std::string name;
+    uint32_t sym = normalizeSym(chord.sym);
+    // named keys first: "plus" cannot be written as "+" (the separator)
+    for (const auto& key : kKeyNames) {
+        // the first entry of a keysym is its canonical name
+        if (key.sym == sym) {
+            name = key.name;
+            break;
+        }
+    }
+    if (name.empty()) {
+        if (sym > 0x20 && sym < 0x7f) {
+            name = std::string(1, static_cast<char>(sym));
+        } else {
+            return std::nullopt;
+        }
+    }
+    std::string text;
+    if (chord.mods & mod::Ctrl) text += "Control+";
+    if (chord.mods & mod::Shift) text += "Shift+";
+    if (chord.mods & mod::Alt) text += "Alt+";
+    return text + name;
+}
+
 KeyBindings::KeyBindings() {
     const auto& table = actionTable();
     keys_.resize(table.size());
