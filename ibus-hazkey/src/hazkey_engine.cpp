@@ -146,17 +146,21 @@ class IbusState : public hf::FrontendHooks {
         }
 
         guint caret = 0;
-        IBusText* preedit = toIbusText(output.preedit.segments,
-                                       output.preedit.caretSegment, &caret);
+        auto segments = output.preedit.displaySegments();
+        // without a caret given, it goes before the furigana
+        int caretSegment = output.preedit.caretSegment >= 0
+                               ? output.preedit.caretSegment
+                               : static_cast<int>(output.preedit.segments.size());
+        IBusText* preedit = toIbusText(segments, caretSegment, &caret);
         // ibus detaches the engine from an input context before telling it
         // the focus has gone, so the engine cannot commit then. in COMMIT
         // mode the client commits the preedit by itself on focus out and
-        // reset. the furigana goes to the aux text so as not to be committed.
+        // reset. ibus cannot leave a part of the preedit out of the commit,
+        // so the furigana is committed too; the user can turn it off.
         ibus_engine_update_preedit_text_with_mode(
-            engine_, preedit, caret, !output.preedit.segments.empty(),
+            engine_, preedit, caret, !segments.empty(),
             IBUS_ENGINE_PREEDIT_COMMIT);
 
-        furigana_ = output.preedit.furigana;
         auxUp_ = output.auxUp;
         updateAux(output.auxDown);
 
@@ -168,8 +172,7 @@ class IbusState : public hf::FrontendHooks {
         for (const auto& segment : auxUp_) up += segment.text;
         std::string text;
         for (const std::string& part :
-             {furigana_.empty() ? "" : "[" + furigana_ + "]", up,
-              std::string(auxDownText(auxDown))}) {
+             {up, std::string(auxDownText(auxDown))}) {
             if (part.empty()) continue;
             if (!text.empty()) text += " ";
             text += part;
@@ -204,7 +207,6 @@ class IbusState : public hf::FrontendHooks {
 
     IBusEngine* engine_;
     hf::StateMachine core_;
-    std::string furigana_;
     std::vector<hf::Segment> auxUp_;
 };
 

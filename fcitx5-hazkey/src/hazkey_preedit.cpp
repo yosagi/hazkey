@@ -31,7 +31,14 @@ Text toFcitxText(const std::vector<hazkey::frontend::Segment> &segments,
 }
 
 void HazkeyPreedit::render(const hazkey::frontend::Preedit &preedit) {
-    setPreedit(toFcitxText(preedit.displaySegments(), preedit.caretSegment));
+    auto text = toFcitxText(preedit.segments, preedit.caretSegment);
+    // whoever commits the preedit on focus out or reset (fcitx5 itself,
+    // fcitx5-qt / fcitx5-gtk, or the compositor through the commit string of
+    // input-method-v1) leaves the furigana out
+    if (!preedit.furigana.empty()) {
+        text.append("[" + preedit.furigana + "]", TextFormatFlag::DontCommit);
+    }
+    setPreedit(text);
 }
 
 void HazkeyPreedit::setPreedit(Text text) {

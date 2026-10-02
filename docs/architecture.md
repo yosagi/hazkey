@@ -43,7 +43,7 @@ core の結果をそれぞれの枠組みの表示に写すアダプターです
 | ibus 用 hazkey エンジン | `ibus-hazkey/` | ibus のエンジン（`IBusEngine`）。ibus-daemon が起動する |
 | hazkey_emacs_helper | `emacs-hazkey/` | mozc.el が起動する helper プロセス。`mozc_emacs_helper` 互換 |
 
-枠組みの作法の違いはアダプターで吸収します。たとえば ibus はフォーカスが外れると preedit をそのまま確定するので、ibus 用エンジンでは preedit に確定される文字列だけを置き、ふりがなは補助テキストに出しています。
+枠組みの作法の違いはアダプターで吸収します。たとえば ibus はフォーカスが外れたときにエンジンへ確定の機会を与えず、クライアントが表示中の preedit をそのまま確定します。ibus 用エンジンは preedit を COMMIT モードで送り、確定をクライアントに任せています。fcitx5 用エンジンは、ふりがなの区間に `DontCommit` を付けて、確定される文字列から外しています。
 
 ### 通信プロトコル（`protocol/`）
 
