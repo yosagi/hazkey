@@ -32,6 +32,12 @@ void UserInterfaceTabController::loadFromConfig() {
     SET_SPINBOX(ui_->numCandidatesPerPage,
                 context_.currentProfile->num_candidates_per_page(),
                 ConfigDefs::SpinboxDefaults::NUM_CANDIDATES_PER_PAGE);
+    // unset means 5. 0 disables the history
+    SET_SPINBOX(ui_->readingHistorySize,
+                context_.currentProfile->has_reading_history_size()
+                    ? context_.currentProfile->reading_history_size()
+                    : ConfigDefs::SpinboxDefaults::READING_HISTORY_SIZE,
+                ConfigDefs::SpinboxDefaults::READING_HISTORY_SIZE);
     // unset means the furigana is shown, as before the option existed
     SET_CHECKBOX(ui_->showTrailingFurigana,
                  context_.currentProfile->has_show_trailing_furigana()
@@ -58,6 +64,8 @@ void UserInterfaceTabController::saveToConfig() {
         GET_SPINBOX_INT(ui_->numCandidatesPerPage));
     context_.currentProfile->set_show_trailing_furigana(
         GET_CHECKBOX_BOOL(ui_->showTrailingFurigana));
+    context_.currentProfile->set_reading_history_size(
+        GET_SPINBOX_INT(ui_->readingHistorySize));
 }
 
 }  // namespace hazkey::settings

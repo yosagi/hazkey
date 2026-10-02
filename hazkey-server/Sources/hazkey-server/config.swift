@@ -184,9 +184,10 @@ class HazkeyServerConfig {
         }
     }
 
-    // Key bindings of the current profile. They are read again when the
-    // config file has changed, so that hand edits take effect without
-    // restarting the server. The server does not look inside them.
+    // Key bindings and other client settings of the current profile. They
+    // are read again when the config file has changed, so that hand edits
+    // take effect without restarting the server. The server does not look
+    // inside them.
     func getKeyBindings() -> Hazkey_ResponseEnvelope {
         let configPath = Self.getConfigDirectory().appendingPathComponent("config.json")
         let mtime =
@@ -195,7 +196,13 @@ class HazkeyServerConfig {
         if mtime != keyBindingsMtime {
             keyBindingsMtime = mtime
             do {
-                currentProfile.keyBindings = try Self.loadConfig()[0].keyBindings
+                let profile = try Self.loadConfig()[0]
+                currentProfile.keyBindings = profile.keyBindings
+                if profile.hasReadingHistorySize {
+                    currentProfile.readingHistorySize = profile.readingHistorySize
+                } else {
+                    currentProfile.clearReadingHistorySize()
+                }
             } catch {
                 NSLog("Failed to reload key bindings: \(error)")
             }
@@ -204,6 +211,9 @@ class HazkeyServerConfig {
             $0.status = .success
             $0.keyBindings = Hazkey_Config_KeyBindingList.with {
                 $0.bindings = currentProfile.keyBindings
+                $0.readingHistorySize =
+                    currentProfile.hasReadingHistorySize
+                    ? max(currentProfile.readingHistorySize, 0) : 5
             }
         }
     }
@@ -234,6 +244,7 @@ class HazkeyServerConfig {
             Hazkey_Config_Profile.AutoConvertMode.autoConvertForMultipleChars
         newConf.autoConvertMinChars = 2
         newConf.showTrailingFurigana = true
+        newConf.readingHistorySize = 5
         newConf.auxTextMode = Hazkey_Config_Profile.AuxTextMode.auxTextShowWhenCursorNotAtEnd
         newConf.suggestionListMode =
             Hazkey_Config_Profile.SuggestionListMode.suggestionListShowPredictiveResults

@@ -8,6 +8,7 @@
 #include <fcitx/instance.h>
 #include <iconv.h>
 
+#include "hazkey/frontend/reading_history.h"
 #include "hazkey/frontend/server_client.h"
 #include "hazkey/frontend/server_connection.h"
 #include "hazkey_config.h"
@@ -37,10 +38,19 @@ class HazkeyEngine : public InputMethodEngineV2 {
     // called when input method changes to another input method
     void deactivate(const InputMethodEntry &, InputContextEvent &) override;
 
+    // called on focus out and when the application resets the input
+    // context (e.g. a click in the text). the application has committed or
+    // dropped the preedit by itself.
+    void reset(const InputMethodEntry &, InputContextEvent &) override;
+
     auto factory() const { return &factory_; }
     auto instance() const { return instance_; }
 
     hazkey::frontend::ServerClient &server() { return client_; }
+    // shared by all input contexts
+    hazkey::frontend::ReadingHistory &readingHistory() {
+        return readingHistory_;
+    }
 
     const Configuration *getConfig() const override { return &config_; }
     void setConfig(const RawConfig &config) override;
@@ -57,6 +67,7 @@ class HazkeyEngine : public InputMethodEngineV2 {
     FcitxConnectionHooks connectionHooks_;
     hazkey::frontend::ServerConnection connection_;
     hazkey::frontend::ServerClient client_;
+    hazkey::frontend::ReadingHistory readingHistory_;
     iconv_t conv_;
 };
 

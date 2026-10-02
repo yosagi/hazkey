@@ -33,10 +33,21 @@ int CandidateWindow::pageItemCount() const {
 
 /// StateMachine
 
-StateMachine::StateMachine(ServerApi& server, FrontendHooks& hooks)
-    : server_(server), hooks_(hooks) {
+StateMachine::StateMachine(ServerApi& server, FrontendHooks& hooks,
+                           ReadingHistory& history)
+    : server_(server), hooks_(hooks), history_(history) {
     server_.newComposingText();
-    keyBindings_ = server_.getKeyBindings();
+    applyClientSettings();
+}
+
+void StateMachine::applyClientSettings() {
+    auto settings = server_.getClientSettings();
+    keyBindings_ = std::move(settings.keyBindings);
+    history_.setCapacity(settings.readingHistorySize);
+}
+
+bool StateMachine::isModifierKey(uint32_t sym) {
+    return sym >= keysym::Shift_L && sym <= keysym::Hyper_R;
 }
 
 Output StateMachine::finish(KeyResult result) {
@@ -61,6 +72,19 @@ Output StateMachine::keyEvent(const KeyEvent& event) {
             setAuxDown(AuxDown::None);
             return finish(KeyResult::Ignored);
         }
+    }
+
+    if (recallIndex_ >= 0 && !event.isRelease && !isModifierKey(event.sym)) {
+        // the restore key again goes back to the next older reading. any
+        // other key ends going back
+        if (!composingText.empty() && !history_.empty() &&
+            keyBindings_.lookup(KeyContext::Idle, event) ==
+                Action::IdleRestoreReading) {
+            restoreReading((recallIndex_ + 1) % history_.size());
+            setHiraganaAux();
+            return finish(KeyResult::Consumed);
+        }
+        recallIndex_ = -1;
     }
 
     bool consumed = false;
@@ -91,17 +115,33 @@ Output StateMachine::keyEvent(const KeyEvent& event) {
 }
 
 Output StateMachine::reset() {
+    rememberReading(true);
+    clearShelvedReadings();
     resetState();
     return finish(KeyResult::Consumed);
 }
 
 Output StateMachine::commitAndReset() {
+    rememberReading(true);
     commitPreedit();
+    clearShelvedReadings();
     resetState();
     return finish(KeyResult::Consumed);
 }
 
 bool StateMachine::noPreeditKeyEvent(const KeyEvent& event) {
+    if (keyBindings_.lookup(KeyContext::Idle, event) ==
+        Action::IdleRestoreReading) {
+        applyClientSettings();
+        if (!history_.empty()) {
+            updateSurroundingText();
+            restoreReading(0);
+            setHiraganaAux();
+            return true;
+        }
+        // nothing to restore. the application gets the key
+    }
+
     if (event.sym == keysym::Space) {
         if (event.mods == mod::Shift) {
             commit(" ");
@@ -116,7 +156,7 @@ bool StateMachine::noPreeditKeyEvent(const KeyEvent& event) {
 
     if (!event.text.empty()) {
         // pick up changes of the config at the start of each composition
-        keyBindings_ = server_.getKeyBindings();
+        applyClientSettings();
         updateSurroundingText();
         server_.inputChar(event.text);
         showPreeditCandidateList();
@@ -146,6 +186,9 @@ bool StateMachine::preeditKeyEvent(const KeyEvent& event) {
             }
         }
     } else if (!event.text.empty()) {
+        if (isDirectConversionMode_) {
+            rememberReading(true);
+        }
         clearShelvedReadings();
         if (isDirectConversionMode_) {
             commitPreedit();
@@ -160,6 +203,7 @@ bool StateMachine::preeditKeyEvent(const KeyEvent& event) {
 void StateMachine::composingAction(Action action) {
     switch (action) {
         case Action::ComposingCommit:
+            rememberReading(false);
             commitPreedit();
             if (livePreeditIndex_ >= 0) {
                 server_.completePrefix(livePreeditIndex_);
@@ -185,6 +229,7 @@ void StateMachine::composingAction(Action action) {
             showPreeditCandidateList();
             break;
         case Action::ComposingCancel:
+            rememberReading(true);
             clearShelvedReadings();
             resetState();
             break;
@@ -260,6 +305,7 @@ bool StateMachine::candidateKeyEvent(const KeyEvent& event) {
             }
         }
     } else if (!event.text.empty()) {
+        rememberReading(true);
         clearShelvedReadings();
         commitPreedit();
         resetState();
@@ -318,6 +364,7 @@ void StateMachine::candidateCompleteHandler() {
         candidates_.cursor >= static_cast<int>(candidates_.items.size())) {
         return;
     }
+    rememberReading(false);
     auto candidate = candidates_.items[candidates_.cursor];
     // hazkey cannot get surroundingText correctly immediately after
     // committing so call it with appendText before committing.
@@ -560,6 +607,7 @@ void StateMachine::shelveTrailingClause() {
 }
 
 void StateMachine::completePrefixAndCommit() {
+    rememberReading(false);
     auto prefixText = server_.completePrefixClauses();
     if (!prefixText.empty()) {
         commit(prefixText);
@@ -571,17 +619,43 @@ void StateMachine::restoreShelvedReadings() {
     if (shelvedReadings_.empty()) {
         return;
     }
-    std::string combined;
-    for (auto it = shelvedReadings_.rbegin(); it != shelvedReadings_.rend();
-         ++it) {
-        combined += *it;
-    }
+    std::string combined = shelvedReadingsInOrder();
     shelvedReadings_.clear();
     server_.insertHiragana(combined);
     showPreeditCandidateList();
 }
 
 void StateMachine::clearShelvedReadings() { shelvedReadings_.clear(); }
+
+// each shelving takes the clause before the one shelved last
+std::string StateMachine::shelvedReadingsInOrder() const {
+    std::string combined;
+    for (auto it = shelvedReadings_.rbegin(); it != shelvedReadings_.rend();
+         ++it) {
+        combined += *it;
+    }
+    return combined;
+}
+
+/// Reading history
+
+void StateMachine::rememberReading(bool withShelved) {
+    std::string reading = server_.getComposingText(kHiragana, preeditText_);
+    if (withShelved) {
+        reading += shelvedReadingsInOrder();
+    }
+    history_.push(reading);
+}
+
+void StateMachine::restoreReading(size_t index) {
+    // copy: the history may change while the composition is set up
+    std::string reading = history_.at(index);
+    clearShelvedReadings();
+    resetState();
+    server_.insertHiragana(reading);
+    showPreeditCandidateList();
+    recallIndex_ = static_cast<int>(index);
+}
 
 /// Preedit
 

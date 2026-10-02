@@ -34,8 +34,12 @@ message KeyBinding {
     repeated string keys = 2;
 }
 
+// Settings the clients read through GetKeyBindings. The server passes them
+// on without using them.
 message KeyBindingList {
     repeated KeyBinding bindings = 1;
+    // readings kept for idle.restore_reading. 0 disables it
+    int32 reading_history_size = 2;
 }
 
 message BackendDevice {
@@ -102,6 +106,8 @@ message Profile {
     optional int32 num_suggestions = 15;
     optional int32 auto_convert_min_chars = 16;
     optional bool show_trailing_furigana = 17;
+    // unset means 5, 0 disables the reading history
+    optional int32 reading_history_size = 18;
 
     optional bool use_default_conversion_ui_settings = 20;
     optional int32 num_candidates_per_page = 21;
@@ -157,7 +163,7 @@ message ClearAllHistory {
 
 message ReloadZenzaiModel {}
 
-// key bindings of the current profile
+// key bindings and other client settings of the current profile
 message GetKeyBindings {}
 
 // Response messages

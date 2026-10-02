@@ -91,6 +91,16 @@ void HazkeyEngine::deactivate([[maybe_unused]] const InputMethodEntry &entry,
     inputContext->updateUserInterface(UserInterfaceComponent::InputPanel);
 }
 
+void HazkeyEngine::reset([[maybe_unused]] const InputMethodEntry &entry,
+                         InputContextEvent &event) {
+    FCITX_DEBUG() << "HazkeyEngine reset";
+    auto inputContext = event.inputContext();
+    auto state = inputContext->propertyFor(&factory_);
+    state->reset();
+    inputContext->updatePreedit();
+    inputContext->updateUserInterface(UserInterfaceComponent::InputPanel);
+}
+
 void HazkeyEngine::setConfig(const RawConfig &config) {
     config_.load(config, true);
     safeSaveAsIni(config_, "conf/hazkey.conf");

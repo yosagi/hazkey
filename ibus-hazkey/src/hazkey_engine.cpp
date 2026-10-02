@@ -7,6 +7,7 @@
 #include "hazkey/frontend/frontend_hooks.h"
 #include "hazkey/frontend/key_event.h"
 #include "hazkey/frontend/output.h"
+#include "hazkey/frontend/reading_history.h"
 #include "hazkey/frontend/server_client.h"
 #include "hazkey/frontend/state_machine.h"
 
@@ -15,6 +16,8 @@ namespace {
 namespace hf = hazkey::frontend;
 
 hf::ServerClient* g_server = nullptr;
+// shared by all input contexts
+hf::ReadingHistory g_readingHistory;
 
 // ibus has a single auxiliary text; the lower aux text of fcitx5 is appended
 // to the upper one. Same wording as the Japanese translation of fcitx5-hazkey.
@@ -104,7 +107,7 @@ hf::KeyEvent toCoreKeyEvent(guint keyval, guint state) {
 class IbusState : public hf::FrontendHooks {
    public:
     IbusState(IBusEngine* engine, hf::ServerApi& server)
-        : engine_(engine), core_(server, *this) {}
+        : engine_(engine), core_(server, *this, g_readingHistory) {}
 
     gboolean keyEvent(guint keyval, guint state) {
         auto output = core_.keyEvent(toCoreKeyEvent(keyval, state));

@@ -46,6 +46,8 @@ constexpr uint32_t F11 = 0xffc8;
 constexpr uint32_t F12 = 0xffc9;
 constexpr uint32_t Shift_L = 0xffe1;
 constexpr uint32_t Shift_R = 0xffe2;
+// the last of the modifier keys (Shift_L .. Hyper_R)
+constexpr uint32_t Hyper_R = 0xffee;
 constexpr uint32_t Delete = 0xffff;
 
 }  // namespace hazkey::frontend::keysym

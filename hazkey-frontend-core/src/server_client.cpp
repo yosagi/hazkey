@@ -146,7 +146,7 @@ hazkey::commands::CandidatesResult ServerClient::getCandidates(
     return response->candidates();
 }
 
-KeyBindings ServerClient::getKeyBindings() {
+ClientSettings ServerClient::getClientSettings() {
     hazkey::RequestEnvelope req;
     req.mutable_get_key_bindings();
     // not through request(): servers older than the key binding support
@@ -155,15 +155,15 @@ KeyBindings ServerClient::getKeyBindings() {
     if (!response || response->status() != hazkey::SUCCESS ||
         !response->has_key_bindings()) {
         hooks_.log(LogLevel::Debug,
-                   "getKeyBindings: not available, keeping the current ones");
-        return keyBindings_;
+                   "getClientSettings: not available, keeping the current ones");
+        return settings_;
     }
 
     auto serialized = response->key_bindings().SerializeAsString();
-    if (serialized == lastKeyBindings_) {
-        return keyBindings_;
+    if (serialized == lastSettings_) {
+        return settings_;
     }
-    lastKeyBindings_ = serialized;
+    lastSettings_ = serialized;
 
     std::vector<std::pair<std::string, std::vector<std::string>>> entries;
     for (const auto& binding : response->key_bindings().bindings()) {
@@ -171,12 +171,14 @@ KeyBindings ServerClient::getKeyBindings() {
                            {binding.keys().begin(), binding.keys().end()}});
     }
     std::vector<std::string> errors;
-    keyBindings_ = KeyBindings();
-    keyBindings_.assign(entries, errors);
+    settings_.keyBindings = KeyBindings();
+    settings_.keyBindings.assign(entries, errors);
     for (const auto& error : errors) {
         hooks_.log(LogLevel::Error, "key bindings: " + error);
     }
-    return keyBindings_;
+    // servers older than the reading history send 0, which disables it
+    settings_.readingHistorySize = response->key_bindings().reading_history_size();
+    return settings_;
 }
 
 void ServerClient::saveLearningData(bool tryConnect) {

@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "hazkey/frontend/frontend_hooks.h"
+#include "hazkey/frontend/reading_history.h"
 #include "hazkey/frontend/server_client.h"
 #include "hazkey/frontend/server_connection.h"
 #include "hazkey/frontend/state_machine.h"
@@ -69,8 +70,9 @@ class EmacsHooks : public hazkey::frontend::FrontendHooks {
 };
 
 struct Session {
-    explicit Session(hazkey::frontend::ServerClient& client)
-        : core(client, hooks) {}
+    Session(hazkey::frontend::ServerClient& client,
+            hazkey::frontend::ReadingHistory& history)
+        : core(client, hooks, history) {}
 
     EmacsHooks hooks;
     hazkey::frontend::StateMachine core;
@@ -166,6 +168,8 @@ int main() {
                                                   kConnectPolicy);
     hazkey::frontend::ServerClient client(connection, connectionHooks);
     connection.connect();
+    // shared by the sessions, as in the other clients
+    hazkey::frontend::ReadingHistory history;
     uint32_t nextSessionId = 1;
     std::unordered_map<uint32_t, std::unique_ptr<Session>> sessions;
 
@@ -179,7 +183,7 @@ int main() {
         switch (cmd.command) {
             case CREATE_SESSION: {
                 uint32_t sid = nextSessionId++;
-                sessions[sid] = std::make_unique<Session>(client);
+                sessions[sid] = std::make_unique<Session>(client, history);
                 response = MozcOutputBuilder::buildCreateSessionResponse(
                     cmd.event_id, sid);
                 break;
@@ -199,7 +203,7 @@ int main() {
                 if (it == sessions.end()) {
                     // Auto-create session if not found
                     sessions[cmd.session_id] =
-                        std::make_unique<Session>(client);
+                        std::make_unique<Session>(client, history);
                     it = sessions.find(cmd.session_id);
                 }
                 auto keyEvent = KeyTranslator::translate(cmd.key_tokens);

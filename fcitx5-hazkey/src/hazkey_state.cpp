@@ -16,7 +16,7 @@ HazkeyState::HazkeyState(HazkeyEngine* engine, InputContext* ic)
     : engine_(engine),
       ic_(ic),
       preedit_(HazkeyPreedit(ic)),
-      core_(engine->server(), *this) {}
+      core_(engine->server(), *this, engine->readingHistory()) {}
 
 bool HazkeyState::isInputableEvent(const KeyEvent& event) {
     auto key = event.key();

@@ -41,6 +41,8 @@ enum class Action {
     ConvertToKatakanaHalf,
     ConvertToAlphanumericFull,
     ConvertToAlphanumericHalf,
+
+    IdleRestoreReading,
 };
 
 // Where an action applies.
@@ -51,6 +53,8 @@ enum class KeyContext {
     Candidate,
     // both of the above
     Any,
+    // no preedit. not included in Any
+    Idle,
 };
 
 struct ActionInfo {

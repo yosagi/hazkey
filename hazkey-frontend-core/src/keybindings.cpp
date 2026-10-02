@@ -137,6 +137,10 @@ const std::vector<ActionInfo>& actionTable() {
          {"F9", "Control+p"}},
         {A::ConvertToAlphanumericHalf, "convert_to.alphanumeric_half", C::Any,
          {"F10", "Control+t"}},
+
+        // no default key: Control+BackSpace, the natural choice, deletes a
+        // word in most applications
+        {A::IdleRestoreReading, "idle.restore_reading", C::Idle, {}},
     };
     return table;
 }
@@ -221,6 +225,7 @@ void KeyBindings::rebuild() {
 std::optional<Action> KeyBindings::find(KeyContext context, uint32_t sym,
                                         uint8_t mods) const {
     for (auto ctx : {context, KeyContext::Any}) {
+        if (context == KeyContext::Idle && ctx == KeyContext::Any) break;
         for (const auto& b : bindings_) {
             if (b.context == ctx && b.chord.sym == sym &&
                 b.chord.mods == mods) {

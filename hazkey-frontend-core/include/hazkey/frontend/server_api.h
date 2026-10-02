@@ -8,6 +8,14 @@
 
 namespace hazkey::frontend {
 
+// Settings the clients read from the profile through the server.
+struct ClientSettings {
+    // key bindings from the config, merged with the defaults
+    KeyBindings keyBindings;
+    // readings kept for idle.restore_reading. 0 disables it
+    int readingHistorySize = 5;
+};
+
 struct TextWithCursor {
     std::string before;
     std::string on;
@@ -41,8 +49,7 @@ class ServerApi {
     virtual void insertHiragana(const std::string& text) = 0;
     virtual hazkey::commands::CandidatesResult getCandidates(
         bool isSuggest) = 0;
-    // key bindings from the config, merged with the defaults
-    virtual KeyBindings getKeyBindings() = 0;
+    virtual ClientSettings getClientSettings() = 0;
 };
 
 }  // namespace hazkey::frontend

@@ -9,18 +9,22 @@
 #include "hazkey/frontend/key_event.h"
 #include "hazkey/frontend/keybindings.h"
 #include "hazkey/frontend/output.h"
+#include "hazkey/frontend/reading_history.h"
 #include "hazkey/frontend/server_api.h"
 
 namespace hazkey::frontend {
 
 // Key handling state machine shared by all frontends. One instance per input
-// context (fcitx5) or session (emacs).
+// context (fcitx5) or session (emacs). The reading history is shared by all
+// instances in the process.
 class StateMachine {
    public:
-    StateMachine(ServerApi& server, FrontendHooks& hooks);
+    StateMachine(ServerApi& server, FrontendHooks& hooks,
+                 ReadingHistory& history);
 
     Output keyEvent(const KeyEvent& event);
-    // Discard the composition (e.g. on input method activation).
+    // Discard the composition (e.g. on input method activation, focus out
+    // or a click in the application). The reading is kept in the history.
     Output reset();
     // Commit the current preedit as is, then reset (e.g. on deactivation).
     Output commitAndReset();
@@ -37,6 +41,9 @@ class StateMachine {
     using CharType = ServerApi::CharType;
 
     Output finish(KeyResult result);
+    // read the key bindings and the history size from the profile
+    void applyClientSettings();
+    static bool isModifierKey(uint32_t sym);
 
     // key handlers. return true if consumed, false to pass the key to the
     // application
@@ -74,6 +81,15 @@ class StateMachine {
     void completePrefixAndCommit();
     void restoreShelvedReadings();
     void clearShelvedReadings();
+    // shelved readings in the order they were typed
+    std::string shelvedReadingsInOrder() const;
+
+    // Keep the reading of the whole composition in the history. Called
+    // before it is committed or discarded. withShelved adds the shelved
+    // readings when they are discarded with it.
+    void rememberReading(bool withShelved);
+    // replace the composition with the reading at the index of the history
+    void restoreReading(size_t index);
 
     // preedit
     void setMultiSegmentPreedit(const std::vector<std::string>& texts,
@@ -92,6 +108,7 @@ class StateMachine {
 
     ServerApi& server_;
     FrontendHooks& hooks_;
+    ReadingHistory& history_;
     KeyBindings keyBindings_;
 
     bool isCursorMoving_ = false;
@@ -101,6 +118,9 @@ class StateMachine {
     int livePreeditIndex_ = -1;
     bool completedWithNoRemaining_ = false;
     std::vector<std::string> shelvedReadings_;
+    // index in the history of the reading restored by the last key, while
+    // the same key goes back to older ones. -1 otherwise
+    int recallIndex_ = -1;
 
     // text committed when the preedit is committed as is. also sent to the
     // server as the current preedit.

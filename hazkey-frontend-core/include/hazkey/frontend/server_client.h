@@ -34,7 +34,7 @@ class ServerClient : public ServerApi {
     std::string completePrefixClauses() override;
     void insertHiragana(const std::string& text) override;
     hazkey::commands::CandidatesResult getCandidates(bool isSuggest) override;
-    KeyBindings getKeyBindings() override;
+    ClientSettings getClientSettings() override;
 
     // tryConnect = false when the server must not be started, e.g. while
     // the session is shutting down.
@@ -50,10 +50,10 @@ class ServerClient : public ServerApi {
     ServerConnection& connection_;
     ConnectionHooks& hooks_;
 
-    // the key bindings last received, serialized, and the result of reading
+    // the settings last received, serialized, and the result of reading
     // them. read again only when they change, so that errors are logged once.
-    std::string lastKeyBindings_;
-    KeyBindings keyBindings_;
+    std::string lastSettings_;
+    ClientSettings settings_;
 };
 
 }  // namespace hazkey::frontend
