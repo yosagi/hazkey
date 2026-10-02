@@ -231,6 +231,15 @@ struct Hazkey_Config_Profile: @unchecked Sendable {
   /// Clears the value of `autoConvertMinChars`. Subsequent reads from it will return its default value.
   mutating func clearAutoConvertMinChars() {_uniqueStorage()._autoConvertMinChars = nil}
 
+  var showTrailingFurigana: Bool {
+    get {return _storage._showTrailingFurigana ?? false}
+    set {_uniqueStorage()._showTrailingFurigana = newValue}
+  }
+  /// Returns true if `showTrailingFurigana` has been explicitly set.
+  var hasShowTrailingFurigana: Bool {return _storage._showTrailingFurigana != nil}
+  /// Clears the value of `showTrailingFurigana`. Subsequent reads from it will return its default value.
+  mutating func clearShowTrailingFurigana() {_uniqueStorage()._showTrailingFurigana = nil}
+
   var useDefaultConversionUiSettings: Bool {
     get {return _storage._useDefaultConversionUiSettings ?? false}
     set {_uniqueStorage()._useDefaultConversionUiSettings = newValue}
@@ -1127,6 +1136,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
     14: .standard(proto: "use_rich_suggestion"),
     15: .standard(proto: "num_suggestions"),
     16: .standard(proto: "auto_convert_min_chars"),
+    17: .standard(proto: "show_trailing_furigana"),
     20: .standard(proto: "use_default_conversion_ui_settings"),
     21: .standard(proto: "num_candidates_per_page"),
     22: .standard(proto: "use_rich_candidates"),
@@ -1166,6 +1176,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
     var _useRichSuggestion: Bool? = nil
     var _numSuggestions: Int32? = nil
     var _autoConvertMinChars: Int32? = nil
+    var _showTrailingFurigana: Bool? = nil
     var _useDefaultConversionUiSettings: Bool? = nil
     var _numCandidatesPerPage: Int32? = nil
     var _useRichCandidates: Bool? = nil
@@ -1212,6 +1223,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
       _useRichSuggestion = source._useRichSuggestion
       _numSuggestions = source._numSuggestions
       _autoConvertMinChars = source._autoConvertMinChars
+      _showTrailingFurigana = source._showTrailingFurigana
       _useDefaultConversionUiSettings = source._useDefaultConversionUiSettings
       _numCandidatesPerPage = source._numCandidatesPerPage
       _useRichCandidates = source._useRichCandidates
@@ -1266,6 +1278,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
         case 14: try { try decoder.decodeSingularBoolField(value: &_storage._useRichSuggestion) }()
         case 15: try { try decoder.decodeSingularInt32Field(value: &_storage._numSuggestions) }()
         case 16: try { try decoder.decodeSingularInt32Field(value: &_storage._autoConvertMinChars) }()
+        case 17: try { try decoder.decodeSingularBoolField(value: &_storage._showTrailingFurigana) }()
         case 20: try { try decoder.decodeSingularBoolField(value: &_storage._useDefaultConversionUiSettings) }()
         case 21: try { try decoder.decodeSingularInt32Field(value: &_storage._numCandidatesPerPage) }()
         case 22: try { try decoder.decodeSingularBoolField(value: &_storage._useRichCandidates) }()
@@ -1333,6 +1346,9 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
       } }()
       try { if let v = _storage._autoConvertMinChars {
         try visitor.visitSingularInt32Field(value: v, fieldNumber: 16)
+      } }()
+      try { if let v = _storage._showTrailingFurigana {
+        try visitor.visitSingularBoolField(value: v, fieldNumber: 17)
       } }()
       try { if let v = _storage._useDefaultConversionUiSettings {
         try visitor.visitSingularBoolField(value: v, fieldNumber: 20)
@@ -1431,6 +1447,7 @@ extension Hazkey_Config_Profile: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
         if _storage._useRichSuggestion != rhs_storage._useRichSuggestion {return false}
         if _storage._numSuggestions != rhs_storage._numSuggestions {return false}
         if _storage._autoConvertMinChars != rhs_storage._autoConvertMinChars {return false}
+        if _storage._showTrailingFurigana != rhs_storage._showTrailingFurigana {return false}
         if _storage._useDefaultConversionUiSettings != rhs_storage._useDefaultConversionUiSettings {return false}
         if _storage._numCandidatesPerPage != rhs_storage._numCandidatesPerPage {return false}
         if _storage._useRichCandidates != rhs_storage._useRichCandidates {return false}

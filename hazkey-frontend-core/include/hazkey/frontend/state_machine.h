@@ -101,7 +101,6 @@ class StateMachine {
     int livePreeditIndex_ = -1;
     bool completedWithNoRemaining_ = false;
     std::vector<std::string> shelvedReadings_;
-    std::string lastTrailingClauseYomi_;
 
     // text committed when the preedit is committed as is. also sent to the
     // server as the current preedit.

@@ -30,7 +30,7 @@ class ServerClient : public ServerApi {
     void newComposingText() override;
     void completePrefix(int index) override;
     void directConversionComplete(CharType charType) override;
-    void deleteTrailingClause() override;
+    std::string deleteTrailingClause() override;
     std::string completePrefixClauses() override;
     void insertHiragana(const std::string& text) override;
     hazkey::commands::CandidatesResult getCandidates(bool isSuggest) override;

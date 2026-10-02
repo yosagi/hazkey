@@ -147,6 +147,7 @@ struct SuggestionListMode {
 };
 
 struct CheckboxDefaults {
+    static constexpr bool SHOW_TRAILING_FURIGANA = true;
     static constexpr bool USE_HISTORY = false;
     static constexpr bool STOP_STORE_NEW_HISTORY = false;
     static constexpr bool ENABLE_ZENZAI = false;

@@ -248,11 +248,15 @@ class HazkeyServerState {
                 $0.errorMessage = "No trailing clause info available"
             }
         }
+        // return the deleted reading so that the client can restore it later
+        let deleted = String(
+            composingText.value.convertTargetBeforeCursor.suffix(lastTrailingClauseYomiCount))
         composingText.value.deleteBackwardFromCursorPosition(count: lastTrailingClauseYomiCount)
         lastTrailingClauseYomiCount = 0
         lastLiveTextCandidate = nil
         return Hazkey_ResponseEnvelope.with {
             $0.status = .success
+            $0.text = deleted
         }
     }
 
@@ -582,10 +586,15 @@ class HazkeyServerState {
                     candidatesResult.stablePrefixLength = Int32(
                         candidate.text.count - trailingWord.count)
                     let trailingRuby = trailingElements.map(\.ruby).joined()
-                    candidatesResult.trailingClauseYomi =
+                    let trailingYomi =
                         trailingRuby.applyingTransform(
                             .hiraganaToKatakana, reverse: true) ?? trailingRuby
-                    self.lastTrailingClauseYomiCount = candidatesResult.trailingClauseYomi.count
+                    // the reading is sent only to be shown as furigana
+                    let profile = self.serverConfig.currentProfile
+                    if !profile.hasShowTrailingFurigana || profile.showTrailingFurigana {
+                        candidatesResult.trailingClauseYomi = trailingYomi
+                    }
+                    self.lastTrailingClauseYomiCount = trailingYomi.count
                     self.lastLiveTextCandidate = candidate
                 }
 

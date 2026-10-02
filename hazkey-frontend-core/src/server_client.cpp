@@ -115,10 +115,12 @@ void ServerClient::directConversionComplete(CharType charType) {
     request("directConversionComplete", req);
 }
 
-void ServerClient::deleteTrailingClause() {
+std::string ServerClient::deleteTrailingClause() {
     hazkey::RequestEnvelope req;
     req.mutable_delete_trailing_clause();
-    request("deleteTrailingClause", req);
+    auto response = request("deleteTrailingClause", req);
+    if (!response) return "";
+    return response->text();
 }
 
 std::string ServerClient::completePrefixClauses() {

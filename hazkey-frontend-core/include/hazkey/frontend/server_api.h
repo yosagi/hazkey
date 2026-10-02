@@ -35,7 +35,8 @@ class ServerApi {
     virtual void newComposingText() = 0;
     virtual void completePrefix(int index) = 0;
     virtual void directConversionComplete(CharType charType) = 0;
-    virtual void deleteTrailingClause() = 0;
+    // returns the deleted reading, or an empty string when nothing is deleted
+    virtual std::string deleteTrailingClause() = 0;
     virtual std::string completePrefixClauses() = 0;
     virtual void insertHiragana(const std::string& text) = 0;
     virtual hazkey::commands::CandidatesResult getCandidates(

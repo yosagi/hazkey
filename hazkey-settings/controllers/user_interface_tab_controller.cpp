@@ -32,6 +32,12 @@ void UserInterfaceTabController::loadFromConfig() {
     SET_SPINBOX(ui_->numCandidatesPerPage,
                 context_.currentProfile->num_candidates_per_page(),
                 ConfigDefs::SpinboxDefaults::NUM_CANDIDATES_PER_PAGE);
+    // unset means the furigana is shown, as before the option existed
+    SET_CHECKBOX(ui_->showTrailingFurigana,
+                 context_.currentProfile->has_show_trailing_furigana()
+                     ? context_.currentProfile->show_trailing_furigana()
+                     : ConfigDefs::CheckboxDefaults::SHOW_TRAILING_FURIGANA,
+                 ConfigDefs::CheckboxDefaults::SHOW_TRAILING_FURIGANA);
 }
 
 void UserInterfaceTabController::saveToConfig() {
@@ -50,6 +56,8 @@ void UserInterfaceTabController::saveToConfig() {
         GET_SPINBOX_INT(ui_->autoConvertMinChars));
     context_.currentProfile->set_num_candidates_per_page(
         GET_SPINBOX_INT(ui_->numCandidatesPerPage));
+    context_.currentProfile->set_show_trailing_furigana(
+        GET_CHECKBOX_BOOL(ui_->showTrailingFurigana));
 }
 
 }  // namespace hazkey::settings

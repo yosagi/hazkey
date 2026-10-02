@@ -407,8 +407,7 @@ bool StateMachine::showCandidateList(bool isSuggest) {
     resetPanel();
 
     if (!response.live_text().empty()) {
-        lastTrailingClauseYomi_ = response.trailing_clause_yomi();
-        auto furigana = lastTrailingClauseYomi_;
+        auto furigana = response.trailing_clause_yomi();
         // furigana is useful only when the trailing clause ends with kanji
         if (!furigana.empty() &&
             !isKanji(utf8::lastCodePoint(response.live_text()))) {
@@ -552,12 +551,11 @@ void StateMachine::setHiraganaAux() {
 /// Clause partial operations
 
 void StateMachine::shelveTrailingClause() {
-    if (lastTrailingClauseYomi_.empty()) {
+    auto deleted = server_.deleteTrailingClause();
+    if (deleted.empty()) {
         return;
     }
-    shelvedReadings_.push_back(lastTrailingClauseYomi_);
-    server_.deleteTrailingClause();
-    lastTrailingClauseYomi_.clear();
+    shelvedReadings_.push_back(deleted);
     showPreeditCandidateList();
 }
 
