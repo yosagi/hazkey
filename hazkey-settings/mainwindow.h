@@ -11,6 +11,7 @@
 #include "controllers/conversion_tab_controller.h"
 #include "controllers/dictionary_tab_controller.h"
 #include "controllers/input_style_tab_controller.h"
+#include "controllers/key_bindings_tab_controller.h"
 #include "controllers/tab_context.h"
 #include "controllers/user_interface_tab_controller.h"
 #include "serverconnector.h"
@@ -48,6 +49,7 @@ class MainWindow : public QWidget {
     std::unique_ptr<hazkey::settings::UserInterfaceTabController> uiTab_;
     std::unique_ptr<hazkey::settings::ConversionTabController> conversionTab_;
     std::unique_ptr<hazkey::settings::InputStyleTabController> inputStyleTab_;
+    std::unique_ptr<hazkey::settings::KeyBindingsTabController> keyBindingsTab_;
     std::unique_ptr<hazkey::settings::DictionaryTabController> dictionaryTab_;
     std::unique_ptr<hazkey::settings::AiTabController> aiTab_;
     std::unique_ptr<hazkey::settings::AboutTabController> aboutTab_;

@@ -201,6 +201,339 @@ UIを更新するには再読み込みボタンを押してください。</tran
     </message>
 </context>
 <context>
+    <name>KeyBindingsTabController</name>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="52"/>
+        <source>Commit</source>
+        <translation>確定</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="53"/>
+        <source>Commit the text.</source>
+        <translation>入力中の文字列を確定します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="55"/>
+        <source>Commit before the focused clause</source>
+        <translation>注目文節より前を確定</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="57"/>
+        <source>Commit only the part before the focused (highlighted) clause.</source>
+        <translation>注目文節（ハイライト）より前の部分だけを確定します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="61"/>
+        <source>Shelve the focused clause</source>
+        <translation>注目文節を退避</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="62"/>
+        <source>Remove the focused clause and keep its reading. Committing brings it back; typing or cancelling discards it.</source>
+        <translation>注目文節を消して読みを取っておきます。確定すると戻り、文字を入力するか取り消すと捨てられます。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="67"/>
+        <source>Delete a character</source>
+        <translation>1文字消す</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="68"/>
+        <source>Delete the character before the cursor.</source>
+        <translation>カーソルの左の1文字を消します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="71"/>
+        <source>Delete the character to the right</source>
+        <translation>右の1文字を消す</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="73"/>
+        <source>Delete the character after the cursor.</source>
+        <translation>カーソルの右の1文字を消します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="76"/>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="77"/>
+        <source>Discard the text being composed.</source>
+        <translation>入力中の文字列を取り消します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="80"/>
+        <source>Convert</source>
+        <translation>変換</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="81"/>
+        <source>Convert and show the candidates.</source>
+        <translation>変換して候補を表示します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="84"/>
+        <source>Insert a space</source>
+        <translation>空白を入力</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="85"/>
+        <source>Insert a space character.</source>
+        <translation>空白文字を入力します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="88"/>
+        <source>Focus the candidates</source>
+        <translation>候補一覧に入る</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="89"/>
+        <source>Move into the candidate list.</source>
+        <translation>候補一覧に移ります。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="92"/>
+        <source>Move the cursor left</source>
+        <translation>カーソルを左へ</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="93"/>
+        <source>Move the cursor to the left.</source>
+        <translation>カーソルを左へ動かします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="96"/>
+        <source>Move the cursor right</source>
+        <translation>カーソルを右へ</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="97"/>
+        <source>Move the cursor to the right (only after moving left).</source>
+        <translation>カーソルを右へ動かします（左へ動かした後だけ）。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="102"/>
+        <source>Next candidate</source>
+        <translation>次の候補</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="103"/>
+        <source>Select the next candidate.</source>
+        <translation>次の候補を選びます。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="106"/>
+        <source>Previous candidate</source>
+        <translation>前の候補</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="107"/>
+        <source>Select the previous candidate.</source>
+        <translation>前の候補を選びます。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="110"/>
+        <source>Next page</source>
+        <translation>次のページ</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="111"/>
+        <source>Show the next page of candidates.</source>
+        <translation>候補の次のページを表示します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="114"/>
+        <source>Previous page</source>
+        <translation>前のページ</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="115"/>
+        <source>Show the previous page of candidates.</source>
+        <translation>候補の前のページを表示します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="118"/>
+        <source>Extend the clause</source>
+        <translation>文節を伸ばす</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="119"/>
+        <source>Move the clause boundary to the right.</source>
+        <translation>文節の区切りを右へ動かします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="122"/>
+        <source>Shorten the clause</source>
+        <translation>文節を縮める</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="123"/>
+        <source>Move the clause boundary to the left.</source>
+        <translation>文節の区切りを左へ動かします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="126"/>
+        <source>Commit the candidate</source>
+        <translation>候補を確定</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="127"/>
+        <source>Commit the selected candidate.</source>
+        <translation>選んでいる候補で確定します。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="130"/>
+        <source>Back to composing</source>
+        <translation>入力中に戻る</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="131"/>
+        <source>Return to composing (while adjusting a clause boundary, undo the adjustment).</source>
+        <translation>入力中に戻ります（文節の区切りを調整中なら、調整を取りやめます）。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="136"/>
+        <source>Back to composing (delete)</source>
+        <translation>入力中に戻る（削除）</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="138"/>
+        <source>Return to composing.</source>
+        <translation>入力中に戻ります。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="141"/>
+        <source>To hiragana</source>
+        <translation>ひらがなにする</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="142"/>
+        <source>Convert the text to hiragana.</source>
+        <translation>入力中の文字列をひらがなにします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="145"/>
+        <source>To full-width katakana</source>
+        <translation>全角カタカナにする</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="146"/>
+        <source>Convert the text to full-width katakana.</source>
+        <translation>入力中の文字列を全角カタカナにします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="149"/>
+        <source>To half-width katakana</source>
+        <translation>半角カタカナにする</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="150"/>
+        <source>Convert the text to half-width katakana.</source>
+        <translation>入力中の文字列を半角カタカナにします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="153"/>
+        <source>To full-width alphanumeric</source>
+        <translation>全角英数にする</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="155"/>
+        <source>Convert the text to full-width alphanumeric characters.</source>
+        <translation>入力中の文字列を全角英数にします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="159"/>
+        <source>To half-width alphanumeric</source>
+        <translation>半角英数にする</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="161"/>
+        <source>Convert the text to half-width alphanumeric characters.</source>
+        <translation>入力中の文字列を半角英数にします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="166"/>
+        <source>Restore reading</source>
+        <translation>読みを戻す</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="167"/>
+        <source>Bring back the reading of a recent composition. Pressing again goes back one more. While nothing is composed, this key does not reach the application.</source>
+        <translation>最近の入力の読みを未確定の文字列として戻します。続けて押すと一つ前に遡ります。何も入力していないとき、このキーはアプリに届きません。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="184"/>
+        <source>While composing</source>
+        <translation>入力中</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="187"/>
+        <source>While choosing a candidate</source>
+        <translation>候補選択中</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="190"/>
+        <source>While composing or choosing a candidate</source>
+        <translation>入力中・候補選択中</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="194"/>
+        <source>While nothing is composed</source>
+        <translation>何も入力していないとき</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="314"/>
+        <source>(none)</source>
+        <translation>（なし）</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="351"/>
+        <source>%1 is assigned to both &quot;%2&quot; and &quot;%3&quot;. The one listed first wins.</source>
+        <translation>%1 は「%2」と「%3」の両方に割り当てられています。表で上にあるほうが効きます。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="366"/>
+        <source>&quot;%1&quot; of &quot;%2&quot; cannot be read and is ignored by the clients.</source>
+        <translation>「%2」の「%1」は読めないキーなので無視されます。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="451"/>
+        <source>Reset All to Default</source>
+        <translation>すべて既定に戻す</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="453"/>
+        <source>Reset the keys of all operations to the defaults?</source>
+        <translation>すべての操作のキーを既定に戻しますか?</translation>
+    </message>
+</context>
+<context>
+    <name>KeyCaptureDialog</name>
+    <message>
+        <location filename="controllers/key_capture_dialog.cpp" line="130"/>
+        <source>Add Key</source>
+        <translation>キーを追加</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_capture_dialog.cpp" line="138"/>
+        <source>Press the key to assign.
+Modifiers (Control, Shift, Alt) are taken as held.</source>
+        <translation>割り当てるキーを押してください。
+押しながらの Control / Shift / Alt が修飾になります。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_capture_dialog.cpp" line="151"/>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_capture_dialog.cpp" line="169"/>
+        <source>This key cannot be assigned.</source>
+        <translation>このキーは割り当てられません。</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <location filename="mainwindow.ui" line="26"/>
@@ -572,211 +905,261 @@ UIを更新するには再読み込みボタンを押してください。</tran
     </message>
     <message>
         <location filename="mainwindow.ui" line="1447"/>
+        <source>Key Bindings</source>
+        <translation>キー操作</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1468"/>
+        <source>Keys of the operations while composing and while choosing a candidate. They apply to every client (fcitx5, ibus, Emacs). Select an operation and press &quot;Add Key...&quot; to assign a key by pressing it.</source>
+        <translation>入力中と候補選択中の操作のキーです。fcitx5 / ibus / Emacs のすべてに効きます。操作を選んで「キーを追加...」を押し、割り当てたいキーを押してください。</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1494"/>
+        <source>Operation</source>
+        <translation>操作</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1499"/>
+        <source>Keys</source>
+        <translation>キー</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1504"/>
+        <source>Default</source>
+        <translation>既定</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1514"/>
+        <source>Add Key...</source>
+        <translation>キーを追加...</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1521"/>
+        <source>Remove Key</source>
+        <translation>キーを削除</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1528"/>
+        <source>Reset to Default</source>
+        <translation>既定に戻す</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1548"/>
+        <source>Reset All to Default</source>
+        <translation>すべて既定に戻す</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1570"/>
+        <source>Not changeable here: choosing a candidate by number (1-9, 0, Alt+1-9), the keys that turn the IME on and off (set in fcitx5 / ibus), and space while nothing is composed. The number of readings kept for &quot;Restore reading&quot; is in the User Interface tab.</source>
+        <translation>ここでは変えられないもの: 候補の番号選択（1〜9、0、Alt+1〜9）、IME のオン・オフ（fcitx5 / ibus の設定）、何も入力していないときの空白。「読みを戻す」で覚えておく件数は「入力 UI」タブにあります。</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1584"/>
         <source>Dictionary</source>
         <translation>辞書</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1492"/>
+        <location filename="mainwindow.ui" line="1629"/>
         <source>This feature is not yet implemented</source>
         <translation>この機能は未実装です</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1502"/>
+        <location filename="mainwindow.ui" line="1639"/>
         <source>Use user dictionary</source>
         <translation>ユーザー辞書を使用</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1517"/>
+        <location filename="mainwindow.ui" line="1654"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Note:&lt;/span&gt; User dictionaries are shared across profiles.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;メモ:&lt;/span&gt; ユーザー辞書はプロファイル間で共有されます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1551"/>
+        <location filename="mainwindow.ui" line="1688"/>
         <source>Import...</source>
         <translation>インポート...</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1561"/>
+        <location filename="mainwindow.ui" line="1698"/>
         <source>Export...</source>
         <translation>エクスポート...</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1571"/>
+        <location filename="mainwindow.ui" line="1708"/>
         <source>New</source>
         <translation>新規</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1584"/>
+        <location filename="mainwindow.ui" line="1721"/>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1603"/>
+        <location filename="mainwindow.ui" line="1740"/>
         <source>AI</source>
         <translation>AI</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1656"/>
+        <location filename="mainwindow.ui" line="1793"/>
         <source>Zenzai (Neural Conversion)</source>
         <translation>Zenzai（ニューラル変換）</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1721"/>
+        <location filename="mainwindow.ui" line="1858"/>
         <source>Inference limit</source>
         <translation>推論制限</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1758"/>
+        <location filename="mainwindow.ui" line="1895"/>
         <source>Backend</source>
         <translation>バックエンド</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1887"/>
+        <location filename="mainwindow.ui" line="2024"/>
         <source>0.0.0</source>
         <translation>0.0.0</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1711"/>
+        <location filename="mainwindow.ui" line="1848"/>
         <source>Use contextual conversion</source>
         <translation>文脈変換を使用</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1751"/>
+        <location filename="mainwindow.ui" line="1888"/>
         <source>User profile</source>
         <translation>ユーザープロファイル</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1704"/>
+        <location filename="mainwindow.ui" line="1841"/>
         <source>Enable Zenzai</source>
         <translation>Zenzaiを有効化</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1785"/>
+        <location filename="mainwindow.ui" line="1922"/>
         <source>About</source>
         <translation>情報</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1874"/>
+        <location filename="mainwindow.ui" line="2011"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt;&quot;&gt;Hazkey&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt;&quot;&gt;Hazkey&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1957"/>
+        <location filename="mainwindow.ui" line="2094"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Conversion engine provided by &lt;a href=&quot;https://azookey.com/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;azooKey&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;変換エンジンは &lt;a href=&quot;https://azookey.com/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;azooKey&lt;/span&gt;&lt;/a&gt; によって提供されています。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2008"/>
+        <location filename="mainwindow.ui" line="2145"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://hazkey.hiira.dev/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Website&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://hazkey.hiira.dev/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;ウェブサイト&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2021"/>
+        <location filename="mainwindow.ui" line="2158"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://hazkey.hiira.dev/docs&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Document&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://hazkey.hiira.dev/docs&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;ドキュメント&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2034"/>
+        <location filename="mainwindow.ui" line="2171"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/7ka-Hiira/fcitx5-hazkey&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Source code&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/7ka-Hiira/fcitx5-hazkey&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;ソースコード&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2047"/>
+        <location filename="mainwindow.ui" line="2184"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/7ka-Hiira/fcitx5-hazkey/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Issue report&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/7ka-Hiira/fcitx5-hazkey/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;不具合報告&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="48"/>
-        <location filename="mainwindow.cpp" line="206"/>
+        <location filename="mainwindow.cpp" line="49"/>
         <location filename="mainwindow.cpp" line="213"/>
         <location filename="mainwindow.cpp" line="220"/>
-        <location filename="mainwindow.cpp" line="226"/>
+        <location filename="mainwindow.cpp" line="227"/>
+        <location filename="mainwindow.cpp" line="233"/>
         <source>Configuration Error</source>
         <translation>設定エラー</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="49"/>
+        <location filename="mainwindow.cpp" line="50"/>
         <source>Failed to load configuration. Please check your connection to the hazkey server.</source>
         <translation>設定の読み込みに失敗しました。hazkeyサーバーへの接続を確認してください。</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="154"/>
+        <location filename="mainwindow.cpp" line="160"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="155"/>
+        <location filename="mainwindow.cpp" line="161"/>
         <source>No configuration profile loaded.</source>
         <translation>設定プロファイルが読み込まれていません。</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="170"/>
-        <location filename="mainwindow.cpp" line="175"/>
+        <location filename="mainwindow.cpp" line="177"/>
+        <location filename="mainwindow.cpp" line="182"/>
         <source>Save Error</source>
         <translation>保存エラー</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="171"/>
+        <location filename="mainwindow.cpp" line="178"/>
         <source>Failed to save configuration: %1</source>
         <translation>設定の保存に失敗しました: %1</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="176"/>
+        <location filename="mainwindow.cpp" line="183"/>
         <source>An unknown error occurred while saving configuration.</source>
         <translation>設定の保存中に不明なエラーが発生しました。</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="35"/>
+        <location filename="mainwindow.cpp" line="36"/>
         <source>Reload</source>
         <translation>再読み込み</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="183"/>
+        <location filename="mainwindow.cpp" line="190"/>
         <source>Reload Configuration</source>
         <translation>設定を再読み込み</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="184"/>
+        <location filename="mainwindow.cpp" line="191"/>
         <source>Reloading will discard any unsaved changes. Continue?</source>
         <translation>再読み込みすると、保存されていない変更は失われます。続行しますか？</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="192"/>
+        <location filename="mainwindow.cpp" line="199"/>
         <source>Connection Error</source>
         <translation>接続エラー</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="193"/>
+        <location filename="mainwindow.cpp" line="200"/>
         <source>Failed to connect to server.</source>
         <translation>サーバーへの接続に失敗しました。</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="207"/>
+        <location filename="mainwindow.cpp" line="214"/>
         <source>Failed to load configuration from server.</source>
         <translation>サーバーから設定を読み込めませんでした。</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="214"/>
+        <location filename="mainwindow.cpp" line="221"/>
         <source>No profile found in configuration.</source>
         <translation>設定にプロファイルが見つかりません。</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="221"/>
+        <location filename="mainwindow.cpp" line="228"/>
         <source>Failed to access profile.</source>
         <translation>プロファイルへのアクセスに失敗しました。</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="227"/>
+        <location filename="mainwindow.cpp" line="234"/>
         <source>Failed to update UI.</source>
         <translation>UIの更新に失敗しました。</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="233"/>
+        <location filename="mainwindow.cpp" line="240"/>
         <source>Reload Complete</source>
         <translation>再読み込み完了</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="234"/>
+        <location filename="mainwindow.cpp" line="241"/>
         <source>Configuration has been reloaded successfully.</source>
         <translation>設定が正常に再読み込みされました。</translation>
     </message>

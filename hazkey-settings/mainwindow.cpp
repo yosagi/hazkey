@@ -16,6 +16,7 @@ using hazkey::settings::AiTabController;
 using hazkey::settings::ConversionTabController;
 using hazkey::settings::DictionaryTabController;
 using hazkey::settings::InputStyleTabController;
+using hazkey::settings::KeyBindingsTabController;
 using hazkey::settings::TabContext;
 using hazkey::settings::UserInterfaceTabController;
 
@@ -60,6 +61,8 @@ void MainWindow::setupControllers() {
     conversionTab_ =
         std::make_unique<ConversionTabController>(ui_, this, &server_, this);
     inputStyleTab_ = std::make_unique<InputStyleTabController>(ui_, this);
+    keyBindingsTab_ =
+        std::make_unique<KeyBindingsTabController>(ui_, this, this);
     dictionaryTab_ = std::make_unique<DictionaryTabController>(this);
     aiTab_ = std::make_unique<AiTabController>(ui_, this, networkManager_.get(),
                                                this);
@@ -67,6 +70,7 @@ void MainWindow::setupControllers() {
 
     conversionTab_->connectSignals();
     inputStyleTab_->connectSignals();
+    keyBindingsTab_->connectSignals();
     aiTab_->connectSignals();
 }
 
@@ -78,6 +82,7 @@ void MainWindow::bindContexts() {
     uiTab_->setContext(controllerContext_);
     conversionTab_->setContext(controllerContext_);
     inputStyleTab_->setContext(controllerContext_);
+    keyBindingsTab_->setContext(controllerContext_);
     dictionaryTab_->setContext(controllerContext_);
     aiTab_->setContext(controllerContext_);
 }
@@ -143,6 +148,7 @@ bool MainWindow::loadCurrentConfig(bool fetchConfig) {
     uiTab_->loadFromConfig();
     conversionTab_->loadFromConfig();
     inputStyleTab_->loadFromConfig();
+    keyBindingsTab_->loadFromConfig();
     dictionaryTab_->loadFromConfig();
     aiTab_->loadFromConfig();
 
@@ -159,6 +165,7 @@ bool MainWindow::saveCurrentConfig() {
     uiTab_->saveToConfig();
     conversionTab_->saveToConfig();
     inputStyleTab_->saveToConfig();
+    keyBindingsTab_->saveToConfig();
     dictionaryTab_->saveToConfig();
     aiTab_->saveToConfig();
 

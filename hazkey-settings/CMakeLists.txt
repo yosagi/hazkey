@@ -37,6 +37,10 @@ set(PROJECT_SOURCES
     controllers/conversion_tab_controller.h
     controllers/input_style_tab_controller.cpp
     controllers/input_style_tab_controller.h
+    controllers/key_bindings_tab_controller.cpp
+    controllers/key_bindings_tab_controller.h
+    controllers/key_capture_dialog.cpp
+    controllers/key_capture_dialog.h
     controllers/dictionary_tab_controller.cpp
     controllers/dictionary_tab_controller.h
     controllers/ai_tab_controller.cpp

@@ -1442,6 +1442,143 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="keyBindingsTab">
+      <attribute name="title">
+       <string>Key Bindings</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="keyBindingsTabLayout">
+       <property name="spacing">
+        <number>10</number>
+       </property>
+       <property name="leftMargin">
+        <number>10</number>
+       </property>
+       <property name="topMargin">
+        <number>10</number>
+       </property>
+       <property name="rightMargin">
+        <number>10</number>
+       </property>
+       <property name="bottomMargin">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="keyBindingsDescription">
+         <property name="text">
+          <string>Keys of the operations while composing and while choosing a candidate. They apply to every client (fcitx5, ibus, Emacs). Select an operation and press &quot;Add Key...&quot; to assign a key by pressing it.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="keyBindingTree">
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+         <property name="itemsExpandable">
+          <bool>false</bool>
+         </property>
+         <property name="allColumnsShowFocus">
+          <bool>true</bool>
+         </property>
+         <attribute name="headerStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>Operation</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Keys</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Default</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="keyBindingButtons">
+         <item>
+          <widget class="QPushButton" name="keyBindingAddButton">
+           <property name="text">
+            <string>Add Key...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="keyBindingRemoveButton">
+           <property name="text">
+            <string>Remove Key</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="keyBindingResetButton">
+           <property name="text">
+            <string>Reset to Default</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="keyBindingButtonSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="keyBindingResetAllButton">
+           <property name="text">
+            <string>Reset All to Default</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="keyBindingWarnings">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::TextFormat::PlainText</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="keyBindingsNote">
+         <property name="text">
+          <string>Not changeable here: choosing a candidate by number (1-9, 0, Alt+1-9), the keys that turn the IME on and off (set in fcitx5 / ibus), and space while nothing is composed. The number of readings kept for &quot;Restore reading&quot; is in the User Interface tab.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="dictionaryTab">
       <attribute name="title">
        <string>Dictionary</string>
