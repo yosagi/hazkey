@@ -29,6 +29,21 @@ static int charCount(const std::string& text) {
 }
 
 static std::string buildPreedit(const Output& output) {
+    // mozc.el places the point from `cursor` only when there is one
+    // segment. so with a caret inside the preedit, send it as one plain
+    // segment and lose the decoration of the clauses
+    if (output.preedit.caretChar >= 0) {
+        std::string text;
+        for (const auto& seg : output.preedit.displaySegments()) {
+            text += seg.text;
+        }
+        if (text.empty()) return "";
+        return "(preedit . ((cursor . " +
+               std::to_string(output.preedit.caretChar) +
+               ")(segment ((annotation . underline)(value . " +
+               QuoteString(text) + ")(value-length . " +
+               std::to_string(charCount(text)) + ")))))";
+    }
     std::string segments;
     for (const auto& seg : output.preedit.displaySegments()) {
         if (seg.text.empty()) continue;

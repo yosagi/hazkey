@@ -25,6 +25,9 @@ enum class Action {
     ComposingFocusCandidates,
     ComposingCursorLeft,
     ComposingCursorRight,
+    ComposingCursorHome,
+    ComposingCursorEnd,
+    ComposingToggleReadingView,
 
     CandidateNext,
     CandidatePrev,

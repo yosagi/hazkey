@@ -26,6 +26,7 @@ message RequestEnvelope {
         hazkey.commands.DeleteTrailingClause delete_trailing_clause = 15;
         hazkey.commands.CompletePrefixClauses complete_prefix_clauses = 16;
         hazkey.commands.InsertHiragana insert_hiragana = 17;
+        hazkey.commands.MoveCursorByElement move_cursor_by_element = 18;
 
         hazkey.config.GetConfig get_config = 100;
         hazkey.config.SetConfig set_config = 101;

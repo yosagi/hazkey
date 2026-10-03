@@ -69,8 +69,20 @@ IME のオン・オフを fcitx5 や ibus が握っているキーは、押し�
 | `composing.convert` | space, Henkan | 変換して候補を出す |
 | `composing.insert_space` | Shift+space | 空白を入力する |
 | `composing.focus_candidates` | Up, Down, Tab, Shift+Tab | 候補一覧に入る |
-| `composing.cursor_left` | Left | カーソルを左へ |
-| `composing.cursor_right` | Right | カーソルを右へ（左へ動かした後だけ） |
+| `composing.cursor_left` | Left | カーソルを左へ（変換表示では要素ごと、読み表示では1文字） |
+| `composing.cursor_right` | Right | カーソルを右へ（同上） |
+| `composing.cursor_home` | なし | カーソルを先頭へ |
+| `composing.cursor_end` | なし | カーソルを末尾へ |
+| `composing.toggle_reading_view` | なし | 変換表示と読み表示を切り替える |
+
+入力中のカーソル移動は、未確定の文字列の上でカーソルがどう見えるかが表示によって変わります。
+
+- **変換表示**（普段の表示。自動変換の結果が出ている状態）では、カーソルは**要素**ごとに動きます。要素は変換結果を組み立てている辞書の見出しで、「今日 | はいい | 天気です | ね」のような単位です。学習された言い回しは一つの要素になるので、よく打つ文ほど一跳びが大きくなります
+- `composing.toggle_reading_view` で**読み表示**（打った読みそのもの）に切り替えると、カーソルは1文字ずつ動き、どこでも文字を入れたり消したりできます。カーソルを末尾に戻すか、もう一度切り替えると変換表示に戻り、カーソルは読みのカーソルを含む要素の先頭に寄ります
+- 変換表示でカーソルが途中にあるときに文字を入れたり消したりすると、読み表示に切り替わります（編集しているのは読みなので）
+- 読み表示で `composing.commit` を押すと、まず変換表示に戻ります。もう一度押すと確定します
+- カーソルが途中にあるときに `composing.convert` を押すと、カーソルより前だけを変換します。候補を選ぶとその部分が確定し、残りは入力中のままです。先頭か末尾にあるときは全体を変換します
+- `composing.cursor_home` / `composing.cursor_end` / `composing.toggle_reading_view` に既定のキーはありません。`Control+a` / `Control+e` などは多くのアプリで別の意味を持つためです
 
 候補選択中:
 

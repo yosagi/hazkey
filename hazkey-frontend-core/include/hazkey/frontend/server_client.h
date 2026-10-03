@@ -26,6 +26,7 @@ class ServerClient : public ServerApi {
     void deleteLeft() override;
     void deleteRight() override;
     void moveCursor(int offset) override;
+    void moveCursorByElement(int direction) override;
     void setContext(const std::string& context, int anchor) override;
     void newComposingText() override;
     void completePrefix(int index) override;

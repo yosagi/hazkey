@@ -309,201 +309,231 @@ UIを更新するには再読み込みボタンを押してください。</tran
     </message>
     <message>
         <location filename="controllers/key_bindings_tab_controller.cpp" line="97"/>
-        <source>Move the cursor to the right (only after moving left).</source>
-        <translation>カーソルを右へ動かします（左へ動かした後だけ）。</translation>
+        <source>Move the cursor to the right.</source>
+        <translation>カーソルを右へ動かします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="100"/>
+        <source>Move the cursor to the start</source>
+        <translation>カーソルを先頭へ</translation>
     </message>
     <message>
         <location filename="controllers/key_bindings_tab_controller.cpp" line="102"/>
+        <source>Move the cursor to the start of the text.</source>
+        <translation>カーソルを未確定の文字列の先頭へ動かします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="105"/>
+        <source>Move the cursor to the end</source>
+        <translation>カーソルを末尾へ</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="107"/>
+        <source>Move the cursor to the end of the text.</source>
+        <translation>カーソルを未確定の文字列の末尾へ動かします。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="110"/>
+        <source>Show the reading / the conversion</source>
+        <translation>読み表示と変換表示を切り替える</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="112"/>
+        <source>Switch the text between the reading as typed, where the cursor moves by characters, and the automatic conversion, where it moves by elements.</source>
+        <translation>未確定の文字列を、打った読み（カーソルは1文字ずつ動く）と自動変換の結果（カーソルは要素ごとに動く）で切り替えます。</translation>
+    </message>
+    <message>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="118"/>
         <source>Next candidate</source>
         <translation>次の候補</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="103"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="119"/>
         <source>Select the next candidate.</source>
         <translation>次の候補を選びます。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="106"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="122"/>
         <source>Previous candidate</source>
         <translation>前の候補</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="107"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="123"/>
         <source>Select the previous candidate.</source>
         <translation>前の候補を選びます。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="110"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="126"/>
         <source>Next page</source>
         <translation>次のページ</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="111"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="127"/>
         <source>Show the next page of candidates.</source>
         <translation>候補の次のページを表示します。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="114"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="130"/>
         <source>Previous page</source>
         <translation>前のページ</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="115"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="131"/>
         <source>Show the previous page of candidates.</source>
         <translation>候補の前のページを表示します。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="118"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="134"/>
         <source>Extend the clause</source>
         <translation>文節を伸ばす</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="119"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="135"/>
         <source>Move the clause boundary to the right.</source>
         <translation>文節の区切りを右へ動かします。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="122"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="138"/>
         <source>Shorten the clause</source>
         <translation>文節を縮める</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="123"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="139"/>
         <source>Move the clause boundary to the left.</source>
         <translation>文節の区切りを左へ動かします。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="126"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="142"/>
         <source>Commit the candidate</source>
         <translation>候補を確定</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="127"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="143"/>
         <source>Commit the selected candidate.</source>
         <translation>選んでいる候補で確定します。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="130"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="146"/>
         <source>Back to composing</source>
         <translation>入力中に戻る</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="131"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="147"/>
         <source>Return to composing (while adjusting a clause boundary, undo the adjustment).</source>
         <translation>入力中に戻ります（文節の区切りを調整中なら、調整を取りやめます）。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="136"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="152"/>
         <source>Back to composing (delete)</source>
         <translation>入力中に戻る（削除）</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="138"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="154"/>
         <source>Return to composing.</source>
         <translation>入力中に戻ります。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="141"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="157"/>
         <source>To hiragana</source>
         <translation>ひらがなにする</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="142"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="158"/>
         <source>Convert the text to hiragana.</source>
         <translation>入力中の文字列をひらがなにします。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="145"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="161"/>
         <source>To full-width katakana</source>
         <translation>全角カタカナにする</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="146"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="162"/>
         <source>Convert the text to full-width katakana.</source>
         <translation>入力中の文字列を全角カタカナにします。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="149"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="165"/>
         <source>To half-width katakana</source>
         <translation>半角カタカナにする</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="150"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="166"/>
         <source>Convert the text to half-width katakana.</source>
         <translation>入力中の文字列を半角カタカナにします。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="153"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="169"/>
         <source>To full-width alphanumeric</source>
         <translation>全角英数にする</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="155"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="171"/>
         <source>Convert the text to full-width alphanumeric characters.</source>
         <translation>入力中の文字列を全角英数にします。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="159"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="175"/>
         <source>To half-width alphanumeric</source>
         <translation>半角英数にする</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="161"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="177"/>
         <source>Convert the text to half-width alphanumeric characters.</source>
         <translation>入力中の文字列を半角英数にします。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="166"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="182"/>
         <source>Restore reading</source>
         <translation>読みを戻す</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="167"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="183"/>
         <source>Bring back the reading of a recent composition. Pressing again goes back one more. While nothing is composed, this key does not reach the application.</source>
         <translation>最近の入力の読みを未確定の文字列として戻します。続けて押すと一つ前に遡ります。何も入力していないとき、このキーはアプリに届きません。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="184"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="200"/>
         <source>While composing</source>
         <translation>入力中</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="187"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="203"/>
         <source>While choosing a candidate</source>
         <translation>候補選択中</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="190"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="206"/>
         <source>While composing or choosing a candidate</source>
         <translation>入力中・候補選択中</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="194"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="210"/>
         <source>While nothing is composed</source>
         <translation>何も入力していないとき</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="314"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="330"/>
         <source>(none)</source>
         <translation>（なし）</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="351"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="367"/>
         <source>%1 is assigned to both &quot;%2&quot; and &quot;%3&quot;. The one listed first wins.</source>
         <translation>%1 は「%2」と「%3」の両方に割り当てられています。表で上にあるほうが効きます。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="366"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="382"/>
         <source>&quot;%1&quot; of &quot;%2&quot; cannot be read and is ignored by the clients.</source>
         <translation>「%2」の「%1」は読めないキーなので無視されます。</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="451"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="467"/>
         <source>Reset All to Default</source>
         <translation>すべて既定に戻す</translation>
     </message>
     <message>
-        <location filename="controllers/key_bindings_tab_controller.cpp" line="453"/>
+        <location filename="controllers/key_bindings_tab_controller.cpp" line="469"/>
         <source>Reset the keys of all operations to the defaults?</source>
         <translation>すべての操作のキーを既定に戻しますか?</translation>
     </message>

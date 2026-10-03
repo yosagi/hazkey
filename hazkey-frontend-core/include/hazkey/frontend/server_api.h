@@ -20,6 +20,12 @@ struct TextWithCursor {
     std::string before;
     std::string on;
     std::string after;
+    // position of the cursor on the reading, in characters
+    int readingCursor = 0;
+    // position on the text of the auto-conversion that corresponds to the
+    // cursor, in characters. -1 when the cursor is not on a boundary
+    // between elements or there is no auto-conversion
+    int surfaceCursor = -1;
 };
 
 // Operations on hazkey-server used by the state machine. Each frontend
@@ -39,6 +45,10 @@ class ServerApi {
     virtual void deleteLeft() = 0;
     virtual void deleteRight() = 0;
     virtual void moveCursor(int offset) = 0;
+    // move to the nearest boundary between elements of the auto-conversion:
+    // before the cursor (direction < 0), after it (> 0), or at or before it
+    // (0). By one character when the elements are not available
+    virtual void moveCursorByElement(int direction) = 0;
     virtual void setContext(const std::string& context, int anchor) = 0;
     virtual void newComposingText() = 0;
     virtual void completePrefix(int index) = 0;

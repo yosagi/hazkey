@@ -37,6 +37,15 @@ message MoveCursor {
     int32 offset = 1;
 }
 
+// Move the cursor of the reading to a boundary between the elements
+// (dictionary entries) of the current auto-conversion. direction < 0: the
+// nearest boundary before the cursor, > 0: the nearest one after it, 0: the
+// nearest one at or before it. Falls back to a move by one character when
+// the elements are not available.
+message MoveCursorByElement {
+    int32 direction = 1;
+}
+
 message PrefixComplete {
     int32 index = 1;
 }
@@ -90,6 +99,12 @@ message TextWithCursor {
     string beforeCursosr = 1;
     string onCursor = 2;
     string afterCursor = 3;
+    // position of the cursor on the reading, in characters
+    int32 reading_cursor = 4;
+    // position on the text of the current auto-conversion that corresponds
+    // to the cursor, in characters. -1 when the cursor is not on a boundary
+    // between elements, or when there is no auto-conversion
+    int32 surface_cursor = 5;
 }
 
 message CandidatesResult {

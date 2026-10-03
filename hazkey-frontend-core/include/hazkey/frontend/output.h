@@ -22,6 +22,10 @@ struct Preedit {
     std::vector<Segment> segments;
     // Index of the segment whose start holds the caret. -1 if unspecified.
     int caretSegment = -1;
+    // Position of the caret in characters from the start of the segments
+    // (the furigana is not counted). -1 if unspecified. Takes precedence
+    // over caretSegment.
+    int caretChar = -1;
     // Reading of the trailing clause, for display only: it is not part of
     // the committed text. Empty if there is none to show.
     std::string furigana;

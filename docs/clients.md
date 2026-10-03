@@ -26,6 +26,8 @@ fcitx5 のアドオンとして読み込まれます。
 1. インストール後、fcitx5 を再起動します（`fcitx5 -r`）。KDE の Wayland セッションなど、fcitx5 をデスクトップ側が起動している環境では、ログインし直してください
 2. fcitx5 の設定（`fcitx5-configtool`）の「入力メソッド」で「Hazkey」を追加します
 
+入力中にカーソルを動かすと、未確定の文字列の中にカーソルが出ます（[キーバインド](keybindings.md)の「入力中のカーソル移動」）。アプリが preedit のカーソル位置を描かない場合は、候補ウィンドウの上の読みの中で見られます。
+
 ## ibus 用 hazkey エンジン（ibus-hazkey）
 
 ibus の用語ではエンジンです。ibus-daemon が `ibus-engine-hazkey` を起動します。
@@ -65,4 +67,5 @@ mozc.el は、変換を `mozc_emacs_helper` という別プロセスに任せて
 ```
 
 キー操作は fcitx5 / ibus と同じです（[キーバインド](keybindings.md)の設定も共通です）。
+入力中にカーソルを動かしている間は、mozc.el の都合で未確定の文字列が一つの区間になり、注目文節の色分けは出ません（カーソルが末尾に戻ると元どおりです）。
 helper のログは `$XDG_RUNTIME_DIR/hazkey-emacs/hazkey_emacs_helper.log` に出ます。

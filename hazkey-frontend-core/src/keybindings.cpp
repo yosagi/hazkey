@@ -110,6 +110,12 @@ const std::vector<ActionInfo>& actionTable() {
          {"Left"}},
         {A::ComposingCursorRight, "composing.cursor_right", C::Composing,
          {"Right"}},
+        // no default keys: Control+a / Control+e are the natural choice but
+        // mean other things in most applications
+        {A::ComposingCursorHome, "composing.cursor_home", C::Composing, {}},
+        {A::ComposingCursorEnd, "composing.cursor_end", C::Composing, {}},
+        {A::ComposingToggleReadingView, "composing.toggle_reading_view",
+         C::Composing, {}},
 
         {A::CandidateNext, "candidate.next", C::Candidate,
          {"space", "Tab", "Down"}},

@@ -94,9 +94,25 @@ constexpr ActionName kActionNames[] = {
                        "Move the cursor to the left.")},
     {"composing.cursor_right",
      QT_TRANSLATE_NOOP("KeyBindingsTabController", "Move the cursor right"),
-     QT_TRANSLATE_NOOP(
-         "KeyBindingsTabController",
-         "Move the cursor to the right (only after moving left).")},
+     QT_TRANSLATE_NOOP("KeyBindingsTabController",
+                       "Move the cursor to the right.")},
+    {"composing.cursor_home",
+     QT_TRANSLATE_NOOP("KeyBindingsTabController",
+                       "Move the cursor to the start"),
+     QT_TRANSLATE_NOOP("KeyBindingsTabController",
+                       "Move the cursor to the start of the text.")},
+    {"composing.cursor_end",
+     QT_TRANSLATE_NOOP("KeyBindingsTabController",
+                       "Move the cursor to the end"),
+     QT_TRANSLATE_NOOP("KeyBindingsTabController",
+                       "Move the cursor to the end of the text.")},
+    {"composing.toggle_reading_view",
+     QT_TRANSLATE_NOOP("KeyBindingsTabController",
+                       "Show the reading / the conversion"),
+     QT_TRANSLATE_NOOP("KeyBindingsTabController",
+                       "Switch the text between the reading as typed, where "
+                       "the cursor moves by characters, and the automatic "
+                       "conversion, where it moves by elements.")},
 
     {"candidate.next",
      QT_TRANSLATE_NOOP("KeyBindingsTabController", "Next candidate"),

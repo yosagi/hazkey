@@ -9,6 +9,8 @@ namespace hazkey::frontend::utf8 {
 
 // Byte length of the first `nchars` characters of `text`.
 size_t byteLengthOfChars(const std::string& text, size_t nchars);
+// Number of characters in `text`.
+size_t countChars(const std::string& text);
 // Code point of the last character. 0 if `text` is empty.
 uint32_t lastCodePoint(const std::string& text);
 

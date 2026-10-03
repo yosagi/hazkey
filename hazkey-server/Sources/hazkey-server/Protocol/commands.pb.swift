@@ -154,6 +154,23 @@ struct Hazkey_Commands_MoveCursor: Sendable {
   init() {}
 }
 
+/// Move the cursor of the reading to a boundary between the elements
+/// (dictionary entries) of the current auto-conversion. direction < 0: the
+/// nearest boundary before the cursor, > 0: the nearest one after it, 0: the
+/// nearest one at or before it. Falls back to a move by one character when
+/// the elements are not available.
+struct Hazkey_Commands_MoveCursorByElement: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var direction: Int32 = 0
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 struct Hazkey_Commands_PrefixComplete: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -301,18 +318,30 @@ struct Hazkey_Commands_DirectConversionComplete: Sendable {
 }
 
 struct Hazkey_Commands_DeleteTrailingClause: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
 }
 
 struct Hazkey_Commands_CompletePrefixClauses: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
 }
 
 struct Hazkey_Commands_InsertHiragana: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
   var text: String = String()
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -342,6 +371,14 @@ struct Hazkey_Commands_TextWithCursor: Sendable {
   var onCursor: String = String()
 
   var afterCursor: String = String()
+
+  /// position of the cursor on the reading, in characters
+  var readingCursor: Int32 = 0
+
+  /// position on the text of the current auto-conversion that corresponds
+  /// to the cursor, in characters. -1 when the cursor is not on a boundary
+  /// between elements, or when there is no auto-conversion
+  var surfaceCursor: Int32 = 0
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -608,6 +645,38 @@ extension Hazkey_Commands_MoveCursor: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
+extension Hazkey_Commands_MoveCursorByElement: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".MoveCursorByElement"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "direction"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularInt32Field(value: &self.direction) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.direction != 0 {
+      try visitor.visitSingularInt32Field(value: self.direction, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Hazkey_Commands_MoveCursorByElement, rhs: Hazkey_Commands_MoveCursorByElement) -> Bool {
+    if lhs.direction != rhs.direction {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Hazkey_Commands_PrefixComplete: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".PrefixComplete"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -823,6 +892,9 @@ extension Hazkey_Commands_DirectConversionComplete: SwiftProtobuf.Message, Swift
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularEnumField(value: &self.charType) }()
       default: break
@@ -839,6 +911,76 @@ extension Hazkey_Commands_DirectConversionComplete: SwiftProtobuf.Message, Swift
 
   static func ==(lhs: Hazkey_Commands_DirectConversionComplete, rhs: Hazkey_Commands_DirectConversionComplete) -> Bool {
     if lhs.charType != rhs.charType {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Hazkey_Commands_DeleteTrailingClause: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".DeleteTrailingClause"
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    // Load everything into unknown fields
+    while try decoder.nextFieldNumber() != nil {}
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Hazkey_Commands_DeleteTrailingClause, rhs: Hazkey_Commands_DeleteTrailingClause) -> Bool {
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Hazkey_Commands_CompletePrefixClauses: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".CompletePrefixClauses"
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    // Load everything into unknown fields
+    while try decoder.nextFieldNumber() != nil {}
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Hazkey_Commands_CompletePrefixClauses, rhs: Hazkey_Commands_CompletePrefixClauses) -> Bool {
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Hazkey_Commands_InsertHiragana: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".InsertHiragana"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "text"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.text) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.text.isEmpty {
+      try visitor.visitSingularStringField(value: self.text, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Hazkey_Commands_InsertHiragana, rhs: Hazkey_Commands_InsertHiragana) -> Bool {
+    if lhs.text != rhs.text {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -882,6 +1024,8 @@ extension Hazkey_Commands_TextWithCursor: SwiftProtobuf.Message, SwiftProtobuf._
     1: .same(proto: "beforeCursosr"),
     2: .same(proto: "onCursor"),
     3: .same(proto: "afterCursor"),
+    4: .standard(proto: "reading_cursor"),
+    5: .standard(proto: "surface_cursor"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -893,6 +1037,8 @@ extension Hazkey_Commands_TextWithCursor: SwiftProtobuf.Message, SwiftProtobuf._
       case 1: try { try decoder.decodeSingularStringField(value: &self.beforeCursosr) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.onCursor) }()
       case 3: try { try decoder.decodeSingularStringField(value: &self.afterCursor) }()
+      case 4: try { try decoder.decodeSingularInt32Field(value: &self.readingCursor) }()
+      case 5: try { try decoder.decodeSingularInt32Field(value: &self.surfaceCursor) }()
       default: break
       }
     }
@@ -908,6 +1054,12 @@ extension Hazkey_Commands_TextWithCursor: SwiftProtobuf.Message, SwiftProtobuf._
     if !self.afterCursor.isEmpty {
       try visitor.visitSingularStringField(value: self.afterCursor, fieldNumber: 3)
     }
+    if self.readingCursor != 0 {
+      try visitor.visitSingularInt32Field(value: self.readingCursor, fieldNumber: 4)
+    }
+    if self.surfaceCursor != 0 {
+      try visitor.visitSingularInt32Field(value: self.surfaceCursor, fieldNumber: 5)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -915,6 +1067,8 @@ extension Hazkey_Commands_TextWithCursor: SwiftProtobuf.Message, SwiftProtobuf._
     if lhs.beforeCursosr != rhs.beforeCursosr {return false}
     if lhs.onCursor != rhs.onCursor {return false}
     if lhs.afterCursor != rhs.afterCursor {return false}
+    if lhs.readingCursor != rhs.readingCursor {return false}
+    if lhs.surfaceCursor != rhs.surfaceCursor {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1057,69 +1211,4 @@ extension Hazkey_Commands_CurrentInputModeInfo.InputMode: SwiftProtobuf._ProtoNa
     0: .same(proto: "NORMAL"),
     1: .same(proto: "DIRECT"),
   ]
-}
-
-extension Hazkey_Commands_DeleteTrailingClause: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".DeleteTrailingClause"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while try decoder.nextFieldNumber() != nil {}
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: Hazkey_Commands_DeleteTrailingClause, rhs: Hazkey_Commands_DeleteTrailingClause) -> Bool {
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension Hazkey_Commands_CompletePrefixClauses: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".CompletePrefixClauses"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while try decoder.nextFieldNumber() != nil {}
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: Hazkey_Commands_CompletePrefixClauses, rhs: Hazkey_Commands_CompletePrefixClauses) -> Bool {
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension Hazkey_Commands_InsertHiragana: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".InsertHiragana"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "text"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularStringField(value: &self.text) }()
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if !self.text.isEmpty {
-      try visitor.visitSingularStringField(value: self.text, fieldNumber: 1)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: Hazkey_Commands_InsertHiragana, rhs: Hazkey_Commands_InsertHiragana) -> Bool {
-    if lhs.text != rhs.text {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
 }

@@ -40,6 +40,13 @@ class StateMachine {
 
     using CharType = ServerApi::CharType;
 
+    // What the preedit shows while composing: the auto-conversion (the
+    // surface), or the reading as typed.
+    enum class PreeditView {
+        Surface,
+        Reading,
+    };
+
     Output finish(KeyResult result);
     // read the key bindings and the history size from the profile
     void applyClientSettings();
@@ -72,6 +79,25 @@ class StateMachine {
     void nextCandidatePage();
     void prevCandidatePage();
     void moveSegmentBoundary(bool expand);
+
+    // cursor and the preedit views
+    void cursorAction(Action action);
+    // true when the cursor of the reading is at its end
+    bool cursorAtEnd();
+    // true when the cursor is neither at the start nor at the end: there is
+    // a part before it to convert on its own
+    bool cursorMidway();
+    void enterReadingView();
+    // snap the cursor to the start of the element it is in, then show the
+    // auto-conversion again
+    void leaveReadingView();
+    // after an edit in the surface view: the reading is what was edited,
+    // so show it while the cursor is not at the end
+    void enterReadingViewIfMidway();
+    // preedit of the reading view: the reading as one plain segment
+    void showReadingPreedit();
+    // caret position for the current preedit and view. -1 at the end
+    int caretForPreedit(const TextWithCursor& cursor);
 
     void setCandidateCursorAux();
     void setAuxDown(AuxDown aux);
@@ -111,7 +137,10 @@ class StateMachine {
     ReadingHistory& history_;
     KeyBindings keyBindings_;
 
-    bool isCursorMoving_ = false;
+    PreeditView view_ = PreeditView::Surface;
+    // true while the preedit shows the auto-conversion (live text), which
+    // is what the cursor moves over by elements
+    bool preeditIsLiveText_ = false;
     bool isClauseBoundaryAdjusting_ = false;
     bool isDirectConversionMode_ = false;
     std::optional<CharType> directConversionCharType_;

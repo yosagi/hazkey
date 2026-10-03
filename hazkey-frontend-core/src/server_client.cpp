@@ -41,9 +41,9 @@ TextWithCursor ServerClient::getComposingHiraganaWithCursor() {
                    "getHiraganaWithCursor: Server returned unexpected response");
         return {};
     }
-    return {response->text_with_cursor().beforecursosr(),
-            response->text_with_cursor().oncursor(),
-            response->text_with_cursor().aftercursor()};
+    const auto& text = response->text_with_cursor();
+    return {text.beforecursosr(), text.oncursor(), text.aftercursor(),
+            text.reading_cursor(), text.surface_cursor()};
 }
 
 void ServerClient::inputChar(const std::string& text) {
@@ -87,6 +87,12 @@ void ServerClient::moveCursor(int offset) {
     hazkey::RequestEnvelope req;
     req.mutable_move_cursor()->set_offset(offset);
     request("moveCursor", req);
+}
+
+void ServerClient::moveCursorByElement(int direction) {
+    hazkey::RequestEnvelope req;
+    req.mutable_move_cursor_by_element()->set_direction(direction);
+    request("moveCursorByElement", req);
 }
 
 void ServerClient::setContext(const std::string& context, int anchor) {

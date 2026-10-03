@@ -196,6 +196,7 @@ bool StateMachine::preeditKeyEvent(const KeyEvent& event) {
         }
         server_.inputChar(event.text);
         showPreeditCandidateList();
+        enterReadingViewIfMidway();
     }
     return true;
 }
@@ -203,6 +204,11 @@ bool StateMachine::preeditKeyEvent(const KeyEvent& event) {
 void StateMachine::composingAction(Action action) {
     switch (action) {
         case Action::ComposingCommit:
+            if (view_ == PreeditView::Reading) {
+                // show the conversion first. the next commit commits it
+                leaveReadingView();
+                break;
+            }
             rememberReading(false);
             commitPreedit();
             if (livePreeditIndex_ >= 0) {
@@ -223,10 +229,12 @@ void StateMachine::composingAction(Action action) {
         case Action::ComposingDeleteLeft:
             server_.deleteLeft();
             showPreeditCandidateList();
+            enterReadingViewIfMidway();
             break;
         case Action::ComposingDeleteRight:
             server_.deleteRight();
             showPreeditCandidateList();
+            enterReadingViewIfMidway();
             break;
         case Action::ComposingCancel:
             rememberReading(true);
@@ -234,7 +242,8 @@ void StateMachine::composingAction(Action action) {
             resetState();
             break;
         case Action::ComposingConvert:
-            showNonPredictCandidateList();
+            // with the cursor midway, only the part before it is converted
+            showNonPredictCandidateList(cursorMidway());
             break;
         case Action::ComposingInsertSpace:
             if (isDirectConversionMode_) {
@@ -242,11 +251,12 @@ void StateMachine::composingAction(Action action) {
             } else {
                 server_.inputChar(" ");
                 showPreeditCandidateList();
+                enterReadingViewIfMidway();
             }
             break;
         case Action::ComposingFocusCandidates:
             if (!candidates_.visible) {
-                showNonPredictCandidateList();
+                showNonPredictCandidateList(cursorMidway());
             } else {
                 candidates_.cursor = 0;
                 candidates_.page = 0;
@@ -254,18 +264,105 @@ void StateMachine::composingAction(Action action) {
             }
             break;
         case Action::ComposingCursorLeft:
-            isCursorMoving_ = true;
-            server_.moveCursor(-1);
-            break;
         case Action::ComposingCursorRight:
-            if (isCursorMoving_) {
-                server_.moveCursor(1);
+        case Action::ComposingCursorHome:
+        case Action::ComposingCursorEnd:
+            cursorAction(action);
+            break;
+        case Action::ComposingToggleReadingView:
+            if (view_ == PreeditView::Reading) {
+                leaveReadingView();
+            } else {
+                enterReadingView();
             }
             break;
         default:
             convertToAction(action);
             break;
     }
+}
+
+/// Cursor and the preedit views
+
+void StateMachine::cursorAction(Action action) {
+    // over the auto-conversion the cursor moves by elements (dictionary
+    // entries), the only positions that exist on both the reading and the
+    // surface. over the reading it moves by characters
+    bool byElement = view_ == PreeditView::Surface && preeditIsLiveText_;
+    switch (action) {
+        case Action::ComposingCursorLeft:
+            if (byElement) {
+                server_.moveCursorByElement(-1);
+            } else {
+                server_.moveCursor(-1);
+            }
+            break;
+        case Action::ComposingCursorRight:
+            if (byElement) {
+                server_.moveCursorByElement(1);
+            } else {
+                server_.moveCursor(1);
+            }
+            break;
+        case Action::ComposingCursorHome:
+            server_.moveCursor(-1024);
+            break;
+        case Action::ComposingCursorEnd:
+            server_.moveCursor(1024);
+            break;
+        default:
+            return;
+    }
+    if (view_ == PreeditView::Reading && cursorAtEnd()) {
+        leaveReadingView();
+    }
+}
+
+bool StateMachine::cursorAtEnd() {
+    auto cursor = server_.getComposingHiraganaWithCursor();
+    auto reading = server_.getComposingText(kHiragana, preeditText_);
+    return cursor.readingCursor >=
+           static_cast<int>(utf8::countChars(reading));
+}
+
+bool StateMachine::cursorMidway() {
+    auto cursor = server_.getComposingHiraganaWithCursor();
+    auto reading = server_.getComposingText(kHiragana, preeditText_);
+    return cursor.readingCursor > 0 &&
+           cursor.readingCursor < static_cast<int>(utf8::countChars(reading));
+}
+
+void StateMachine::enterReadingView() {
+    view_ = PreeditView::Reading;
+    showReadingPreedit();
+}
+
+void StateMachine::leaveReadingView() {
+    server_.moveCursorByElement(0);
+    view_ = PreeditView::Surface;
+    showPreeditCandidateList();
+}
+
+void StateMachine::enterReadingViewIfMidway() {
+    if (view_ == PreeditView::Surface && !cursorAtEnd()) {
+        enterReadingView();
+    }
+}
+
+void StateMachine::showReadingPreedit() {
+    setSimplePreedit(server_.getComposingText(kHiragana, preeditText_));
+}
+
+int StateMachine::caretForPreedit(const TextWithCursor& cursor) {
+    auto reading = server_.getComposingText(kHiragana, preeditText_);
+    if (reading.empty() ||
+        cursor.readingCursor >= static_cast<int>(utf8::countChars(reading))) {
+        return -1;
+    }
+    if (view_ == PreeditView::Reading || !preeditIsLiveText_) {
+        return cursor.readingCursor;
+    }
+    return cursor.surfaceCursor;
 }
 
 bool StateMachine::isAltDigitKeyEvent(const KeyEvent& event) {
@@ -437,6 +534,8 @@ void StateMachine::directCharacterConversion(ConversionMode mode) {
             break;
     }
     std::string converted = server_.getComposingText(charType, preeditText_);
+    view_ = PreeditView::Surface;
+    preeditIsLiveText_ = false;
     setSimplePreeditHighlighted(converted);
     livePreeditIndex_ = -1;
     directConversionCharType_ = charType;
@@ -453,7 +552,8 @@ bool StateMachine::showCandidateList(bool isSuggest) {
 
     resetPanel();
 
-    if (!response.live_text().empty()) {
+    preeditIsLiveText_ = !response.live_text().empty();
+    if (preeditIsLiveText_) {
         auto furigana = response.trailing_clause_yomi();
         // furigana is useful only when the trailing clause ends with kanji
         if (!furigana.empty() &&
@@ -466,6 +566,9 @@ bool StateMachine::showCandidateList(bool isSuggest) {
         // preedit conversion is disabled or conversion result is not
         // available. show hiragana preedit
         setSimplePreedit(server_.getComposingText(kHiragana, preeditText_));
+    }
+    if (view_ == PreeditView::Reading) {
+        showReadingPreedit();
     }
 
     livePreeditIndex_ = response.live_text_index();
@@ -593,6 +696,7 @@ void StateMachine::setHiraganaAux() {
     auxUp_ = {{text.before, SegmentStyle::Normal},
               {text.on, SegmentStyle::Underline},
               {text.after, SegmentStyle::Normal}};
+    preedit_.caretChar = caretForPreedit(text);
 }
 
 /// Clause partial operations
@@ -723,7 +827,8 @@ void StateMachine::resetState() {
     isDirectConversionMode_ = false;
     directConversionCharType_ = std::nullopt;
     livePreeditIndex_ = -1;
-    isCursorMoving_ = false;
+    view_ = PreeditView::Surface;
+    preeditIsLiveText_ = false;
     isClauseBoundaryAdjusting_ = false;
     server_.newComposingText();
     preeditText_.clear();

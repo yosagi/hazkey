@@ -155,6 +155,10 @@ class IbusState : public hf::FrontendHooks {
                                ? output.preedit.caretSegment
                                : static_cast<int>(output.preedit.segments.size());
         IBusText* preedit = toIbusText(segments, caretSegment, &caret);
+        if (output.preedit.caretChar >= 0) {
+            // a caret inside the text, in characters as ibus takes it
+            caret = static_cast<guint>(output.preedit.caretChar);
+        }
         // ibus detaches the engine from an input context before telling it
         // the focus has gone, so the engine cannot commit then. in COMMIT
         // mode the client commits the preedit by itself on focus out and

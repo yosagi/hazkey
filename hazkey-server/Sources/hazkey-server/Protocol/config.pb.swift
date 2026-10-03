@@ -118,6 +118,8 @@ struct Hazkey_Config_KeyBinding: Sendable {
   init() {}
 }
 
+/// Settings the clients read through GetKeyBindings. The server passes them
+/// on without using them.
 struct Hazkey_Config_KeyBindingList: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -243,6 +245,7 @@ struct Hazkey_Config_Profile: @unchecked Sendable {
   /// Clears the value of `showTrailingFurigana`. Subsequent reads from it will return its default value.
   mutating func clearShowTrailingFurigana() {_uniqueStorage()._showTrailingFurigana = nil}
 
+  /// unset means 5, 0 disables the reading history
   var readingHistorySize: Int32 {
     get {return _storage._readingHistorySize ?? 0}
     set {_uniqueStorage()._readingHistorySize = newValue}
@@ -847,7 +850,7 @@ struct Hazkey_Config_ReloadZenzaiModel: Sendable {
   init() {}
 }
 
-/// key bindings of the current profile
+/// key bindings and other client settings of the current profile
 struct Hazkey_Config_GetKeyBindings: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for

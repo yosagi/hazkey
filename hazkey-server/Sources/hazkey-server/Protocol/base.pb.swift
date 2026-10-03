@@ -201,6 +201,14 @@ struct Hazkey_RequestEnvelope: Sendable {
     set {payload = .insertHiragana(newValue)}
   }
 
+  var moveCursorByElement: Hazkey_Commands_MoveCursorByElement {
+    get {
+      if case .moveCursorByElement(let v)? = payload {return v}
+      return Hazkey_Commands_MoveCursorByElement()
+    }
+    set {payload = .moveCursorByElement(newValue)}
+  }
+
   var getConfig: Hazkey_Config_GetConfig {
     get {
       if case .getConfig(let v)? = payload {return v}
@@ -269,6 +277,7 @@ struct Hazkey_RequestEnvelope: Sendable {
     case deleteTrailingClause(Hazkey_Commands_DeleteTrailingClause)
     case completePrefixClauses(Hazkey_Commands_CompletePrefixClauses)
     case insertHiragana(Hazkey_Commands_InsertHiragana)
+    case moveCursorByElement(Hazkey_Commands_MoveCursorByElement)
     case getConfig(Hazkey_Config_GetConfig)
     case setConfig(Hazkey_Config_SetConfig)
     case getDefaultProfile(Hazkey_Config_GetDefaultProfile)
@@ -387,6 +396,7 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     15: .standard(proto: "delete_trailing_clause"),
     16: .standard(proto: "complete_prefix_clauses"),
     17: .standard(proto: "insert_hiragana"),
+    18: .standard(proto: "move_cursor_by_element"),
     100: .standard(proto: "get_config"),
     101: .standard(proto: "set_config"),
     102: .standard(proto: "get_default_profile"),
@@ -622,6 +632,19 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
           self.payload = .insertHiragana(v)
         }
       }()
+      case 18: try {
+        var v: Hazkey_Commands_MoveCursorByElement?
+        var hadOneofValue = false
+        if let current = self.payload {
+          hadOneofValue = true
+          if case .moveCursorByElement(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.payload = .moveCursorByElement(v)
+        }
+      }()
       case 100: try {
         var v: Hazkey_Config_GetConfig?
         var hadOneofValue = false
@@ -778,6 +801,10 @@ extension Hazkey_RequestEnvelope: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     case .insertHiragana?: try {
       guard case .insertHiragana(let v)? = self.payload else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 17)
+    }()
+    case .moveCursorByElement?: try {
+      guard case .moveCursorByElement(let v)? = self.payload else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 18)
     }()
     case .getConfig?: try {
       guard case .getConfig(let v)? = self.payload else { preconditionFailure() }

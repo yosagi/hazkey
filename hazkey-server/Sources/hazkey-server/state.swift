@@ -139,6 +139,8 @@ class HazkeyServerState {
         currentCandidateList = nil
         isSubInputMode = false
         isShiftPressedAlone = false
+        lastLiveTextCandidate = nil
+        lastTrailingClauseYomiCount = 0
         return Hazkey_ResponseEnvelope.with {
             $0.status = .success
         }
@@ -386,6 +388,59 @@ class HazkeyServerState {
         }
     }
 
+    /// Boundaries between the elements (dictionary entries) of the current
+    /// auto-conversion, as positions on the reading and on the converted
+    /// text. Includes the start and the end. nil when the auto-conversion
+    /// does not cover the current reading.
+    func elementBoundaries() -> [(reading: Int, surface: Int)]? {
+        guard let candidate = lastLiveTextCandidate, !candidate.data.isEmpty else {
+            return nil
+        }
+        let ruby = candidate.data.map(\.ruby).joined()
+        guard ruby == composingText.value.toHiragana().toKatakana() else {
+            return nil
+        }
+        var boundaries: [(reading: Int, surface: Int)] = [(0, 0)]
+        for element in candidate.data {
+            let last = boundaries[boundaries.count - 1]
+            boundaries.append(
+                (last.reading + element.ruby.count, last.surface + element.word.count))
+        }
+        return boundaries
+    }
+
+    /// The position on the converted text of a cursor on a boundary between
+    /// the elements. nil when the cursor is not on a boundary.
+    func surfaceCursorPosition() -> Int? {
+        guard let boundaries = elementBoundaries() else {
+            return nil
+        }
+        let cursor = composingText.value.convertTargetCursorPosition
+        return boundaries.first(where: { $0.reading == cursor })?.surface
+    }
+
+    func moveCursorByElement(direction: Int) -> Hazkey_ResponseEnvelope {
+        let cursor = composingText.value.convertTargetCursorPosition
+        guard let boundaries = elementBoundaries() else {
+            // no elements to move by: a character at a time
+            return moveCursor(offset: direction.signum())
+        }
+        let target: Int?
+        if direction < 0 {
+            target = boundaries.last(where: { $0.reading < cursor })?.reading
+        } else if direction > 0 {
+            target = boundaries.first(where: { $0.reading > cursor })?.reading
+        } else {
+            target = boundaries.last(where: { $0.reading <= cursor })?.reading
+        }
+        if let target {
+            _ = composingText.value.moveCursorFromCursorPosition(count: target - cursor)
+        }
+        return Hazkey_ResponseEnvelope.with {
+            $0.status = .success
+        }
+    }
+
     /// ComposingText -> Characters
 
     func getHiraganaWithCursor() -> Hazkey_ResponseEnvelope {
@@ -402,6 +457,7 @@ class HazkeyServerState {
 
         let hiragana = composingText.value.toHiragana()
         let cursorPos = composingText.value.convertTargetCursorPosition
+        let surfaceCursor = Int32(surfaceCursorPosition() ?? -1)
 
         if (serverConfig.currentProfile.auxTextMode
             == Hazkey_Config_Profile.AuxTextMode.auxTextDisabled)
@@ -415,6 +471,8 @@ class HazkeyServerState {
                     $0.beforeCursosr = ""
                     $0.onCursor = ""
                     $0.afterCursor = ""
+                    $0.readingCursor = Int32(cursorPos)
+                    $0.surfaceCursor = surfaceCursor
                 }
             }
         }
@@ -425,6 +483,8 @@ class HazkeyServerState {
                 $0.beforeCursosr = safeSubstring(hiragana, start: 0, end: cursorPos)
                 $0.onCursor = safeSubstring(hiragana, start: cursorPos, end: cursorPos + 1)
                 $0.afterCursor = safeSubstring(hiragana, start: cursorPos + 1, end: hiragana.count)
+                $0.readingCursor = Int32(cursorPos)
+                $0.surfaceCursor = surfaceCursor
             }
         }
     }
@@ -561,6 +621,10 @@ class HazkeyServerState {
         }
 
         candidatesResult.liveTextIndex = -1
+        // the candidate of the previous request may not match the reading
+        // any more
+        lastLiveTextCandidate = nil
+        lastTrailingClauseYomiCount = 0
         for candidate in converted.mainResults {
             let isExactMatch = candidate.rubyCount == hiraganaPreedit.count
             let limitReached = !canAppend(

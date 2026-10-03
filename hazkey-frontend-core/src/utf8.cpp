@@ -21,6 +21,15 @@ size_t byteLengthOfChars(const std::string& text, size_t nchars) {
     return pos < text.size() ? pos : text.size();
 }
 
+size_t countChars(const std::string& text) {
+    size_t count = 0;
+    for (size_t pos = 0; pos < text.size();
+         pos += sequenceLength(static_cast<unsigned char>(text[pos]))) {
+        count++;
+    }
+    return count;
+}
+
 uint32_t lastCodePoint(const std::string& text) {
     if (text.empty()) return 0;
     size_t start = text.size() - 1;
