@@ -909,162 +909,152 @@ Modifiers (Control, Shift, Alt) are taken as held.</source>
         <translation>キー操作</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1468"/>
-        <source>Keys of the operations while composing and while choosing a candidate. They apply to every client (fcitx5, ibus, Emacs). Select an operation and press &quot;Add Key...&quot; to assign a key by pressing it.</source>
-        <translation>入力中と候補選択中の操作のキーです。fcitx5 / ibus / Emacs のすべてに効きます。操作を選んで「キーを追加...」を押し、割り当てたいキーを押してください。</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="1494"/>
+        <location filename="mainwindow.ui" line="1484"/>
         <source>Operation</source>
         <translation>操作</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1499"/>
+        <location filename="mainwindow.ui" line="1489"/>
         <source>Keys</source>
         <translation>キー</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1504"/>
+        <location filename="mainwindow.ui" line="1494"/>
         <source>Default</source>
         <translation>既定</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1514"/>
+        <location filename="mainwindow.ui" line="1504"/>
         <source>Add Key...</source>
         <translation>キーを追加...</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1521"/>
+        <location filename="mainwindow.ui" line="1511"/>
         <source>Remove Key</source>
         <translation>キーを削除</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1528"/>
+        <location filename="mainwindow.ui" line="1518"/>
         <source>Reset to Default</source>
         <translation>既定に戻す</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1548"/>
+        <location filename="mainwindow.ui" line="1538"/>
         <source>Reset All to Default</source>
         <translation>すべて既定に戻す</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1570"/>
-        <source>Not changeable here: choosing a candidate by number (1-9, 0, Alt+1-9), the keys that turn the IME on and off (set in fcitx5 / ibus), and space while nothing is composed. The number of readings kept for &quot;Restore reading&quot; is in the User Interface tab.</source>
-        <translation>ここでは変えられないもの: 候補の番号選択（1〜9、0、Alt+1〜9）、IME のオン・オフ（fcitx5 / ibus の設定）、何も入力していないときの空白。「読みを戻す」で覚えておく件数は「入力 UI」タブにあります。</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="1584"/>
+        <location filename="mainwindow.ui" line="1561"/>
         <source>Dictionary</source>
         <translation>辞書</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1629"/>
+        <location filename="mainwindow.ui" line="1606"/>
         <source>This feature is not yet implemented</source>
         <translation>この機能は未実装です</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1639"/>
+        <location filename="mainwindow.ui" line="1616"/>
         <source>Use user dictionary</source>
         <translation>ユーザー辞書を使用</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1654"/>
+        <location filename="mainwindow.ui" line="1631"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Note:&lt;/span&gt; User dictionaries are shared across profiles.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;メモ:&lt;/span&gt; ユーザー辞書はプロファイル間で共有されます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1688"/>
+        <location filename="mainwindow.ui" line="1665"/>
         <source>Import...</source>
         <translation>インポート...</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1698"/>
+        <location filename="mainwindow.ui" line="1675"/>
         <source>Export...</source>
         <translation>エクスポート...</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1708"/>
+        <location filename="mainwindow.ui" line="1685"/>
         <source>New</source>
         <translation>新規</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1721"/>
+        <location filename="mainwindow.ui" line="1698"/>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1740"/>
+        <location filename="mainwindow.ui" line="1717"/>
         <source>AI</source>
         <translation>AI</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1793"/>
+        <location filename="mainwindow.ui" line="1770"/>
         <source>Zenzai (Neural Conversion)</source>
         <translation>Zenzai（ニューラル変換）</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1858"/>
+        <location filename="mainwindow.ui" line="1835"/>
         <source>Inference limit</source>
         <translation>推論制限</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1895"/>
+        <location filename="mainwindow.ui" line="1872"/>
         <source>Backend</source>
         <translation>バックエンド</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2024"/>
+        <location filename="mainwindow.ui" line="2001"/>
         <source>0.0.0</source>
         <translation>0.0.0</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1848"/>
+        <location filename="mainwindow.ui" line="1825"/>
         <source>Use contextual conversion</source>
         <translation>文脈変換を使用</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1888"/>
+        <location filename="mainwindow.ui" line="1865"/>
         <source>User profile</source>
         <translation>ユーザープロファイル</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1841"/>
+        <location filename="mainwindow.ui" line="1818"/>
         <source>Enable Zenzai</source>
         <translation>Zenzaiを有効化</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1922"/>
+        <location filename="mainwindow.ui" line="1899"/>
         <source>About</source>
         <translation>情報</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2011"/>
+        <location filename="mainwindow.ui" line="1988"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt;&quot;&gt;Hazkey&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt;&quot;&gt;Hazkey&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2094"/>
+        <location filename="mainwindow.ui" line="2071"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Conversion engine provided by &lt;a href=&quot;https://azookey.com/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;azooKey&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;変換エンジンは &lt;a href=&quot;https://azookey.com/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;azooKey&lt;/span&gt;&lt;/a&gt; によって提供されています。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2145"/>
+        <location filename="mainwindow.ui" line="2122"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://hazkey.hiira.dev/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Website&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://hazkey.hiira.dev/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;ウェブサイト&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2158"/>
+        <location filename="mainwindow.ui" line="2135"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://hazkey.hiira.dev/docs&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Document&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://hazkey.hiira.dev/docs&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;ドキュメント&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2171"/>
+        <location filename="mainwindow.ui" line="2148"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/7ka-Hiira/fcitx5-hazkey&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Source code&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/7ka-Hiira/fcitx5-hazkey&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;ソースコード&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2184"/>
+        <location filename="mainwindow.ui" line="2161"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/7ka-Hiira/fcitx5-hazkey/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Issue report&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/7ka-Hiira/fcitx5-hazkey/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;不具合報告&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>

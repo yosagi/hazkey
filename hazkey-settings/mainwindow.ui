@@ -1463,16 +1463,6 @@
         <number>10</number>
        </property>
        <item>
-        <widget class="QLabel" name="keyBindingsDescription">
-         <property name="text">
-          <string>Keys of the operations while composing and while choosing a candidate. They apply to every client (fcitx5, ibus, Emacs). Select an operation and press &quot;Add Key...&quot; to assign a key by pressing it.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QTreeWidget" name="keyBindingTree">
          <property name="rootIsDecorated">
           <bool>false</bool>
@@ -1561,19 +1551,6 @@
          </property>
          <property name="textFormat">
           <enum>Qt::TextFormat::PlainText</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="keyBindingsNote">
-         <property name="text">
-          <string>Not changeable here: choosing a candidate by number (1-9, 0, Alt+1-9), the keys that turn the IME on and off (set in fcitx5 / ibus), and space while nothing is composed. The number of readings kept for &quot;Restore reading&quot; is in the User Interface tab.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-         <property name="enabled">
-          <bool>false</bool>
          </property>
         </widget>
        </item>
