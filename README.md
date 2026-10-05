@@ -7,12 +7,15 @@
 | 自動変換の最小文字数を設定可能に | `feat/auto-convert-min-chars` | [PR #32](https://github.com/7ka-Hiira/hazkey/pull/32) |
 | Ctrl-H を Backspace 相当に | `feat/ctrl-h` | [PR #31](https://github.com/7ka-Hiira/hazkey/pull/31) |
 | 直接変換（Ctrl-U / F6–F10）確定時の学習 | `feat/direct-conversion-learning` | 未送信 |
-| 自動変換中の末尾文節ふりがな表示 + ハイライト | `feat-yomigana` | — |
+| 自動変換中の末尾文節ふりがな表示 + ハイライト（表示の on/off は設定可。fcitx5 ではふりがなは確定されない） | `feat-yomigana`, `dev` | — |
 | 文節単位の部分確定・部分キャンセル（Shift+Enter, Shift+Backspace） | `dev` | — |
 | `emacs-hazkey`: Emacs 用の `hazkey_emacs_helper`（mozc.el から mozc_emacs_helper の代わりに使う） | `dev` | — |
 | `ibus-hazkey`: ibus 用 hazkey エンジン | `dev` | — |
-| hazkey-server のマルチクライアント化（全クライアントが1つのサーバーを共有） | `dev` | — |
-| キー操作の共通ライブラリ化（`hazkey-frontend-core`）と、設定ファイルの `keyBindings` によるキー割り当て | `dev` | — |
+| hazkey-server のマルチクライアント化（全クライアントが1つのサーバーを共有） | `dev` | [issue #39](https://github.com/7ka-Hiira/hazkey/issues/39) |
+| キー操作の共通ライブラリ化（`hazkey-frontend-core`） | `dev` | [issue #39](https://github.com/7ka-Hiira/hazkey/issues/39) |
+| [キー割り当ての設定](docs/keybindings.md)（hazkey-settings の「キー操作」タブ、または設定ファイルの `keyBindings`） | `dev` | — |
+| 入力中のカーソル移動（変換結果の上を要素単位で動く / 読み表示に切り替えて1文字単位、Home / End） | `dev` | — |
+| 読みの履歴（確定・取り消しで消えた未確定の読みをキーで戻す、`idle.restore_reading`） | `dev` | — |
 | Shift+Left/Right による文節区切り調整 | `dev` | [PR #28](https://github.com/7ka-Hiira/hazkey/pull/28)（stakeval0 さん作）の cherry-pick |
 | 辞書 v3.1.0-beta.15 への更新、Swift 6.3+ ビルド修正、[deb パッケージングツール](docs/packaging.md) | `dev` | — |
 
