@@ -1,11 +1,12 @@
 # 個人フォークについて
 
-これは [7ka-Hiira/hazkey](https://github.com/7ka-Hiira/hazkey) の個人フォークです。`dev` ブランチに以下の変更が入っています。
+これは [7ka-Hiira/hazkey](https://github.com/7ka-Hiira/hazkey) の個人フォークです。私（yosagi）が自分で使うために変更を加えたもので、上流とは別に管理しています。このフォークについての報告や問い合わせは上流に送らないでください。
+
+`dev` ブランチに以下の変更が入っています。
 
 | 変更内容 | ブランチ | 上流 |
 |----------|----------|------|
 | 自動変換の最小文字数を設定可能に | `feat/auto-convert-min-chars` | [PR #32](https://github.com/7ka-Hiira/hazkey/pull/32) |
-| Ctrl-H を Backspace 相当に | `feat/ctrl-h` | [PR #31](https://github.com/7ka-Hiira/hazkey/pull/31) |
 | 直接変換（Ctrl-U / F6–F10）確定時の学習 | `feat/direct-conversion-learning` | 未送信 |
 | 自動変換中の末尾文節ふりがな表示 + ハイライト（表示の on/off は設定可。fcitx5 ではふりがなは確定されない） | `feat-yomigana`, `dev` | — |
 | 文節単位の部分確定・部分キャンセル（Shift+Enter, Shift+Backspace） | `dev` | — |
@@ -18,6 +19,16 @@
 | 読みの履歴（確定・取り消しで消えた未確定の読みをキーで戻す、`idle.restore_reading`） | `dev` | — |
 | Shift+Left/Right による文節区切り調整 | `dev` | [PR #28](https://github.com/7ka-Hiira/hazkey/pull/28)（stakeval0 さん作）の cherry-pick |
 | 辞書 v3.1.0-beta.15 への更新、Swift 6.3+ ビルド修正、[deb パッケージングツール](docs/packaging.md) | `dev` | — |
+
+以前は個別の変更として `dev` に入れていたもので、今は別の変更に吸収されているものです（記録のために残しています）。
+
+| 変更内容 | ブランチ | 上流 | 今の扱い |
+|----------|----------|------|----------|
+| Ctrl-H を Backspace 相当に | `feat/ctrl-h` | [PR #31](https://github.com/7ka-Hiira/hazkey/pull/31) | キー割り当ての設定の既定値 |
+
+## バイナリ
+
+[Releases](https://github.com/yosagi/hazkey/releases) の deb は、私が自分の PC に入れるための非公式ビルドです（pre-release）。上流の公式な配布物は [7ka-Hiira/hazkey の Releases](https://github.com/7ka-Hiira/hazkey/releases) にあります。
 
 ## ドキュメント
 
@@ -33,6 +44,8 @@
 - `feat/*` — 機能ごとのブランチ（`main` ベース、PR 用）
 
 ---
+
+> **ここから下は上流 [7ka-Hiira/hazkey](https://github.com/7ka-Hiira/hazkey) の README です（内容は変更していません）。インストール手順やドキュメントのリンク先は上流版についてのものです。**
 
 # fcitx5-hazkey
 
