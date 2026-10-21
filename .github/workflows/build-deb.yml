@@ -7,9 +7,36 @@ on:
         description: "Package version (e.g. 0.2.1). Empty = commit time (UTC) + sha auto version"
         required: false
         type: string
+      release:
+        description: "Also publish the debs as a pre-release (tag yosagi-<version without +g...>)"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      ver: ${{ steps.ver.outputs.ver }}
+      tag: ${{ steps.ver.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Decide version
+        id: ver
+        run: |
+          VER="${{ inputs.version }}"
+          if [ -z "${VER}" ]; then
+            # Commit time (UTC) keeps same-day builds ordered; date+sha alone
+            # made dpkg compare the SHA's digits and treat newer builds as downgrades
+            VER="$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d.%H%M%S)+g$(git rev-parse --short HEAD)"
+          fi
+          # '+' is awkward in URLs, and the tag already points at the commit
+          echo "ver=${VER}" >> "$GITHUB_OUTPUT"
+          echo "tag=yosagi-${VER%%+*}" >> "$GITHUB_OUTPUT"
+
   build-deb:
+    needs: version
     strategy:
       fail-fast: false
       matrix:
@@ -122,17 +149,42 @@ jobs:
         env:
           DEB_MAINTAINER: "yosagi <yoshida@furo.org>"
         run: |
-          VER="${{ inputs.version }}"
-          if [ -z "${VER}" ]; then
-            # Commit time (UTC) keeps same-day builds ordered; date+sha alone
-            # made dpkg compare the SHA's digits and treat newer builds as downgrades
-            VER="$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d.%H%M%S)+g$(git rev-parse --short HEAD)"
-          fi
           junktools/make-debs.sh ${{ github.workspace }}/stage ${{ github.workspace }}/debs \
-            "${VER}" "${{ matrix.codename }}" hazkey-server/build/swift-build/checkouts
+            "${{ needs.version.outputs.ver }}" "${{ matrix.codename }}" \
+            hazkey-server/build/swift-build/checkouts
 
       - name: Upload .deb
         uses: actions/upload-artifact@v6
         with:
           name: hazkey_${{ matrix.codename }}_amd64
           path: debs/*.deb
+
+  release:
+    if: inputs.release
+    needs: [version, build-deb]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: hazkey_*_amd64
+          path: debs
+          merge-multiple: true
+
+      - name: Create pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.version.outputs.tag }}
+          VER: ${{ needs.version.outputs.ver }}
+        run: |
+          cat > notes.md <<EOF
+          yosagi が自分の PC に入れるための非公式ビルドです。上流の公式な配布物は [7ka-Hiira/hazkey の Releases](https://github.com/7ka-Hiira/hazkey/releases) にあります。このバイナリの不具合は上流に報告しないでください。
+
+          - パッケージの版: \`${VER}\`
+          - コミット: ${GITHUB_SHA}（\`${GITHUB_REF_NAME}\`）
+          - deb は Ubuntu の codename ごと（jammy / noble / resolute）。\`hazkey-server\` は必須で、クライアント（\`fcitx5-hazkey\` / \`ibus-hazkey\` / \`emacs-hazkey\`）は同じ版の \`hazkey-server\` に依存します
+          EOF
+          gh release create "${TAG}" debs/*.deb \
+            --repo "${GITHUB_REPOSITORY}" --target "${GITHUB_SHA}" \
+            --prerelease --title "${TAG}" --notes-file notes.md
