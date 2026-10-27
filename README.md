@@ -1,6 +1,6 @@
-# 個人フォークについて
+# このフォークについて
 
-これは [7ka-Hiira/hazkey](https://github.com/7ka-Hiira/hazkey) の個人フォークです。私（yosagi）が自分で使うために変更を加えたもので、上流とは別に管理しています。このフォークについての報告や問い合わせは上流に送らないでください。
+これは [7ka-Hiira/hazkey](https://github.com/7ka-Hiira/hazkey) の個人的なフォークです。私（yosagi）が自分で使うために変更を加えたものです。このフォークについての報告や問い合わせは上流に送らないでください。
 
 `dev` ブランチに以下の変更が入っています。
 
@@ -28,7 +28,7 @@
 
 ## バイナリ
 
-[Releases](https://github.com/yosagi/hazkey/releases) の deb は、私が自分の PC に入れるための非公式ビルドです（pre-release）。上流の公式な配布物は [7ka-Hiira/hazkey の Releases](https://github.com/7ka-Hiira/hazkey/releases) にあります。
+[Releases](https://github.com/yosagi/hazkey/releases) の deb は、私が自分の PC に入れるためのビルドです。devブランチをビルドしたものが置いてあります。
 
 ## ドキュメント
 
